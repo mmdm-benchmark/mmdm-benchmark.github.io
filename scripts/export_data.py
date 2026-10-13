@@ -66,8 +66,8 @@ output = {'benchmark':'MMDM','snapshot_date':'2026-10-12','dataset':'https://hug
 (root/'data').mkdir(exist_ok=True)
 (root/'assets').mkdir(exist_ok=True)
 (root/'data/benchmark.json').write_text(json.dumps(output,ensure_ascii=False,separators=(',',':'))+'\n')
-for name in ['capability-radar']:
+for name in ['capability-radar','task-distribution']:
  shutil.copy2(paper/f'figures/{name}.png',root/f'assets/{name}.png')
-files = [snapshot+'comparison.json',snapshot+'model-sources.json','data/examples/selected.json','data/examples/responses.json','data/release/computed-stats.json','data/release/option-counts.json','figures/capability-radar.png']
+files = [snapshot+'comparison.json',snapshot+'model-sources.json','data/examples/selected.json','data/examples/responses.json','data/release/computed-stats.json','data/release/option-counts.json','figures/capability-radar.png','figures/task-distribution.png']
 (root/'data/provenance.json').write_text(json.dumps({'release_revision':selected['revision'],'snapshot_date':'2026-10-12','sources':{f:hashlib.sha256((paper/f).read_bytes()).hexdigest() for f in files}},indent=2)+'\n')
 print(f'Exported {len(models)} models, {len(categories)} categories, {len(examples)} authentic examples.')

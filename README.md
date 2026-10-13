@@ -1,6 +1,6 @@
 # MMDM project website
 
-A lightweight, buildless project page for **MMDM: Measuring Massive Multitask Decision Making**. No author list is shown in this draft.
+A plain white, buildless academic project page for **MMDM: Measuring Massive Multitask Decision Making**. No author list is shown in this draft.
 
 ## Local preview
 
@@ -14,9 +14,9 @@ Open http://127.0.0.1:50813. Use an HTTP server instead of opening `index.html` 
 
 ## Contents
 
-- `index.html`: project narrative, resources and section structure
-- `assets/style.css`: responsive layout and restrained Morandi colors
-- `assets/app.js`: sortable/filterable results, distributions, real example explorer
+- `index.html`: centered title and resource buttons, Introduction, Leaderboard, Dataset, Examples and Download
+- `assets/style.css`: white background, sans-serif typography, regular document flow and simple academic tables
+- `assets/app.js`: sortable/filterable results, dataset statistics and real example explorer
 - `data/benchmark.json`: 19 configurations, 17 categories, 19 selected examples and recorded model outputs
 - `data/provenance.json`: exact source hashes and pinned dataset revision
 - `scripts/export_data.py`: reproducible export from the manuscript's pinned data
