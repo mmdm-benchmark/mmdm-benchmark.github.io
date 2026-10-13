@@ -1,0 +1,13 @@
+{
+  "release_revision": "bbd03666b5b5cefa32819d505ffc82987ba5db44",
+  "snapshot_date": "2026-10-12",
+  "sources": {
+    "data/experiments/20261012/comparison.json": "1aa21eb95307bb7f9ed5475d026615bd60f7f1d84aa8c1a7fcd0a03bc624395c",
+    "data/experiments/20261012/model-sources.json": "9bb3d16621ba7667e194c8649c092c0ce6ff9705431341456566d515b60eede0",
+    "data/examples/selected.json": "bc2a57bf7eddf11bb9c9f1f07033ff7d6b031e6f48b65e45661573dff0c9e26f",
+    "data/examples/responses.json": "4f57d4aa54b6bf8e750565f24177da1c174fbb1febb566ba854feca7c2285415",
+    "data/release/computed-stats.json": "9a7c34c50bd3334a97b0baa1d0196086b60cc6008fcadb8d60b140a1deefceeb",
+    "data/release/option-counts.json": "5ce7f19e820524e43cee32de7db67716d5d543d1cefb922f26d3bbda959598db",
+    "figures/capability-radar.png": "1678593518708812ada2d7248ede93cc8d48b5d83e750ba0989df797c91c8d55"
+  }
+}

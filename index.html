@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#456b60">
+  <meta name="description" content="MMDM measures text-based System-1 Decision Models across 4,961 decisions, 17 task categories, and 2–77 candidate options, with hard and soft targets.">
+  <meta property="og:title" content="MMDM: Measuring Massive Multitask Decision Making">
+  <meta property="og:description" content="A broad test of knowledge, reasoning, and uncertainty for System-1 Decision Models.">
+  <meta property="og:type" content="website">
+  <title>MMDM · Measuring Massive Multitask Decision Making</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <nav class="nav wrap" aria-label="Main navigation">
+    <a class="brand" href="#top" aria-label="MMDM home"><span class="brand-mark" aria-hidden="true">m</span>MMDM</a>
+    <div class="nav-links"><a href="#overview">Overview</a><a href="#leaderboard">Leaderboard</a><a href="#dataset">Dataset</a><a href="#examples">Examples</a></div>
+    <a class="nav-github" href="https://github.com/mmdm-benchmark/mmdm-benchmark.github.io" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+<main id="main">
+<section class="hero wrap" id="top" aria-labelledby="title">
+  <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A benchmark for System-1 Decision Models</p>
+  <p class="hero-name" aria-hidden="true">MMDM<span class="title-dot">.</span></p>
+  <h1 id="title"><span class="sr-only">MMDM: </span>Measuring Massive Multitask<br class="desktop-break"> Decision Making</h1>
+  <p class="hero-description">From knowing the answer to making the decision.<br class="desktop-break"> A broad test of knowledge, reasoning, and uncertainty.</p>
+  <div class="resource-links">
+    <a class="button primary" href="https://huggingface.co/datasets/shenjunhao/mmdm" target="_blank" rel="noopener"><svg viewBox="0 0 20 20" aria-hidden="true"><ellipse cx="10" cy="4" rx="6" ry="2.5"/><path d="M4 4v11c0 3.3 12 3.3 12 0V4M4 9c0 3.3 12 3.3 12 0"/></svg>Dataset <span aria-hidden="true">↗</span></a>
+    <a class="button" href="#leaderboard"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 17V9h4v8M8 17V3h4v14M13 17v-6h4v6"/></svg>Leaderboard</a>
+    <a class="button" href="#examples"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M7 7h6M7 10h6M7 13h3"/></svg>Explore examples</a>
+  </div>
+  <dl class="hero-stats"><div><dt>Decisions</dt><dd>4,961</dd></div><div><dt>Task categories</dt><dd>17</dd></div><div><dt>Candidate options</dt><dd>2–77</dd></div><div><dt>Soft targets</dt><dd>610</dd></div></dl>
+</section>
+<section class="teaser wrap" aria-labelledby="teaser-title">
+  <div class="figure-heading"><h2 id="teaser-title">Decision-making has more than one dimension.</h2><a href="#leaderboard">Explore the results <span aria-hidden="true">→</span></a></div>
+  <figure>
+    <img src="assets/capability-radar.png" alt="Comparison of Jev, Microsoft Decision-1, OpenJev-4B, Intern-Decision-4B and SemIf-4B: hard accuracy across 16 categories and Brier error on probability, Score and other soft targets." width="1266" height="631" fetchpriority="high">
+    <figcaption>Five representative systems, two views of decision quality. <strong>Higher is better</strong> for hard accuracy; <strong>lower is better</strong> for soft-target Brier error. <a href="assets/capability-radar.png" target="_blank" rel="noopener">Open full-size figure ↗</a></figcaption>
+  </figure>
+</section>
+<section class="section wrap overview" id="overview" aria-labelledby="overview-title">
+  <p class="section-kicker">The benchmark</p>
+  <h2 id="overview-title">A common interface.<br>A broad test of decisions.</h2>
+  <p class="section-intro">MMDM evaluates text-based System-1 Decision Models that assign probabilities to the candidates in a request. It brings together knowledge, logical and quantitative reasoning, policies, planning, preference, and scoring—including decisions over evolving states and long contexts.</p>
+  <div class="principles">
+    <article><span class="principle-number">01</span><h3>Open-vocabulary options</h3><p>Each request defines its own candidates and criteria. Option names carry meaning, with decision spaces ranging from 2 to 77 choices.</p></article>
+    <article><span class="principle-number">02</span><h3>Interacting decisions</h3><p>Evidence, rules, and even the options themselves can depend on one another. The model must interpret the complete decision context.</p></article>
+    <article><span class="principle-number">03</span><h3>Correctness and uncertainty</h3><p>4,351 hard targets test definite decisions. 610 soft targets test probability estimates, including uncertain judgments on explicit score scales.</p></article>
+  </div>
+</section>
+<section class="section section-tint" id="leaderboard" aria-labelledby="leaderboard-title">
+<div class="wrap">
+  <div class="section-top"><div><p class="section-kicker">Results</p><h2 id="leaderboard-title">The MMDM leaderboard</h2></div><span class="snapshot">Snapshot · 12 Oct 2026</span></div>
+  <p class="section-intro">Compare 19 decision-model configurations. Select a task to see where their strengths diverge.</p>
+  <div class="leaderboard-controls">
+    <div class="segmented" aria-label="Result view"><button type="button" class="active" data-view="overall" aria-pressed="true">Overall</button><button type="button" data-view="category" aria-pressed="false">By category</button></div>
+    <label class="select-label" id="leader-category-wrap" hidden>Task category <select id="leader-category"></select></label>
+    <label class="search-box"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><span class="sr-only">Search decision models</span><input type="search" id="model-search" placeholder="Find a model…" autocomplete="off"></label>
+  </div>
+  <div class="table-frame"><div class="table-scroll" role="region" aria-label="Decision model results" tabindex="0"><table id="leaderboard-table"><caption class="sr-only">MMDM decision model results. Select a column heading to sort.</caption><thead id="leaderboard-head"></thead><tbody id="leaderboard-body"><tr><td>Loading the benchmark results…</td></tr></tbody></table></div><p class="table-status" id="table-status" aria-live="polite"></p></div>
+  <p class="metric-note" id="metric-note">Hard Accuracy includes all 4,351 hard items; invalid or unsupported outputs count as incorrect. Brier compares the same 4,014 hard and 558 soft items with valid outputs from every model.</p>
+  <details class="protocol"><summary>How to read these results</summary><div><p><strong>Hard Accuracy ↑</strong> measures how often the highest-probability option matches the hard target. <strong>Brier ↓</strong> is the sum of squared errors between predicted and target probabilities, averaged over the evaluated items.</p><p>The overall Brier columns use a common valid cohort. Category Brier uses each model’s valid outputs in that category; the table reports the corresponding counts. Model names link to their source or model card.</p><p>MMDM’s public test combines the 1,100-item development and 3,861-item test partitions used during OpenJev development. These historical roles are retained in the dataset documentation.</p><a href="data/benchmark.json" download>Download this result snapshot ↗</a></div></details>
+  <div class="findings"><article><p class="finding-value">86.37<span>%</span></p><h3>Best overall hard accuracy</h3><p>Jev leads the 19 evaluated configurations on definite decisions.</p></article><article><p class="finding-value">51.92<span>%</span></p><h3>Best on option dependencies</h3><p>Joint reasoning over candidates remains a shared challenge.</p></article><article><p class="finding-value">0.0402</p><h3>Lowest soft-target Brier</h3><p>OpenJev-4B leads on the common soft-target cohort.</p></article></div>
+</div>
+</section>
+<section class="section wrap" id="dataset" aria-labelledby="dataset-title">
+  <div class="section-top"><div><p class="section-kicker">Inside the dataset</p><h2 id="dataset-title">Many tasks. One decision contract.</h2></div><a class="text-link" href="https://huggingface.co/datasets/shenjunhao/mmdm" target="_blank" rel="noopener">View on Hugging Face ↗</a></div>
+  <p class="section-intro">Seventeen categories cover knowledge, reasoning, rules, preference, and uncertainty. Every example includes the full state, question, candidates, and a target distribution.</p>
+  <div class="distribution-header"><div class="segmented" aria-label="Dataset distribution"><button type="button" class="active" data-distribution="categories" aria-pressed="true">Task categories</button><button type="button" data-distribution="options" aria-pressed="false">Number of options</button></div><span id="distribution-note">4,961 examples · hard + soft</span></div>
+  <div id="distribution" class="distribution" aria-label="Example distribution"></div>
+  <div class="dataset-bottom"><p><strong>165 Score tasks</strong> preserve both the numeric scale and full target distribution: 135 hard targets and 30 soft targets.</p><p><strong>English, Chinese, and mixed-language inputs</strong> cover fixed facts, changing states, and evidence spread across extended contexts.</p></div>
+</section>
+<section class="section section-tint" id="examples" aria-labelledby="examples-title">
+<div class="wrap">
+  <p class="section-kicker">Explore the decisions</p><h2 id="examples-title">Read the task. Compare the responses.</h2>
+  <p class="section-intro">Actual examples from all 17 categories, paired with recorded predictions from five representative models.</p>
+  <div class="example-controls"><label>Task category<select id="example-category"></select></label><div class="example-pager"><button type="button" id="previous-example" aria-label="Previous example in category">←</button><span id="example-count" aria-live="polite"></span><button type="button" id="next-example" aria-label="Next example in category">→</button></div></div>
+  <article class="example-card" id="example-card">
+    <div class="example-header"><div><span class="badge" id="example-kind"></span><span class="example-meta" id="example-meta"></span></div><a href="#" id="download-example" download>Download JSON <span aria-hidden="true">↓</span></a></div>
+    <div class="example-content"><div class="example-request"><p class="field-label">State / context</p><div class="state-frame" id="state-frame"><pre id="example-state"></pre></div><button type="button" class="expand-state" id="expand-state" aria-expanded="false">Read full context ↓</button><p class="field-label question-label">Question</p><h3 id="example-question"></h3><p class="field-label options-label">Candidates & criteria</p><ol id="example-options"></ol></div>
+    <aside class="example-response" aria-label="Recorded model response"><p class="field-label">Recorded model response</p><label class="sr-only" for="response-model">Model to compare</label><select id="response-model"></select><div class="probability-key"><span><i class="key-gold"></i>Target</span><span><i class="key-prediction"></i>Prediction</span></div><div id="response-chart"></div><div class="response-summary" id="response-summary"></div><p class="response-note">Probabilities are aligned with the candidate list. These are saved evaluation outputs.</p></aside></div>
+  </article>
+</div>
+</section>
+<section class="section wrap get-started" id="get-started" aria-labelledby="get-started-title">
+  <div><p class="section-kicker">Use MMDM</p><h2 id="get-started-title">Bring your decision model.</h2><p>Load the public test split, preserve the complete candidate meanings and criteria, and predict a probability for each option.</p><a class="text-link" href="https://huggingface.co/datasets/shenjunhao/mmdm" target="_blank" rel="noopener">Dataset documentation ↗</a></div>
+  <div class="code-block"><div class="code-header"><span>Python</span><button type="button" id="copy-code">Copy</button></div><pre><code id="load-code">from datasets import load_dataset
+
+mmdm = load_dataset(
+    "shenjunhao/mmdm", split="test"
+)
+example = mmdm[0]
+
+# Inputs: state, question, options,
+# task, and score_values.
+# Keep answer for evaluation only.</code></pre></div>
+</section>
+<noscript><div class="wrap noscript">Enable JavaScript to explore the interactive leaderboard and examples. You can also <a href="data/benchmark.json">download the complete website data</a>.</div></noscript>
+<div class="wrap" id="load-error" hidden role="alert">The interactive data could not be loaded. Please refresh the page or <a href="https://huggingface.co/datasets/shenjunhao/mmdm">visit the dataset</a>.</div>
+</main>
+<footer class="footer wrap"><div><a class="brand" href="#top">MMDM</a><p>Measuring Massive Multitask Decision Making</p></div><div class="footer-links"><a href="https://huggingface.co/datasets/shenjunhao/mmdm">Dataset ↗</a><a href="https://github.com/mmdm-benchmark/mmdm-benchmark.github.io">GitHub ↗</a><a href="data/provenance.json">Data provenance</a></div><p class="acknowledgement">Project-page layout inspired by <a href="https://mmmu-benchmark.github.io/">MMMU</a> and <a href="https://mathvista.github.io/">MathVista</a>.</p></footer>
+</body>
+</html>
