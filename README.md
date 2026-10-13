@@ -2,6 +2,13 @@
 
 A plain white, buildless academic project page for **MMDM: Measuring Massive Multitask Decision Making**. No author list is shown in this draft.
 
+## Project location
+
+Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.io`.
+
+- Website source / GitHub Pages: [mmdm-benchmark/mmdm-benchmark.github.io](https://github.com/mmdm-benchmark/mmdm-benchmark.github.io)
+- The page’s GitHub button links to the benchmark repository: [mmdm-benchmark/mmdm](https://github.com/mmdm-benchmark/mmdm)
+
 ## Local preview
 
 From the repository root:
@@ -15,6 +22,7 @@ Open http://127.0.0.1:50813. Use an HTTP server instead of opening `index.html` 
 ## Contents
 
 - `index.html`: centered title and resource buttons, Introduction, Leaderboard, Dataset, Examples and Download
+- `assets/mmdm-logo.png`: supplied benchmark logo, preserved as the original transparent PNG; used beside the title and dataset heading, inline in the introduction, and as the favicon
 - `assets/style.css`: white background, sans-serif typography, regular document flow and simple academic tables
 - `assets/app.js`: sortable/filterable results, dataset statistics and real example explorer
 - `data/benchmark.json`: 19 configurations, 17 categories, 19 selected examples and recorded model outputs
