@@ -4,12 +4,12 @@ const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"']/g,c=
 const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', fmt=(x,k)=>x==null?'—':k==='soft'?x.toFixed(4):pct(x);
 const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
 const DEFAULT_MODELS=['jev','microsoft','openjev','intern','semif'];
-const state={scope:'overall',label:'all',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleCategory:'option_logic',exampleIndex:0};
+const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleCategory:'option_logic',exampleIndex:0};
 const urls=new Map();
 function download(id,value,name){if(urls.has(id))URL.revokeObjectURL(urls.get(id));const u=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));urls.set(id,u);$(id).href=u;$(id).download=name;}
 function scopeCounts(){return state.scope==='overall'?{name:'All categories',total:D.total,single:D.single,set:D.set,soft:D.soft}:D.categories.find(c=>c.id===state.scope);}
 function modelMetric(m){return state.scope==='overall'?m.metrics:m.categories[state.scope];}
-function displayMetric(m,k){if(state.label!=='all'&&state.label!==k)return null;return modelMetric(m)?.[k]??null;}
+function displayMetric(m,k){return modelMetric(m)?.[k]??null;}
 function renderLeaderboard(){
  const q=$('#model-search').value.trim().toLowerCase(),counts=scopeCounts();
  const sorted=[...D.models].sort((a,b)=>{
@@ -25,7 +25,7 @@ function renderLeaderboard(){
  $('#leaderboard-body').innerHTML=visible.length?visible.map(m=>{
   const values=['single','set','soft'].map(k=>{const v=displayMetric(m,k),n=modelMetric(m)?.[k+'_n'];return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}" title="${v==null?'Not applicable or no recorded result':k==='soft'?`Brier over ${num(n)} valid full-distribution outputs`:`Accuracy over all ${num(n)} ${LABELS[k]} items`}">${fmt(v,k)}</td>`;}).join('');
   const name=m.url?`<a class="model-link" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:`<span class="model-name">${esc(m.name)}</span>`;
-  return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}${m.review?'<sup class="review-mark" title="Source report marks this completed run for review">†</sup>':''}</td>${values}</tr>`;
+  return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}</td>${values}</tr>`;
  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px">No matching models.</td></tr>';
  $('#subset-counts').innerHTML=`<strong>${esc(counts.name)}</strong> · ${num(counts.total)} examples &nbsp; <span>Single ${num(counts.single)}</span> · <span>Set ${num(counts.set)}</span> · <span>Soft ${num(counts.soft)}</span>`;
  $('#table-status').textContent=`${visible.length} results shown · Bold marks the best model value in each metric.`;
@@ -54,15 +54,8 @@ function renderSoft(){
   models.forEach((m,i)=>{const v=m.scatter[key];if(v.value==null)return;const py=y+(i-(models.length-1)/2)*Math.min(12,74/Math.max(1,models.length-1)),x=X(v.value),label=`${m.name} · ${lines[0]}: ${v.value.toFixed(4)} (n = ${v.n})`;s+=`<circle class="chart-point" cx="${x}" cy="${py}" r="4.8" fill="${m.color}" tabindex="0" aria-label="${esc(label)}">${tip(label)}</circle>`;});
  });s+=svgText((left+right)/2,513,['Brier error (lower is better)'],'text-anchor="middle" class="axis-label"')+'</svg>';$('#soft-chart').innerHTML=s;
 }
-function renderFigureValues(){
- const models=selectedModels(),kind=state.radar,cats=D.categories.filter(c=>c[kind]>0);
- let s='<caption class="sr-only">Exact plotted values</caption><thead><tr><th>Task / metric</th>'+models.map(m=>`<th>${esc(m.name)}</th>`).join('')+'</tr></thead><tbody>';
- cats.forEach(c=>{s+=`<tr><td>${esc(c.name)} · ${LABELS[kind]} Acc</td>`+models.map(m=>`<td>${fmt(m.categories[c.id][kind],kind)}</td>`).join('')+'</tr>';});
- for(const [id,name] of [['all','All soft'],['score','Score soft'],['other','Other soft']])s+=`<tr><td>${name} · Brier</td>`+models.map(m=>`<td>${fmt(m.scatter[id].value,'soft')}</td>`).join('')+'</tr>';
- $('#figure-values').innerHTML=s+'</tbody>';
-}
 function renderFigures(){
- renderRadar();renderSoft();renderFigureValues();
+ renderRadar();renderSoft();
  const models=D.models.filter(m=>DEFAULT_MODELS.includes(m.id)||state.selected.has(m.id));
  $('#figure-legend').innerHTML=models.map(m=>`<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="${state.selected.has(m.id)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}</button>`).join('');
  document.querySelectorAll('#figure-models input').forEach(el=>{el.checked=state.selected.has(el.value);});
@@ -73,10 +66,9 @@ function renderCategories(){
  const Y=v=>bottom-v/max*(bottom-top);
  let chart='<svg viewBox="0 0 1200 495" role="img" aria-labelledby="category-svg-title"><title id="category-svg-title">Task distribution of MMDM: 5,448 examples across 16 categories</title>';
  for(let v=0;v<=max;v+=100){const y=Y(v);chart+=`<line x1="${left}" x2="${right}" y1="${y}" y2="${y}" stroke="#DEDCD7" stroke-width=".7"/><text x="${left-13}" y="${y+5}" text-anchor="end" font-size="15">${v}</text>`;}
- chart+=`<text transform="translate(22 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" font-size="18">Examples</text>`;
+ chart+=`<text transform="translate(22 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" font-size="18">#Tasks</text>`;
  cats.forEach((c,i)=>{const x=left+step*(i+.5),y=Y(c.total);chart+=`<g data-category="${c.id}" tabindex="0" role="link" aria-label="Show ${esc(c.name)} results, ${c.total} examples">${tip(c.name+': '+c.total+' examples; Hard Single '+c.single+', Hard Set '+c.set+', Soft '+c.soft)}<rect x="${x-barWidth/2}" y="${y}" width="${barWidth}" height="${bottom-y}" fill="${c.color}"/><text x="${x}" y="${y-9}" text-anchor="middle" font-size="16">${c.total}</text><text transform="translate(${x+3} ${bottom+20}) rotate(-42)" text-anchor="end" font-size="16">${esc(c.name)}</text></g>`;});
  $('#category-chart').innerHTML=chart+'</svg>';
- $('#category-table').innerHTML='<thead><tr><th>Category</th><th>Total</th><th>Hard Single</th><th>Hard Set</th><th>Soft</th><th>Score¹</th></tr></thead><tbody>'+cats.map(c=>`<tr><td>${esc(c.name)}</td>${['total','single','set','soft','score'].map(k=>`<td>${num(c[k])}</td>`).join('')}</tr>`).join('')+`<tr><th>Total</th><th>${num(D.total)}</th><th>${num(D.single)}</th><th>${num(D.set)}</th><th>${num(D.soft)}</th><th>${num(D.score)}</th></tr></tbody><caption style="caption-side:bottom;padding-top:10px">¹ Score overlaps the three label types.</caption>`;
 }
 function renderLabels(){
  const segments=['single','set','soft'];let offset=0;
@@ -84,12 +76,12 @@ function renderLabels(){
  $('#label-chart').innerHTML=`<div class="label-stat"><svg class="label-donut" viewBox="0 0 180 180" role="img" aria-label="4,112 hard single, 633 hard set, 703 soft examples">${circles}<text x="90" y="89" text-anchor="middle" font-size="27">${num(D.total)}</text><text x="90" y="110" text-anchor="middle" font-size="13">examples</text></svg><div class="label-list">${segments.map(k=>`<div class="label-row"><i class="label-dot" style="background:${LABEL_COLORS[k]}" aria-hidden="true"></i><span>${LABELS[k]}<small>${(D[k]/D.total*100).toFixed(2)}%</small></span><b>${num(D[k])}</b></div>`).join('')}</div></div>`;
  $('#score-chart').innerHTML=`<p class="score-total">${num(D.score)}<small>${(D.score/D.total*100).toFixed(2)}% of MMDM</small></p><div class="stacked-bar" role="img" aria-label="Score: ${D.score_single} hard single and ${D.score_soft} soft"><span style="width:${D.score_single/D.score*100}%;background:${LABEL_COLORS.single}" title="${D.score_single} Hard Single"></span><span style="width:${D.score_soft/D.score*100}%;background:${LABEL_COLORS.soft}" title="${D.score_soft} Soft"></span></div><div class="score-legend"><span><i style="background:${LABEL_COLORS.single}"></i>Hard Single <strong>${D.score_single}</strong></span><span><i style="background:${LABEL_COLORS.soft}"></i>Soft <strong>${D.score_soft}</strong></span></div>`;
 }
-function bars(rows,color='#8E9EAC',exact=false){const max=Math.max(...rows.map(r=>r.n),1);return `<div class="mini-bars ${exact?'option-exact':''}">`+rows.map(r=>`<div class="mini-bar"><span>${esc(r.label)}</span><span class="track"><i style="width:${r.n/max*100}%;background:${color}" title="${num(r.n)} examples · ${(100*r.n/D.total).toFixed(2)}%"></i></span><b>${num(r.n)}</b></div>`).join('')+'</div>';}
+function bars(rows,color='#8E9EAC'){const max=Math.max(...rows.map(r=>r.n),1);return `<div class="mini-bars">`+rows.map(r=>`<div class="mini-bar"><span>${esc(r.label)}</span><span class="track"><i style="width:${r.n/max*100}%;background:${color}" title="${num(r.n)} examples · ${(100*r.n/D.total).toFixed(2)}%"></i></span><b>${num(r.n)}</b></div>`).join('')+'</div>';}
 function renderContext(){const k=$('#length-kind').value,p=D.length_profile[k];$('#context-chart').innerHTML=bars(D.length_profile.bins.map(b=>({label:b.label,n:b[k]})),'#94A7B0');$('#context-summary').innerHTML=`Median <strong>${num(p.median)}</strong> · 95th percentile <strong>${num(p.p95)}</strong> · Maximum <strong>${num(p.max)}</strong> tokens`;}
 function renderOptions(){
- const exact=$('#option-scale').value==='exact',bins=[[2,2,'2'],[3,4,'3–4'],[5,8,'5–8'],[9,16,'9–16'],[17,64,'17–64'],[65,255,'65–255'],[256,1024,'256–1,024']];
- const rows=exact?D.option_counts.map(x=>({label:String(x.options),n:x.total})):bins.map(([lo,hi,label])=>({label,n:D.option_counts.filter(r=>r.options>=lo&&r.options<=hi).reduce((s,r)=>s+r.total,0)}));
- $('#option-chart').innerHTML=bars(rows,'#ADA28F',exact);
+ const bins=[[2,2,'2'],[3,4,'3–4'],[5,8,'5–8'],[9,16,'9–16'],[17,64,'17–64'],[65,255,'65–255'],[256,1024,'256–1,024']];
+ const rows=bins.map(([lo,hi,label])=>({label,n:D.option_counts.filter(r=>r.options>=lo&&r.options<=hi).reduce((s,r)=>s+r.total,0)}));
+ $('#option-chart').innerHTML=bars(rows,'#ADA28F');
  const above=D.option_counts.filter(r=>r.options>255).reduce((s,r)=>s+r.total,0);let cumulative=0,median=0;for(const x of D.option_counts){cumulative+=x.total;if(cumulative>=D.total/2){median=x.options;break;}}
  $('#option-summary').innerHTML=`Range <strong>2–1,024</strong> · Median <strong>${median}</strong> · <strong>${above}</strong> examples with more than 255 options`;
 }
@@ -113,26 +105,21 @@ function init(){
  $('#snapshot-date').textContent=`Results snapshot: ${D.snapshot_time}`;
  const results=D.models.filter(m=>m.id!=='random'),best=k=>results.reduce((a,b)=>(k==='soft'?a.metrics[k]<b.metrics[k]:a.metrics[k]>b.metrics[k])?a:b);
  $('#result-summary').innerHTML=`The current results cover <strong>${results.length} Decision Models</strong> and a uniform-random baseline. The strongest Hard Single Accuracy is <strong>${fmt(best('single').metrics.single,'single')}</strong>; the strongest exact Hard Set Accuracy is <strong>${fmt(best('set').metrics.set,'set')}</strong>. The best Soft Brier is <strong>${fmt(best('soft').metrics.soft,'soft')}</strong>. MMDM exposes how performance changes across single-choice reasoning, joint decisions, and distributional prediction.`;
- $('#pending-note').textContent=D.pending.length?`${D.pending.length} evaluations remain in progress at this snapshot: ${D.pending.map(m=>m.name).join(', ')}. They enter the table when complete.`:'';
- $('#review-note').textContent=D.models.some(m=>m.review)?'† Clef has a complete result summary; the source report marks this run as awaiting review.':'';
  $('#figure-models').innerHTML=D.models.map(m=>`<label><input type="checkbox" value="${esc(m.id)}" ${state.selected.has(m.id)?'checked':''}>${esc(m.name)}</label>`).join('');
  $('#figure-models').addEventListener('change',ev=>{if(ev.target.checked)state.selected.add(ev.target.value);else state.selected.delete(ev.target.value);renderFigures();});
  $('#figure-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(!b)return;state.selected.has(b.dataset.model)?state.selected.delete(b.dataset.model):state.selected.add(b.dataset.model);renderFigures();});
  $('#reset-models').addEventListener('click',()=>{state.selected=new Set(DEFAULT_MODELS);renderFigures();});
  $('#radar-kind').addEventListener('change',ev=>{state.radar=ev.target.value;renderFigures();});
- function chooseSort(){const c=scopeCounts();state.sort=state.label==='all'?c.single?'single':c.set?'set':'soft':state.label;state.direction=state.sort==='soft'?1:-1;}
+ function chooseSort(){const c=scopeCounts();state.sort=c.single?'single':c.set?'set':'soft';state.direction=state.sort==='soft'?1:-1;}
  $('#leader-scope').addEventListener('change',ev=>{state.scope=ev.target.value;chooseSort();renderLeaderboard();});
- $('#leader-label').addEventListener('change',ev=>{state.label=ev.target.value;chooseSort();renderLeaderboard();});
  $('#leaderboard-head').addEventListener('click',ev=>{const b=ev.target.closest('[data-sort]');if(!b)return;const k=b.dataset.sort;state.direction=state.sort===k?-state.direction:k==='single'||k==='set'?-1:1;state.sort=k;renderLeaderboard();$(`[data-sort="${k}"]`).focus({preventScroll:true});});
  $('#model-search').addEventListener('input',renderLeaderboard);
- $('#category-chart').addEventListener('click',ev=>{const b=ev.target.closest('[data-category]');if(!b)return;state.scope=b.dataset.category;state.label='all';$('#leader-scope').value=state.scope;$('#leader-label').value='all';chooseSort();renderLeaderboard();$('#leaderboard').scrollIntoView();});
+ $('#category-chart').addEventListener('click',ev=>{const b=ev.target.closest('[data-category]');if(!b)return;state.scope=b.dataset.category;$('#leader-scope').value=state.scope;chooseSort();renderLeaderboard();$('#leaderboard').scrollIntoView();});
  $('#category-chart').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){const g=ev.target.closest('[data-category]');if(g){ev.preventDefault();g.dispatchEvent(new MouseEvent('click',{bubbles:true}));}}});
- $('#length-kind').addEventListener('change',renderContext);$('#option-scale').addEventListener('change',renderOptions);
+ $('#length-kind').addEventListener('change',renderContext);
  $('#example-category').addEventListener('change',ev=>{state.exampleCategory=ev.target.value;state.exampleIndex=0;renderExample();});
  for(const [id,step] of [['#previous-example',-1],['#next-example',1]])$(id).addEventListener('click',()=>{const count=D.examples.filter(e=>e.category===state.exampleCategory).length;state.exampleIndex=(state.exampleIndex+step+count)%count;renderExample();});
  $('#expand-state').addEventListener('click',()=>{const on=$('#state-frame').classList.toggle('expanded');$('#expand-state').setAttribute('aria-expanded',String(on));$('#expand-state').textContent=on?'Collapse context ↑':'Read full context ↓';});
- download('#download-results',D,'mmdm-results.json');download('#download-provenance',D.provenance,'mmdm-provenance.json');
- download('#download-statistics',{total:D.total,single:D.single,set:D.set,soft:D.soft,score:D.score,categories:D.categories,length_profile:D.length_profile,option_counts:D.option_counts},'mmdm-statistics.json');
  renderLeaderboard();renderFigures();renderCategories();renderLabels();renderContext();renderOptions();renderExample();document.documentElement.dataset.ready='true';
 }
 try{init();}catch(e){console.error(e);$('#load-error').hidden=false;}
