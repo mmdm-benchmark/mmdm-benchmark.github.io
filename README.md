@@ -15,7 +15,7 @@ Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.i
 
 The MMDM release has 5,448 examples across 16 categories, 80 category–subcategory combinations, and 62 source identifiers. Labels comprise 4,112 Hard Single, 633 Hard Set, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single, 628 Soft).
 
-The results snapshot contains 22 model runs plus Random (uniform). Pending evaluation and review metadata remain in the embedded source data. The page embeds the snapshot timestamp and source hashes.
+The results snapshot contains 27 model runs plus Random (uniform). Pending evaluation and review metadata remain in the embedded source data. The page embeds the snapshot timestamp and source hashes.
 
 Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft Brier. Category filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Set uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 

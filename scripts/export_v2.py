@@ -27,6 +27,9 @@ ORDER=['world_knowledge','reading_comprehension','deductive_reasoning','option_l
 COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1'}
 NAMES={'jev':'Jev 1.14.0','openjev':'OpenJev-4B','intern':'Intern-Decision-4B','intern08':'Intern-Decision-0.8B','intern2':'Intern-Decision-2B','semif':'SemIf-4B','decisio12':'Decisio-Gemma-4-12B','decisio31':'Decisio-Gemma-4-31B','decisioqwen':'Decisio-Qwen-3.6-35B-A3B','nano':'NanoJev-0.6B','h2o':'H2O-Lightning-4B','strands':'Strands-Decider-2B','openjev':'OpenJev-4B','jevk5':'JevK5-4B'}
 URLS={
+ 'liquid':'https://openrouter.ai/liquid/d1','liquid-ultra':'https://openrouter.ai/liquid/d1-ultra',
+ 'clef-omni':'https://openrouter.ai/cloudflare/clef-omni','clef-flash':'https://openrouter.ai/cloudflare/clef-flash',
+ 'pplx12':'https://openrouter.ai/perplexity/pplx-decider-v1.2','pplx-flash12':'https://openrouter.ai/perplexity/pplx-decider-flash-v1.2',
  'jev':'https://typesafe.ai/', 'microsoft':'https://commandline.microsoft.com/microsoft-decision-1-model-foundry/',
  'openjev':'https://huggingface.co/shenjunhao/OpenJev-4B', 'intern':'https://huggingface.co/internlm/Intern-Decision-4B',
  'intern2':'https://huggingface.co/internlm/Intern-Decision-2B','intern08':'https://huggingface.co/internlm/Intern-Decision-0.8B',

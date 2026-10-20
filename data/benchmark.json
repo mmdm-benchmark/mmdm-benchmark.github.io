@@ -10,8 +10,8 @@
   "sources": 62,
   "subcategories": 80,
   "parents": 5390,
-  "snapshot_date": "October 20, 2026",
-  "snapshot_time": "2026-10-20 22:23 CST",
+  "snapshot_date": "October 21, 2026",
+  "snapshot_time": "2026-10-21 00:56 CST",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
   "categories": [
     {
@@ -3803,6 +3803,801 @@
       }
     },
     {
+      "id": "liquid",
+      "name": "Liquid-d1",
+      "url": "https://openrouter.ai/liquid/d1",
+      "color": "#9A7185",
+      "review": false,
+      "metrics": {
+        "single": 0.6232976653696498,
+        "set": 0.21958925750394945,
+        "soft": 0.2826946770703364,
+        "single_n": 4112,
+        "set_n": 633,
+        "soft_n": 700
+      },
+      "categories": {
+        "world_knowledge": {
+          "single": 0.6666666666666666,
+          "set": null,
+          "soft": null,
+          "single_n": 273,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "reading_comprehension": {
+          "single": 0.5630630630630631,
+          "set": 0.0,
+          "soft": null,
+          "single_n": 444,
+          "set_n": 2,
+          "soft_n": 0
+        },
+        "deductive_reasoning": {
+          "single": 0.7638376383763837,
+          "set": null,
+          "soft": null,
+          "single_n": 271,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "option_logic": {
+          "single": 0.3223684210526316,
+          "set": 0.07520891364902507,
+          "soft": null,
+          "single_n": 152,
+          "set_n": 359,
+          "soft_n": 0
+        },
+        "constraint_planning": {
+          "single": 0.30409356725146197,
+          "set": 0.2125,
+          "soft": 0.1689307481629849,
+          "single_n": 171,
+          "set_n": 80,
+          "soft_n": 1
+        },
+        "quantitative_temporal_reasoning": {
+          "single": 0.6787003610108303,
+          "set": null,
+          "soft": 0.2350849164422966,
+          "single_n": 277,
+          "set_n": 0,
+          "soft_n": 12
+        },
+        "workflow_decision": {
+          "single": 0.2857142857142857,
+          "set": 0.19101123595505617,
+          "soft": null,
+          "single_n": 161,
+          "set_n": 89,
+          "soft_n": 0
+        },
+        "agent_state_tracking": {
+          "single": 0.41682242990654206,
+          "set": null,
+          "soft": null,
+          "single_n": 535,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "policy_exception": {
+          "single": 0.7278688524590164,
+          "set": null,
+          "soft": 0.10803381085814036,
+          "single_n": 305,
+          "set_n": 0,
+          "soft_n": 18
+        },
+        "evidence_validation": {
+          "single": 0.8415094339622642,
+          "set": null,
+          "soft": 0.1886224811292321,
+          "single_n": 265,
+          "set_n": 0,
+          "soft_n": 22
+        },
+        "code_database": {
+          "single": 0.7487684729064039,
+          "set": null,
+          "soft": null,
+          "single_n": 203,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "intent_routing": {
+          "single": 0.7915407854984894,
+          "set": null,
+          "soft": null,
+          "single_n": 331,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "tool_skill_selection": {
+          "single": 0.8597122302158273,
+          "set": 0.7572815533980582,
+          "soft": 0.21238535404156078,
+          "single_n": 278,
+          "set_n": 103,
+          "soft_n": 22
+        },
+        "answer_preference": {
+          "single": 0.6609442060085837,
+          "set": null,
+          "soft": null,
+          "single_n": 233,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "score_rubric": {
+          "single": 0.7428571428571429,
+          "set": null,
+          "soft": 0.29460726917529756,
+          "single_n": 35,
+          "set_n": 0,
+          "soft_n": 625
+        },
+        "emotion_recognition": {
+          "single": 0.4943820224719101,
+          "set": null,
+          "soft": null,
+          "single_n": 178,
+          "set_n": 0,
+          "soft_n": 0
+        }
+      },
+      "scatter": {
+        "all": {
+          "value": 0.2826946770703364,
+          "n": 700
+        },
+        "score": {
+          "value": 0.29460726917529756,
+          "n": 625
+        },
+        "other": {
+          "value": 0.1834230761956602,
+          "n": 75
+        }
+      }
+    },
+    {
+      "id": "liquid-ultra",
+      "name": "Liquid-d1-Ultra",
+      "url": "https://openrouter.ai/liquid/d1-ultra",
+      "color": "#7D8E78",
+      "review": false,
+      "metrics": {
+        "single": 0.7332198443579766,
+        "set": 0.24328593996840442,
+        "soft": 0.1320705968403008,
+        "single_n": 4112,
+        "set_n": 633,
+        "soft_n": 701
+      },
+      "categories": {
+        "world_knowledge": {
+          "single": 0.7509157509157509,
+          "set": null,
+          "soft": null,
+          "single_n": 273,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "reading_comprehension": {
+          "single": 0.7522522522522522,
+          "set": 1.0,
+          "soft": null,
+          "single_n": 444,
+          "set_n": 2,
+          "soft_n": 0
+        },
+        "deductive_reasoning": {
+          "single": 0.8228782287822878,
+          "set": null,
+          "soft": null,
+          "single_n": 271,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "option_logic": {
+          "single": 0.3881578947368421,
+          "set": 0.06128133704735376,
+          "soft": null,
+          "single_n": 152,
+          "set_n": 359,
+          "soft_n": 0
+        },
+        "constraint_planning": {
+          "single": 0.47368421052631576,
+          "set": 0.1875,
+          "soft": 0.007290671041091299,
+          "single_n": 171,
+          "set_n": 80,
+          "soft_n": 1
+        },
+        "quantitative_temporal_reasoning": {
+          "single": 0.8050541516245487,
+          "set": null,
+          "soft": 0.16627536546405527,
+          "single_n": 277,
+          "set_n": 0,
+          "soft_n": 12
+        },
+        "workflow_decision": {
+          "single": 0.6024844720496895,
+          "set": 0.29213483146067415,
+          "soft": null,
+          "single_n": 161,
+          "set_n": 89,
+          "soft_n": 0
+        },
+        "agent_state_tracking": {
+          "single": 0.7420560747663552,
+          "set": null,
+          "soft": null,
+          "single_n": 535,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "policy_exception": {
+          "single": 0.7639344262295082,
+          "set": null,
+          "soft": 0.09477427745985403,
+          "single_n": 305,
+          "set_n": 0,
+          "soft_n": 18
+        },
+        "evidence_validation": {
+          "single": 0.8264150943396227,
+          "set": null,
+          "soft": 0.08514783771402694,
+          "single_n": 265,
+          "set_n": 0,
+          "soft_n": 22
+        },
+        "code_database": {
+          "single": 0.8817733990147784,
+          "set": null,
+          "soft": null,
+          "single_n": 203,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "intent_routing": {
+          "single": 0.7522658610271903,
+          "set": null,
+          "soft": null,
+          "single_n": 331,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "tool_skill_selection": {
+          "single": 0.89568345323741,
+          "set": 0.8640776699029126,
+          "soft": 0.15837166803830863,
+          "single_n": 278,
+          "set_n": 103,
+          "soft_n": 22
+        },
+        "answer_preference": {
+          "single": 0.7253218884120172,
+          "set": null,
+          "soft": null,
+          "single_n": 233,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "score_rubric": {
+          "single": 0.7714285714285715,
+          "set": null,
+          "soft": 0.1334113853156747,
+          "single_n": 35,
+          "set_n": 0,
+          "soft_n": 626
+        },
+        "emotion_recognition": {
+          "single": 0.398876404494382,
+          "set": null,
+          "soft": null,
+          "single_n": 178,
+          "set_n": 0,
+          "soft_n": 0
+        }
+      },
+      "scatter": {
+        "all": {
+          "value": 0.1320705968403008,
+          "n": 701
+        },
+        "score": {
+          "value": 0.1334113853156747,
+          "n": 626
+        },
+        "other": {
+          "value": 0.1208794823658468,
+          "n": 75
+        }
+      }
+    },
+    {
+      "id": "clef-omni",
+      "name": "Clef-Omni",
+      "url": "https://openrouter.ai/cloudflare/clef-omni",
+      "color": "#8D91A3",
+      "review": false,
+      "metrics": {
+        "single": 0.5690661478599222,
+        "set": 0.1484992101105845,
+        "soft": 0.27605541533452255,
+        "single_n": 4112,
+        "set_n": 633,
+        "soft_n": 697
+      },
+      "categories": {
+        "world_knowledge": {
+          "single": 0.7435897435897436,
+          "set": null,
+          "soft": null,
+          "single_n": 273,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "reading_comprehension": {
+          "single": 0.6193693693693694,
+          "set": 1.0,
+          "soft": null,
+          "single_n": 444,
+          "set_n": 2,
+          "soft_n": 0
+        },
+        "deductive_reasoning": {
+          "single": 0.6236162361623616,
+          "set": null,
+          "soft": null,
+          "single_n": 271,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "option_logic": {
+          "single": 0.34210526315789475,
+          "set": 0.04178272980501393,
+          "soft": null,
+          "single_n": 152,
+          "set_n": 359,
+          "soft_n": 0
+        },
+        "constraint_planning": {
+          "single": 0.25146198830409355,
+          "set": 0.1625,
+          "soft": 0.046993020408163264,
+          "single_n": 171,
+          "set_n": 80,
+          "soft_n": 1
+        },
+        "quantitative_temporal_reasoning": {
+          "single": 0.6209386281588448,
+          "set": null,
+          "soft": 0.2112427645011338,
+          "single_n": 277,
+          "set_n": 0,
+          "soft_n": 12
+        },
+        "workflow_decision": {
+          "single": 0.3167701863354037,
+          "set": 0.07865168539325842,
+          "soft": null,
+          "single_n": 161,
+          "set_n": 89,
+          "soft_n": 0
+        },
+        "agent_state_tracking": {
+          "single": 0.34766355140186916,
+          "set": null,
+          "soft": null,
+          "single_n": 535,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "policy_exception": {
+          "single": 0.7081967213114754,
+          "set": null,
+          "soft": 0.0779903531548154,
+          "single_n": 305,
+          "set_n": 0,
+          "soft_n": 18
+        },
+        "evidence_validation": {
+          "single": 0.7547169811320755,
+          "set": null,
+          "soft": 0.24572728788577486,
+          "single_n": 265,
+          "set_n": 0,
+          "soft_n": 20
+        },
+        "code_database": {
+          "single": 0.6403940886699507,
+          "set": null,
+          "soft": null,
+          "single_n": 203,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "intent_routing": {
+          "single": 0.5861027190332326,
+          "set": null,
+          "soft": null,
+          "single_n": 331,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "tool_skill_selection": {
+          "single": 0.7122302158273381,
+          "set": 0.5533980582524272,
+          "soft": 0.15035865118576475,
+          "single_n": 278,
+          "set_n": 103,
+          "soft_n": 21
+        },
+        "answer_preference": {
+          "single": 0.5965665236051502,
+          "set": null,
+          "soft": null,
+          "single_n": 233,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "score_rubric": {
+          "single": 0.6571428571428571,
+          "set": null,
+          "soft": 0.28856450320693955,
+          "single_n": 35,
+          "set_n": 0,
+          "soft_n": 625
+        },
+        "emotion_recognition": {
+          "single": 0.5,
+          "set": null,
+          "soft": null,
+          "single_n": 178,
+          "set_n": 0,
+          "soft_n": 0
+        }
+      },
+      "scatter": {
+        "all": {
+          "value": 0.27605541533452255,
+          "n": 697
+        },
+        "score": {
+          "value": 0.28856450320693955,
+          "n": 625
+        },
+        "other": {
+          "value": 0.1674695831086806,
+          "n": 72
+        }
+      }
+    },
+    {
+      "id": "clef-flash",
+      "name": "Clef-Flash",
+      "url": "https://openrouter.ai/cloudflare/clef-flash",
+      "color": "#6D8A99",
+      "review": false,
+      "metrics": {
+        "single": 0.5573929961089494,
+        "set": 0.1484992101105845,
+        "soft": 0.3553178424003719,
+        "single_n": 4112,
+        "set_n": 633,
+        "soft_n": 703
+      },
+      "categories": {
+        "world_knowledge": {
+          "single": 0.7326007326007326,
+          "set": null,
+          "soft": null,
+          "single_n": 273,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "reading_comprehension": {
+          "single": 0.5833333333333334,
+          "set": 1.0,
+          "soft": null,
+          "single_n": 444,
+          "set_n": 2,
+          "soft_n": 0
+        },
+        "deductive_reasoning": {
+          "single": 0.6014760147601476,
+          "set": null,
+          "soft": null,
+          "single_n": 271,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "option_logic": {
+          "single": 0.3618421052631579,
+          "set": 0.03899721448467967,
+          "soft": null,
+          "single_n": 152,
+          "set_n": 359,
+          "soft_n": 0
+        },
+        "constraint_planning": {
+          "single": 0.19883040935672514,
+          "set": 0.125,
+          "soft": 0.028649340408163266,
+          "single_n": 171,
+          "set_n": 80,
+          "soft_n": 1
+        },
+        "quantitative_temporal_reasoning": {
+          "single": 0.6534296028880866,
+          "set": null,
+          "soft": 0.290637514739229,
+          "single_n": 277,
+          "set_n": 0,
+          "soft_n": 12
+        },
+        "workflow_decision": {
+          "single": 0.2857142857142857,
+          "set": 0.10112359550561797,
+          "soft": null,
+          "single_n": 161,
+          "set_n": 89,
+          "soft_n": 0
+        },
+        "agent_state_tracking": {
+          "single": 0.34579439252336447,
+          "set": null,
+          "soft": null,
+          "single_n": 535,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "policy_exception": {
+          "single": 0.6196721311475409,
+          "set": null,
+          "soft": 0.0721843433411386,
+          "single_n": 305,
+          "set_n": 0,
+          "soft_n": 18
+        },
+        "evidence_validation": {
+          "single": 0.7622641509433963,
+          "set": null,
+          "soft": 0.16767056857191376,
+          "single_n": 265,
+          "set_n": 0,
+          "soft_n": 22
+        },
+        "code_database": {
+          "single": 0.6305418719211823,
+          "set": null,
+          "soft": null,
+          "single_n": 203,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "intent_routing": {
+          "single": 0.6435045317220544,
+          "set": null,
+          "soft": null,
+          "single_n": 331,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "tool_skill_selection": {
+          "single": 0.6618705035971223,
+          "set": 0.5728155339805825,
+          "soft": 0.12274638990126502,
+          "single_n": 278,
+          "set_n": 103,
+          "soft_n": 22
+        },
+        "answer_preference": {
+          "single": 0.6008583690987125,
+          "set": null,
+          "soft": null,
+          "single_n": 233,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "score_rubric": {
+          "single": 0.6285714285714286,
+          "set": null,
+          "soft": 0.3799102745599237,
+          "single_n": 35,
+          "set_n": 0,
+          "soft_n": 628
+        },
+        "emotion_recognition": {
+          "single": 0.5112359550561798,
+          "set": null,
+          "soft": null,
+          "single_n": 178,
+          "set_n": 0,
+          "soft_n": 0
+        }
+      },
+      "scatter": {
+        "all": {
+          "value": 0.3553178424003719,
+          "n": 703
+        },
+        "score": {
+          "value": 0.3799102745599237,
+          "n": 628
+        },
+        "other": {
+          "value": 0.14939721045105783,
+          "n": 75
+        }
+      }
+    },
+    {
+      "id": "pplx12",
+      "name": "Perplexity Decider-V1.2",
+      "url": "https://openrouter.ai/perplexity/pplx-decider-v1.2",
+      "color": "#9A7185",
+      "review": false,
+      "metrics": {
+        "single": 0.7441634241245136,
+        "set": 0.3380726698262243,
+        "soft": 0.16935587837242466,
+        "single_n": 4112,
+        "set_n": 633,
+        "soft_n": 701
+      },
+      "categories": {
+        "world_knowledge": {
+          "single": 0.7875457875457875,
+          "set": null,
+          "soft": null,
+          "single_n": 273,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "reading_comprehension": {
+          "single": 0.7319819819819819,
+          "set": 1.0,
+          "soft": null,
+          "single_n": 444,
+          "set_n": 2,
+          "soft_n": 0
+        },
+        "deductive_reasoning": {
+          "single": 0.8523985239852399,
+          "set": null,
+          "soft": null,
+          "single_n": 271,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "option_logic": {
+          "single": 0.5394736842105263,
+          "set": 0.1977715877437326,
+          "soft": null,
+          "single_n": 152,
+          "set_n": 359,
+          "soft_n": 0
+        },
+        "constraint_planning": {
+          "single": 0.47953216374269003,
+          "set": 0.25,
+          "soft": 0.3949236009944298,
+          "single_n": 171,
+          "set_n": 80,
+          "soft_n": 1
+        },
+        "quantitative_temporal_reasoning": {
+          "single": 0.7978339350180506,
+          "set": null,
+          "soft": 0.07365959651065929,
+          "single_n": 277,
+          "set_n": 0,
+          "soft_n": 12
+        },
+        "workflow_decision": {
+          "single": 0.4720496894409938,
+          "set": 0.3707865168539326,
+          "soft": null,
+          "single_n": 161,
+          "set_n": 89,
+          "soft_n": 0
+        },
+        "agent_state_tracking": {
+          "single": 0.794392523364486,
+          "set": null,
+          "soft": null,
+          "single_n": 535,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "policy_exception": {
+          "single": 0.7081967213114754,
+          "set": null,
+          "soft": 0.0776149351678079,
+          "single_n": 305,
+          "set_n": 0,
+          "soft_n": 18
+        },
+        "evidence_validation": {
+          "single": 0.8339622641509434,
+          "set": null,
+          "soft": 0.0631989957342035,
+          "single_n": 265,
+          "set_n": 0,
+          "soft_n": 22
+        },
+        "code_database": {
+          "single": 0.8078817733990148,
+          "set": null,
+          "soft": null,
+          "single_n": 203,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "intent_routing": {
+          "single": 0.8157099697885196,
+          "set": null,
+          "soft": null,
+          "single_n": 331,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "tool_skill_selection": {
+          "single": 0.9136690647482014,
+          "set": 0.8543689320388349,
+          "soft": 0.18399876344780886,
+          "single_n": 278,
+          "set_n": 103,
+          "soft_n": 22
+        },
+        "answer_preference": {
+          "single": 0.6952789699570815,
+          "set": null,
+          "soft": null,
+          "single_n": 233,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "score_rubric": {
+          "single": 0.7428571428571429,
+          "set": null,
+          "soft": 0.17668404543917335,
+          "single_n": 35,
+          "set_n": 0,
+          "soft_n": 626
+        },
+        "emotion_recognition": {
+          "single": 0.5056179775280899,
+          "set": null,
+          "soft": null,
+          "single_n": 178,
+          "set_n": 0,
+          "soft_n": 0
+        }
+      },
+      "scatter": {
+        "all": {
+          "value": 0.16935587837242466,
+          "n": 701
+        },
+        "score": {
+          "value": 0.17668404543917335,
+          "n": 626
+        },
+        "other": {
+          "value": 0.10819011058862875,
+          "n": 75
+        }
+      }
+    },
+    {
       "id": "random",
       "name": "Random (uniform)",
       "url": null,
@@ -3964,39 +4759,9 @@
   ],
   "pending": [
     {
-      "id": "liquid",
-      "name": "Liquid-d1",
-      "processed": 4100,
-      "status": "running"
-    },
-    {
-      "id": "liquid-ultra",
-      "name": "Liquid-d1-Ultra",
-      "processed": 4100,
-      "status": "running"
-    },
-    {
-      "id": "clef-omni",
-      "name": "Clef-Omni",
-      "processed": 3975,
-      "status": "running"
-    },
-    {
-      "id": "clef-flash",
-      "name": "Clef-Flash",
-      "processed": 4475,
-      "status": "running"
-    },
-    {
       "id": "pplx-flash12",
       "name": "Perplexity Decider-Flash-V1.2",
-      "processed": 3600,
-      "status": "running"
-    },
-    {
-      "id": "pplx12",
-      "name": "Perplexity Decider-V1.2",
-      "processed": 4025,
+      "processed": 4925,
       "status": "running"
     }
   ],
@@ -5764,9 +6529,9 @@
   "provenance": {
     "version": "mmdm-v2",
     "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-    "snapshot_at": "2026-10-20T22:23:20.763420+08:00",
+    "snapshot_at": "2026-10-21T00:56:36.820596+08:00",
     "sources": {
-      "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "9ca2bc7b6a4cbc88874356ff0db5071c336141ecb379e100e0651bce23e816e7",
+      "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "d5f32ae832e84f187d9dcbe0a8df1455e4d11121c24740f6ba19793d98db0aab",
       "docs/reports/mmdm/summary.json": "ef3f44a66cd5357b17762966ebfdf66c1a71b5fd455a5dca591f3bedc2fee76c",
       "docs/reports/mmdm/CURRENT.json": "897458d4d49d30b1d89189ecc17bb37bd2f582eed7a6129b00ea0d7073b30aa4",
       "docs/reports/mmdm/release-validation.json": "811264d7f8d07179c9c80f39c27d3d9be531bb290111ed3a50858f83e8260d6b",
