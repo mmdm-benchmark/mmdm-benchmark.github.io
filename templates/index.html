@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="MMDM: Measuring Massive Multitask Decision Making. 5,448 decisions, 16 categories, single-choice, set-valued and soft targets.">
+<title>MMDM: Measuring Massive Multitask Decision Making</title>
+<link id="page-icon" rel="icon" type="image/png">
+<style>@@CSS@@</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main">
+<header class="publication-header container">
+<h1><img id="main-logo" class="benchmark-logo title-logo" src="@@LOGO@@" alt="" width="64" height="64">MMDM<span class="sr-only">: Measuring Massive Multitask Decision Making</span></h1>
+<p class="publication-title">Measuring Massive Multitask Decision Making</p>
+<div class="publication-links">
+<a href="https://huggingface.co/datasets/shenjunhao/mmdm" target="_blank" rel="noopener">🤗 Dataset</a>
+<a href="https://github.com/mmdm-benchmark/mmdm" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18c-4 1.2-4-2-6-2m12 5v-3.3c0-.9-.3-1.5-.7-1.9 2.3-.3 4.7-1.2 4.7-5.3 0-1.2-.4-2.1-1.1-2.9.1-.3.5-1.4-.1-2.9 0 0-.9-.3-3 1.1A10 10 0 0 0 12 5.4a10 10 0 0 0-2.8.4C7.1 4.4 6.2 4.7 6.2 4.7c-.6 1.5-.2 2.6-.1 2.9C5.4 8.4 5 9.3 5 10.5c0 4.1 2.4 5 4.7 5.3-.4.4-.7 1-.7 1.9V21"/></svg> GitHub</a>
+<a href="#leaderboard">🏆 Leaderboard</a><a href="#dataset">Dataset overview</a><a href="#examples">Examples</a>
+</div>
+</header>
+<section class="teaser container wide" aria-label="Decision model comparison">
+<div class="teaser-plots">
+<figure><div class="plot-heading"><h2 id="radar-title">Hard Single Accuracy</h2><label class="sr-only" for="radar-kind">Radar metric</label><select id="radar-kind"><option value="single">Single choice</option><option value="set">Exact set match</option></select></div><div id="radar-chart" class="chart"></div></figure>
+<figure><div class="plot-heading"><h2>Soft targets &amp; Score</h2><span class="plot-unit">Brier error ↓</span></div><div id="soft-chart" class="chart"></div></figure>
+</div>
+<div class="model-legend" id="figure-legend" aria-label="Visible models"></div>
+<details class="figure-controls"><summary>Choose models</summary><div class="model-choices" id="figure-models"></div><button type="button" id="reset-models" class="text-button">Reset to five representative models</button></details>
+<p class="figure-caption">Decision-making performance across MMDM tasks. Accuracy measures hard decisions; Brier error measures soft target distributions. Select a legend entry to hide a model, or hover over a point for its value.</p>
+<details class="chart-values"><summary>View chart values</summary><div class="table-scroll"><table id="figure-values"></table></div></details>
+</section>
+<section class="section container" id="overview">
+<h2>Introduction</h2>
+<div class="prose">
+<p>We introduce <img class="benchmark-logo inline-logo" data-logo alt="" width="24" height="24"><strong>MMDM (Massive Multitask Decision Making)</strong>, a benchmark for text-based System-1 Decision Models. Its <strong>5,448 examples span 16 task categories</strong>, bringing knowledge and reading comprehension together with agent state tracking, tool and skill selection, option logic, constraint planning, workflow decisions, and rubric-based scoring.</p>
+<p>Each task provides a state, a question, and a candidate list with request-specific names and criteria. Candidate sets range from <strong>2 to 1,024 options</strong>, and complete inputs reach <strong>64,817 tokens</strong>. The benchmark tests three distinct answer types: a single correct choice, a complete set of correct choices, and a soft target distribution. Dependencies between options, evolving context, rules and exceptions, and competing plans make the relationships among inputs central to the decision.</p>
+<p id="result-summary"></p>
+</div>
+</section>
+<section class="section container wide" id="leaderboard">
+<h2>Leaderboard</h2>
+<p class="section-description">MMDM · 5,448 examples. Compare overall results or select a task category and target type.</p>
+<p class="update-date" id="snapshot-date"></p>
+<div class="table-controls">
+<div class="filter-group"><label>Subset <select id="leader-scope"><option value="overall">All categories</option></select></label><label>Targets <select id="leader-label"><option value="all">All labels</option><option value="single">Hard Single</option><option value="set">Hard Set</option><option value="soft">Soft</option></select></label></div>
+<label>Search <input type="search" id="model-search" placeholder="Model name" autocomplete="off"></label>
+</div>
+<p class="subset-description" id="subset-counts"></p>
+<div class="table-scroll" role="region" aria-label="Decision model results" tabindex="0"><table id="leaderboard-table"><caption class="sr-only">MMDM results; select a column heading to sort.</caption><thead id="leaderboard-head"></thead><tbody id="leaderboard-body"></tbody></table></div>
+<p class="table-status" id="table-status" aria-live="polite"></p>
+<p class="metric-note">Hard Single Acc ↑: top-1 match. Hard Set Acc ↑: exact Top-N set match, where N is the reference set size. Soft Brier ↓: squared error over the full target distribution. “—” marks a metric that does not apply or has no recorded value.</p>
+<details class="protocol"><summary>Evaluation details &amp; data</summary><div>
+<p>Hard accuracy uses every item of the corresponding label type; failed requests count as incorrect. Soft Brier is averaged over each model’s valid, native full-distribution predictions. Hover over a value to see its denominator.</p>
+<p>For inputs beyond a model’s context budget, the evaluation retains the question, options, and criteria, and truncates the middle of the state. Large candidate sets use the recorded native or grouped decision protocol.</p>
+<p>Random (uniform) reports analytic expected hard accuracy and a uniform probability distribution. Model names link to available model or project pages.</p>
+<p id="review-note"></p><p id="pending-note"></p>
+<p><a href="#" id="download-results" download="mmdm-results.json">Download results and dataset statistics</a> · <a href="#" id="download-provenance" download="mmdm-provenance.json">Snapshot provenance</a></p>
+</div></details>
+</section>
+<section class="section container wide" id="dataset">
+<h2><img class="benchmark-logo heading-logo" data-logo alt="" width="42" height="42">MMDM Dataset</h2>
+<div class="prose dataset-intro">
+<p>MMDM combines source-grounded adaptations, executable task mechanisms, and decisions drawn from real tool and skill contexts. The release covers <strong>62 source identifiers and 80 category–subcategory combinations</strong>. Source evidence, task-specific checks, and independent review support the reference answers.</p>
+<p>Options express their own meanings and criteria, including cross-option dependencies. Hard-set labels specify multiple definitively correct choices; soft labels express outcome uncertainty or distributions over scores. <strong>Score is a task format</strong> that overlaps the label types: 35 hard-single and 628 soft examples.</p>
+</div>
+<h3>Task categories</h3>
+<p class="section-description">16 complementary views of decision-making, with exact counts and label composition.</p>
+<div id="category-chart" class="category-figure" aria-label="Distribution across 16 task categories"></div>
+<details class="distribution-details"><summary>Category counts by label type</summary><div class="table-scroll"><table id="category-table"></table></div></details>
+<h3 class="statistics-heading">Statistics</h3>
+<div class="statistics-grid">
+<figure class="stat-panel label-panel"><h4>Answer types</h4><div id="label-chart"></div><figcaption>Three mutually exclusive target types.</figcaption></figure>
+<figure class="stat-panel"><h4>Score tasks</h4><div id="score-chart"></div><figcaption>Score overlaps answer types and is included in the 5,448 examples.</figcaption></figure>
+<figure class="stat-panel"><div class="stat-heading"><h4>Context &amp; input length</h4><label class="sr-only" for="length-kind">Length measurement</label><select id="length-kind"><option value="full_input">Complete input</option><option value="state_question">State + question</option></select></div><div id="context-chart"></div><p class="stat-summary" id="context-summary"></p><figcaption>Qwen3.5-4B tokens, without special tokens. Complete input includes all option names and criteria. K = 1,024 tokens.</figcaption></figure>
+<figure class="stat-panel"><div class="stat-heading"><h4>Candidate-set size</h4><label class="sr-only" for="option-scale">Candidate count view</label><select id="option-scale"><option value="bins">Grouped ranges</option><option value="exact">Exact counts</option></select></div><div id="option-chart"></div><p class="stat-summary" id="option-summary"></p><figcaption>Each bar reports examples at that candidate count or range.</figcaption></figure>
+</div>
+<p class="dataset-download">Explore the benchmark on <a href="https://huggingface.co/datasets/shenjunhao/mmdm" target="_blank" rel="noopener">Hugging Face</a>, or download the <a href="#" id="download-statistics" download="mmdm-statistics.json">statistics as JSON</a>.</p>
+</section>
+<section class="section container" id="examples">
+<h2>Examples</h2>
+<p class="section-description">Original examples from MMDM, with their input, candidate criteria, and reference answer.</p>
+<div class="example-controls"><label>Category <select id="example-category"></select></label><div class="example-pager"><button id="previous-example" type="button" aria-label="Previous example">Previous</button><span id="example-count" aria-live="polite"></span><button id="next-example" type="button" aria-label="Next example">Next</button></div></div>
+<article class="example" id="example-card"><div class="example-header"><p><strong id="example-kind"></strong><span id="example-meta"></span></p><a href="#" id="download-example" download>Download JSON</a></div>
+<h4>State / Context</h4><div class="state-frame" id="state-frame"><pre id="example-state"></pre></div><button id="expand-state" class="text-button" type="button" aria-expanded="false">Read full context ↓</button>
+<h4>Question</h4><p id="example-question"></p><h4>Options</h4><ol id="example-options"></ol>
+<div class="example-response"><h4>Reference answer</h4><p id="answer-summary"></p><div id="answer-chart"></div></div>
+<p class="example-source" id="example-source"></p>
+</article>
+</section>
+<noscript><p class="container">Enable JavaScript to explore the embedded results, charts, and examples.</p></noscript>
+<p class="container" id="load-error" hidden role="alert">The page could not render its embedded data.</p>
+</main>
+<footer class="container"><p>MMDM: Measuring Massive Multitask Decision Making</p><p>Layout inspired by <a href="https://mmmu-benchmark.github.io/">MMMU</a> and <a href="https://mathvista.github.io/">MathVista</a>. · <a href="https://github.com/mmdm-benchmark/mmdm-benchmark.github.io">Website source</a></p></footer>
+<script id="benchmark-data" type="application/json">@@DATA@@</script>
+<script>@@JS@@</script>
+</body></html>

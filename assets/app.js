@@ -1,131 +1,138 @@
 'use strict';
-
-const $ = selector => document.querySelector(selector);
-const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const number = value => value.toLocaleString('en-US');
-const fixed = (value, digits = 2) => value == null ? '—' : value.toFixed(digits);
-const state = {view:'overall', category:'option_logic', sort:'accuracy', direction:-1, exampleCategory:'option_logic', exampleIndex:0, responseModel:'typesafe-jev-1.13.0'};
-let data;
-let downloadURL;
-
-function optionsForCategories(select) {
-  const ordered = [...data.categories].sort((a,b)=>a.name.localeCompare(b.name));
-  select.innerHTML = ordered.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
+const D=JSON.parse(document.getElementById('benchmark-data').textContent);
+const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', fmt=(x,k)=>x==null?'—':k==='soft'?x.toFixed(4):pct(x);
+const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
+const DEFAULT_MODELS=['jev','microsoft','openjev','intern','semif'];
+const state={scope:'overall',label:'all',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleCategory:'option_logic',exampleIndex:0};
+const urls=new Map();
+function download(id,value,name){if(urls.has(id))URL.revokeObjectURL(urls.get(id));const u=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));urls.set(id,u);$(id).href=u;$(id).download=name;}
+function scopeCounts(){return state.scope==='overall'?{name:'All categories',total:D.total,single:D.single,set:D.set,soft:D.soft}:D.categories.find(c=>c.id===state.scope);}
+function modelMetric(m){return state.scope==='overall'?m.metrics:m.categories[state.scope];}
+function displayMetric(m,k){if(state.label!=='all'&&state.label!==k)return null;return modelMetric(m)?.[k]??null;}
+function renderLeaderboard(){
+ const q=$('#model-search').value.trim().toLowerCase(),counts=scopeCounts();
+ const sorted=[...D.models].sort((a,b)=>{
+  if(a.id==='random')return 1;if(b.id==='random')return -1;
+  const x=state.sort==='name'?a.name:displayMetric(a,state.sort), y=state.sort==='name'?b.name:displayMetric(b,state.sort);
+  if(x==null&&y==null)return a.name.localeCompare(b.name);if(x==null)return 1;if(y==null)return -1;
+  return (typeof x==='string'?x.localeCompare(y):x-y)*state.direction||a.name.localeCompare(b.name);
+ });
+ const best={};for(const k of ['single','set','soft']){const v=D.models.filter(m=>m.id!=='random').map(m=>displayMetric(m,k)).filter(v=>v!=null);best[k]=v.length?(k==='soft'?Math.min(...v):Math.max(...v)):null;}
+ const cols=[['name','Decision Model'],['single','Hard Single Acc ↑'],['set','Hard Set Acc ↑'],['soft','Soft Brier ↓']];
+ $('#leaderboard-head').innerHTML='<tr><th scope="col">#</th>'+cols.map(([k,t])=>`<th scope="col" aria-sort="${state.sort===k?(state.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${k}">${t}<span class="sort-arrow" aria-hidden="true">${state.sort===k?(state.direction===1?'▴':'▾'):'↕'}</span></button></th>`).join('')+'</tr>';
+ const visible=sorted.map((m,i)=>({...m,rank:m.id==='random'?'—':i+1})).filter(m=>m.name.toLowerCase().includes(q));
+ $('#leaderboard-body').innerHTML=visible.length?visible.map(m=>{
+  const values=['single','set','soft'].map(k=>{const v=displayMetric(m,k),n=modelMetric(m)?.[k+'_n'];return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}" title="${v==null?'Not applicable or no recorded result':k==='soft'?`Brier over ${num(n)} valid full-distribution outputs`:`Accuracy over all ${num(n)} ${LABELS[k]} items`}">${fmt(v,k)}</td>`;}).join('');
+  const name=m.url?`<a class="model-link" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:`<span class="model-name">${esc(m.name)}</span>`;
+  return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}${m.review?'<sup class="review-mark" title="Source report marks this completed run for review">†</sup>':''}</td>${values}</tr>`;
+ }).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px">No matching models.</td></tr>';
+ $('#subset-counts').innerHTML=`<strong>${esc(counts.name)}</strong> · ${num(counts.total)} examples &nbsp; <span>Single ${num(counts.single)}</span> · <span>Set ${num(counts.set)}</span> · <span>Soft ${num(counts.soft)}</span>`;
+ $('#table-status').textContent=`${visible.length} results shown · Bold marks the best model value in each metric.`;
 }
-
-function modelRows() {
-  return data.models.map(model => {
-    if (state.view==='overall') return {...model, accuracy:model.hard_accuracy, hard:model.hard_brier, soft:model.soft_brier, validText:`${number(model.valid)} / ${number(data.total)}`};
-    const hard = model.category['hard/'+state.category];
-    const soft = model.category['soft/'+state.category];
-    return {...model, accuracy:hard?.accuracy==null?null:100*hard.accuracy,
-      hard:hard?.brier??null,soft:soft?.brier??null,
-      valid:(hard?.valid??0)+(soft?.valid??0),
-      validText:`H ${hard?`${number(hard.valid)}/${number(hard.n)}`:'—'} · S ${soft?`${number(soft.valid)}/${number(soft.n)}`:'—'}`};
-  });
+function tip(text){return `<title>${esc(text)}</title>`;}
+function svgText(x,y,lines,attrs=''){return `<text x="${x}" y="${y}" ${attrs}>${lines.map((l,i)=>`<tspan x="${x}" dy="${i?17:0}">${esc(l)}</tspan>`).join('')}</text>`;}
+function selectedModels(){return D.models.filter(m=>state.selected.has(m.id));}
+function renderRadar(){
+ const kind=state.radar,cats=D.categories.filter(c=>c[kind]>0),models=selectedModels(),cx=350,cy=282,radius=169,n=cats.length;
+ const point=(i,r)=>[cx+r*Math.sin(2*Math.PI*i/n),cy-r*Math.cos(2*Math.PI*i/n)];
+ const pts=r=>cats.map((_,i)=>point(i,r).join(',')).join(' ');
+ let s='<svg viewBox="0 0 700 560" role="img" aria-labelledby="radar-svg-title"><title id="radar-svg-title">'+(kind==='single'?'Hard Single':'Hard Set')+' accuracy by task category, in percent</title>';
+ for(const v of [20,40,60,80,100]){s+=`<polygon points="${pts(radius*v/100)}" class="grid"/>`+svgText(cx+5,cy-radius*v/100-4,[String(v)],'class="tick-label"');}
+ cats.forEach((c,i)=>{const [x,y]=point(i,radius),[lx,ly]=point(i,radius+44),anchor=Math.abs(lx-cx)<15?'middle':lx>cx?'start':'end',lines=c.short.split('|');s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="grid"/>`+svgText(lx,ly-(lines.length-1)*8+5,lines,`text-anchor="${anchor}" class="axis-label"`);});
+ models.forEach(m=>{const vals=cats.map(c=>m.categories[c.id][kind]);if(vals.some(v=>v==null))return;const points=vals.map((v,i)=>point(i,radius*v));s+=`<polygon points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${m.color}" stroke-width="2" opacity=".95"/>`;points.forEach(([x,y],i)=>{s+=`<circle class="chart-point" cx="${x}" cy="${y}" r="3" fill="${m.color}" tabindex="0" aria-label="${esc(m.name+': '+cats[i].name+' '+fmt(vals[i],kind))}">${tip(m.name+' · '+cats[i].name+': '+fmt(vals[i],kind)+' (n = '+cats[i][kind]+')')}</circle>`;});});
+ s+='</svg>';$('#radar-chart').innerHTML=s;$('#radar-title').textContent=kind==='single'?'Hard Single Accuracy':'Hard Set Accuracy';
 }
-
-function renderLeaderboard() {
-  const all = modelRows();
-  const best = {};
-  for (const key of ['accuracy','hard','soft']) {
-    const values=all.map(m=>m[key]).filter(v=>v!==null);
-    best[key] = values.length ? (key==='accuracy'?Math.max(...values):Math.min(...values)) : null;
-  }
-  all.sort((a,b) => {
-    if (a[state.sort]==null && b[state.sort]==null) return a.name.localeCompare(b.name);
-    if (a[state.sort]==null) return 1;
-    if (b[state.sort]==null) return -1;
-    return state.direction * (typeof a[state.sort]==='string'?a[state.sort].localeCompare(b[state.sort]):a[state.sort]-b[state.sort]) || a.name.localeCompare(b.name);
-  });
-  const columns = [['name','Decision Model'],['accuracy','Hard Accuracy ↑'],['hard','Hard Brier ↓'],['soft','Soft Brier ↓'],['valid',state.view==='overall'?'Valid outputs':'Valid / total (H · S)']];
-  $('#leaderboard-head').innerHTML = `<tr><th scope="col">#</th>${columns.map(([key,label])=>`<th scope="col" aria-sort="${state.sort===key?(state.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${key}" aria-label="Sort by ${escapeHTML(label.replace(/[↑↓]/g,''))}">${label}<span class="sort-arrow" aria-hidden="true">${state.sort===key?(state.direction===1?'▴':'▾'):'↕'}</span></button></th>`).join('')}</tr>`;
-  const query=$('#model-search').value.trim().toLowerCase();
-  const visible=all.map((m,i)=>({...m,rank:i+1})).filter(m=>m.name.toLowerCase().includes(query));
-  const metric = (m,key,digits) => `<td class="${key==='accuracy'?'accuracy-cell ':''}${m[key]!==null&&m[key]===best[key]?'best':''}"${key==='accuracy'?` style="--bar:${m.accuracy??0}%"`:''}>${fixed(m[key],digits)}${key==='accuracy'&&m.accuracy!==null?'%':''}</td>`;
-  $('#leaderboard-body').innerHTML = visible.length ? visible.map(m=>`<tr><td>${m.rank}</td><td><a class="model-link" href="${escapeHTML(m.url)}" target="_blank" rel="noopener">${escapeHTML(m.name)}</a></td>${metric(m,'accuracy',2)}${metric(m,'hard',4)}${metric(m,'soft',4)}<td>${m.validText}</td></tr>`).join('') : '<tr><td colspan="6" style="text-align:center;padding:28px">No matching models. Try a different name.</td></tr>';
-  const cat = data.categories.find(c=>c.id===state.category);
-  $('#table-status').textContent = `${visible.length} of ${data.models.length} configurations · ${state.view==='overall'?'Full benchmark':cat.name} · Bold marks the best value in each metric.`;
-  $('#metric-note').textContent = state.view==='overall'
-    ? 'Hard Accuracy includes all 4,351 hard items; invalid or unsupported outputs count as incorrect. Brier compares the same 4,014 hard and 558 soft items with valid outputs from every model.'
-    : `${cat.name}: ${number(cat.hard)} hard and ${number(cat.soft)} soft targets. Accuracy uses every hard item in this category. Category Brier uses each model’s valid outputs; H and S show valid/total counts. A dash means this target type is absent.`;
+function renderSoft(){
+ const models=selectedModels(),groups=[['all',['All soft targets'],D.soft],['score',['Score & rubrics'],D.score_soft],['other',['Other soft tasks'],D.soft-D.score_soft]];
+ const values=models.flatMap(m=>Object.values(m.scatter).map(v=>v.value).filter(v=>v!=null)),max=Math.max(.1,Math.ceil(Math.max(0,...values)*10)/10),left=176,right=525,top=78,bottom=453;
+ const X=v=>left+(right-left)*v/max;
+ let s='<svg viewBox="0 0 560 560" role="img" aria-labelledby="soft-svg-title"><title id="soft-svg-title">Soft Brier error by task group. Lower is better.</title>';
+ const ticks=5;for(let i=0;i<=ticks;i++){const v=max*i/ticks,x=X(v);s+=`<line x1="${x}" x2="${x}" y1="${top}" y2="${bottom}" class="grid"/>`+svgText(x,480,[v.toFixed(2)],'text-anchor="middle" class="tick-label"');}
+ groups.forEach(([key,lines,count],gi)=>{
+  const y=134+gi*131;s+=svgText(left-19,y-6,lines.concat(`(n = ${num(count)})`),'text-anchor="end" class="axis-label"');
+  models.forEach((m,i)=>{const v=m.scatter[key];if(v.value==null)return;const py=y+(i-(models.length-1)/2)*Math.min(12,74/Math.max(1,models.length-1)),x=X(v.value),label=`${m.name} · ${lines[0]}: ${v.value.toFixed(4)} (n = ${v.n})`;s+=`<circle class="chart-point" cx="${x}" cy="${py}" r="4.8" fill="${m.color}" tabindex="0" aria-label="${esc(label)}">${tip(label)}</circle>`;});
+ });s+=svgText((left+right)/2,513,['Brier error (lower is better)'],'text-anchor="middle" class="axis-label"')+'</svg>';$('#soft-chart').innerHTML=s;
 }
-
-function renderStatistics() {
-  const bins = [[2,2,'2'],[3,4,'3–4'],[5,10,'5–10'],[11,16,'11–16'],[17,62,'17–62'],[63,77,'63–77']];
-  $('#option-count-body').innerHTML = bins.map(([lo,hi,label])=>{
-    const n=data.option_counts.filter(r=>r.options>=lo&&r.options<=hi).reduce((sum,r)=>sum+r.total,0);
-    return `<tr><td>${label}</td><td>${number(n)}</td><td>${(100*n/data.total).toFixed(1)}%</td></tr>`;
-  }).join('');
+function renderFigureValues(){
+ const models=selectedModels(),kind=state.radar,cats=D.categories.filter(c=>c[kind]>0);
+ let s='<caption class="sr-only">Exact plotted values</caption><thead><tr><th>Task / metric</th>'+models.map(m=>`<th>${esc(m.name)}</th>`).join('')+'</tr></thead><tbody>';
+ cats.forEach(c=>{s+=`<tr><td>${esc(c.name)} · ${LABELS[kind]} Acc</td>`+models.map(m=>`<td>${fmt(m.categories[c.id][kind],kind)}</td>`).join('')+'</tr>';});
+ for(const [id,name] of [['all','All soft'],['score','Score soft'],['other','Other soft']])s+=`<tr><td>${name} · Brier</td>`+models.map(m=>`<td>${fmt(m.scatter[id].value,'soft')}</td>`).join('')+'</tr>';
+ $('#figure-values').innerHTML=s+'</tbody>';
 }
-
-function currentExample() {
-  return data.examples.filter(e=>e.category===state.exampleCategory)[state.exampleIndex];
+function renderFigures(){
+ renderRadar();renderSoft();renderFigureValues();
+ const models=D.models.filter(m=>DEFAULT_MODELS.includes(m.id)||state.selected.has(m.id));
+ $('#figure-legend').innerHTML=models.map(m=>`<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="${state.selected.has(m.id)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}</button>`).join('');
+ document.querySelectorAll('#figure-models input').forEach(el=>{el.checked=state.selected.has(el.value);});
 }
-
-function renderExample() {
-  const list=data.examples.filter(e=>e.category===state.exampleCategory);
-  const e=list[state.exampleIndex];
-  const soft=e.answer.kind==='soft';
-  const category = data.categories.find(c=>c.id===e.category);
-  $('#example-count').textContent=`${state.exampleIndex+1} / ${list.length}`;
-  $('#previous-example').disabled=list.length===1;
-  $('#next-example').disabled=list.length===1;
-  $('#example-kind').textContent=soft?'Soft target':'Hard target';
-  $('#example-kind').classList.toggle('soft',soft);
-  $('#example-meta').textContent=`${e.task==='score'?'Score · ':''}${e.options.length} options · row ${e.row_index}`;
-  $('#example-state').textContent=e.state;
-  $('#example-question').textContent=e.question;
-  $('#example-card').setAttribute('aria-label',`${category.name}, ${soft?'soft':'hard'} example`);
-  $('#state-frame').classList.remove('expanded');
-  $('#expand-state').setAttribute('aria-expanded','false');
-  $('#expand-state').textContent='Read full context ↓';
-  $('#example-options').innerHTML = e.options.map((o,i)=>`<li><span class="option-id">${escapeHTML(o.id)}</span><div><div class="option-name">${escapeHTML(o.name)}${e.score_values?`<span class="score-value">score ${e.score_values[i]}</span>`:''}</div>${o.criteria?`<div class="option-criteria">${escapeHTML(o.criteria)}</div>`:''}</div></li>`).join('');
-  requestAnimationFrame(()=>{
-    const overflow=$('#example-state').scrollHeight>230;
-    $('#state-frame').classList.toggle('overflowing',overflow);
-    $('#expand-state').hidden=!overflow;
-  });
-  if(downloadURL)URL.revokeObjectURL(downloadURL);
-  downloadURL=URL.createObjectURL(new Blob([JSON.stringify(e,null,2)],{type:'application/json'}));
-  $('#download-example').href=downloadURL;
-  $('#download-example').download=`mmdm-example-${e.row_index}.json`;
-  renderResponse();
+function renderCategories(){
+ const cats=[...D.categories].sort((a,b)=>b.total-a.total),max=Math.ceil(cats[0].total/100)*100;
+ const left=70,right=1160,top=25,bottom=285,step=(right-left)/cats.length,barWidth=step*.72;
+ const Y=v=>bottom-v/max*(bottom-top);
+ let chart='<svg viewBox="0 0 1200 495" role="img" aria-labelledby="category-svg-title"><title id="category-svg-title">Task distribution of MMDM: 5,448 examples across 16 categories</title>';
+ for(let v=0;v<=max;v+=100){const y=Y(v);chart+=`<line x1="${left}" x2="${right}" y1="${y}" y2="${y}" stroke="#DEDCD7" stroke-width=".7"/><text x="${left-13}" y="${y+5}" text-anchor="end" font-size="15">${v}</text>`;}
+ chart+=`<text transform="translate(22 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" font-size="18">Examples</text>`;
+ cats.forEach((c,i)=>{const x=left+step*(i+.5),y=Y(c.total);chart+=`<g data-category="${c.id}" tabindex="0" role="link" aria-label="Show ${esc(c.name)} results, ${c.total} examples">${tip(c.name+': '+c.total+' examples; Hard Single '+c.single+', Hard Set '+c.set+', Soft '+c.soft)}<rect x="${x-barWidth/2}" y="${y}" width="${barWidth}" height="${bottom-y}" fill="${c.color}"/><text x="${x}" y="${y-9}" text-anchor="middle" font-size="16">${c.total}</text><text transform="translate(${x+3} ${bottom+20}) rotate(-42)" text-anchor="end" font-size="16">${esc(c.name)}</text></g>`;});
+ $('#category-chart').innerHTML=chart+'</svg>';
+ $('#category-table').innerHTML='<thead><tr><th>Category</th><th>Total</th><th>Hard Single</th><th>Hard Set</th><th>Soft</th><th>Score¹</th></tr></thead><tbody>'+cats.map(c=>`<tr><td>${esc(c.name)}</td>${['total','single','set','soft','score'].map(k=>`<td>${num(c[k])}</td>`).join('')}</tr>`).join('')+`<tr><th>Total</th><th>${num(D.total)}</th><th>${num(D.single)}</th><th>${num(D.set)}</th><th>${num(D.soft)}</th><th>${num(D.score)}</th></tr></tbody><caption style="caption-side:bottom;padding-top:10px">¹ Score overlaps the three label types.</caption>`;
 }
-
-function renderResponse() {
-  const e=currentExample(),q=e.answer.probabilities,p=e.predictions[state.responseModel];
-  if(!p){$('#response-chart').textContent='No valid recorded output for this example.';$('#response-summary').textContent='';return;}
-  const percent=v=>v>0&&v<.001?'<0.1%':`${(v*100).toFixed(1)}%`;
-  $('#response-chart').innerHTML=e.options.map((o,i)=>`<div class="prob-row"><p class="prob-label">${escapeHTML(o.id)}${e.score_values?` · score ${e.score_values[i]}`:''}</p><div class="prob-bars"><div class="prob-track" aria-hidden="true"><span style="width:${q[i]*100}%;background:#b8bec2"></span></div><span class="prob-value" aria-label="${escapeHTML(o.id)} target probability">${escapeHTML(percent(q[i]))}</span><div class="prob-track" aria-hidden="true"><span style="width:${p[i]*100}%;background:#587e9f"></span></div><span class="prob-value" aria-label="${escapeHTML(o.id)} predicted probability">${escapeHTML(percent(p[i]))}</span></div></div>`).join('');
-  const brier=p.reduce((sum,v,i)=>sum+(v-q[i])**2,0);
-  const predicted=p.indexOf(Math.max(...p));
-  const target=q.indexOf(Math.max(...q));
-  let summary=e.answer.kind==='hard'?`<strong class="${predicted===target?'result-correct':'result-incorrect'}">${predicted===target?'Correct decision':'Different from the target'}</strong><p>Predicted: ${escapeHTML(e.options[predicted].id)} · Target: ${escapeHTML(e.options[target].id)}</p>`:'<strong>Distributional prediction</strong>';
-  summary+=`<p>Brier error: ${brier.toFixed(4)}</p>`;
-  if(e.score_values)summary+=`<p>Expected score · target ${q.reduce((s,v,i)=>s+v*e.score_values[i],0).toFixed(2)} / predicted ${p.reduce((s,v,i)=>s+v*e.score_values[i],0).toFixed(2)}</p>`;
-  $('#response-summary').innerHTML=summary;
+function renderLabels(){
+ const segments=['single','set','soft'];let offset=0;
+ const circles=segments.map(k=>{const length=D[k]/D.total*100,s=`<circle cx="90" cy="90" r="69" pathLength="100" fill="none" stroke="${LABEL_COLORS[k]}" stroke-width="18" stroke-dasharray="${length} ${100-length}" stroke-dashoffset="${-offset}" transform="rotate(-90 90 90)">${tip(`${LABELS[k]}: ${num(D[k])} (${(length).toFixed(2)}%)`)}</circle>`;offset+=length;return s;}).join('');
+ $('#label-chart').innerHTML=`<div class="label-stat"><svg class="label-donut" viewBox="0 0 180 180" role="img" aria-label="4,112 hard single, 633 hard set, 703 soft examples">${circles}<text x="90" y="89" text-anchor="middle" font-size="27">${num(D.total)}</text><text x="90" y="110" text-anchor="middle" font-size="13">examples</text></svg><div class="label-list">${segments.map(k=>`<div class="label-row"><i class="label-dot" style="background:${LABEL_COLORS[k]}" aria-hidden="true"></i><span>${LABELS[k]}<small>${(D[k]/D.total*100).toFixed(2)}%</small></span><b>${num(D[k])}</b></div>`).join('')}</div></div>`;
+ $('#score-chart').innerHTML=`<p class="score-total">${num(D.score)}<small>${(D.score/D.total*100).toFixed(2)}% of MMDM</small></p><div class="stacked-bar" role="img" aria-label="Score: ${D.score_single} hard single and ${D.score_soft} soft"><span style="width:${D.score_single/D.score*100}%;background:${LABEL_COLORS.single}" title="${D.score_single} Hard Single"></span><span style="width:${D.score_soft/D.score*100}%;background:${LABEL_COLORS.soft}" title="${D.score_soft} Soft"></span></div><div class="score-legend"><span><i style="background:${LABEL_COLORS.single}"></i>Hard Single <strong>${D.score_single}</strong></span><span><i style="background:${LABEL_COLORS.soft}"></i>Soft <strong>${D.score_soft}</strong></span></div>`;
 }
-
-async function init() {
-  const response=await fetch('data/benchmark.json');
-  if(!response.ok)throw new Error(`Benchmark data: HTTP ${response.status}`);
-  data=await response.json();
-  optionsForCategories($('#example-category'));
-  const scope=$('#leader-scope');
-  scope.insertAdjacentHTML('beforeend','<optgroup label="By category">'+[...data.categories].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('')+'</optgroup>');
-  $('#example-category').value=state.exampleCategory;
-  $('#response-model').innerHTML=data.highlighted_models.map(id=>{const m=data.models.find(m=>m.id===id);return `<option value="${id}">${escapeHTML(m.name)}</option>`;}).join('');
-  $('#response-model').value=state.responseModel;
-  $('#leader-scope').addEventListener('change',event=>{const value=event.target.value;state.view=value==='overall'?'overall':'category';if(state.view==='category')state.category=value;state.sort=state.view==='overall'||data.categories.find(c=>c.id===state.category).hard?'accuracy':'soft';state.direction=state.sort==='accuracy'?-1:1;renderLeaderboard();});
-  $('#leaderboard-head').addEventListener('click',event=>{const b=event.target.closest('[data-sort]');if(!b)return;const key=b.dataset.sort;state.direction=state.sort===key?-state.direction:({accuracy:-1,valid:-1,hard:1,soft:1,name:1}[key]);state.sort=key;renderLeaderboard();document.querySelector('[data-sort="'+key+'"]').focus({preventScroll:true});});
-  $('#model-search').addEventListener('input',renderLeaderboard);
-  $('#example-category').addEventListener('change',event=>{state.exampleCategory=event.target.value;state.exampleIndex=0;renderExample();});
-  for(const [id,direction] of [['#previous-example',-1],['#next-example',1]])$(id).addEventListener('click',()=>{const n=data.examples.filter(e=>e.category===state.exampleCategory).length;state.exampleIndex=(state.exampleIndex+direction+n)%n;renderExample();});
-  $('#response-model').addEventListener('change',event=>{state.responseModel=event.target.value;renderResponse();});
-  $('#expand-state').addEventListener('click',()=>{const expanded=$('#state-frame').classList.toggle('expanded');$('#expand-state').setAttribute('aria-expanded',String(expanded));$('#expand-state').textContent=expanded?'Collapse context ↑':'Read full context ↓';});
-  $('#copy-code').addEventListener('click',async()=>{const b=$('#copy-code');try{await navigator.clipboard.writeText($('#load-code').textContent);b.textContent='Copied';}catch{b.textContent='Select to copy';const range=document.createRange();range.selectNodeContents($('#load-code'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}setTimeout(()=>{b.textContent='Copy';},2000);});
-  renderLeaderboard();renderStatistics();renderExample();
-  document.documentElement.dataset.ready='true';
+function bars(rows,color='#8E9EAC',exact=false){const max=Math.max(...rows.map(r=>r.n),1);return `<div class="mini-bars ${exact?'option-exact':''}">`+rows.map(r=>`<div class="mini-bar"><span>${esc(r.label)}</span><span class="track"><i style="width:${r.n/max*100}%;background:${color}" title="${num(r.n)} examples · ${(100*r.n/D.total).toFixed(2)}%"></i></span><b>${num(r.n)}</b></div>`).join('')+'</div>';}
+function renderContext(){const k=$('#length-kind').value,p=D.length_profile[k];$('#context-chart').innerHTML=bars(D.length_profile.bins.map(b=>({label:b.label,n:b[k]})),'#94A7B0');$('#context-summary').innerHTML=`Median <strong>${num(p.median)}</strong> · 95th percentile <strong>${num(p.p95)}</strong> · Maximum <strong>${num(p.max)}</strong> tokens`;}
+function renderOptions(){
+ const exact=$('#option-scale').value==='exact',bins=[[2,2,'2'],[3,4,'3–4'],[5,8,'5–8'],[9,16,'9–16'],[17,64,'17–64'],[65,255,'65–255'],[256,1024,'256–1,024']];
+ const rows=exact?D.option_counts.map(x=>({label:String(x.options),n:x.total})):bins.map(([lo,hi,label])=>({label,n:D.option_counts.filter(r=>r.options>=lo&&r.options<=hi).reduce((s,r)=>s+r.total,0)}));
+ $('#option-chart').innerHTML=bars(rows,'#ADA28F',exact);
+ const above=D.option_counts.filter(r=>r.options>255).reduce((s,r)=>s+r.total,0);let cumulative=0,median=0;for(const x of D.option_counts){cumulative+=x.total;if(cumulative>=D.total/2){median=x.options;break;}}
+ $('#option-summary').innerHTML=`Range <strong>2–1,024</strong> · Median <strong>${median}</strong> · <strong>${above}</strong> examples with more than 255 options`;
 }
-init().catch(error=>{console.error(error);$('#load-error').hidden=false;$('#leaderboard-body').innerHTML='<tr><td colspan="6">Results could not load. Please refresh the page.</td></tr>';});
+function renderExample(){
+ const items=D.examples.filter(e=>e.category===state.exampleCategory),e=items[state.exampleIndex],kind={hard_single:'Hard Single',hard_set:'Hard Set',soft:'Soft'}[e.kind];
+ $('#example-count').textContent=`${state.exampleIndex+1} / ${items.length}`;$('#previous-example').disabled=items.length<2;$('#next-example').disabled=items.length<2;
+ $('#example-kind').textContent=kind;$('#example-meta').textContent=`${e.task==='score'?'Score · ':''}${e.options.length} options`;$('#example-state').textContent=e.state;$('#example-question').textContent=e.question;
+ $('#state-frame').classList.remove('expanded');$('#expand-state').setAttribute('aria-expanded','false');$('#expand-state').textContent='Read full context ↓';
+ $('#example-options').innerHTML=e.options.map(o=>`<li><span class="option-id">${esc(o.id)}</span><div><div class="option-name">${esc(o.name)}</div>${o.criteria?`<div class="option-criteria">${esc(o.criteria)}</div>`:''}</div></li>`).join('');
+ const opts=new Map(e.options.map(o=>[o.id,o.name]));
+ $('#answer-summary').textContent=e.kind==='soft'?'Target probability for each candidate:':(e.kind==='hard_set'?'Complete correct set: ':'Correct option: ')+e.correct_option_ids.map(id=>`${id} (${opts.get(id)})`).join('; ');
+ $('#answer-chart').innerHTML=e.kind==='soft'?'<div class="mini-bars">'+e.options.map((o,i)=>`<div class="mini-bar"><span>${esc(o.id)}${e.score_values?' · '+esc(e.score_values[i]):''}</span><span class="track"><i style="width:${e.gold[i]*100}%;background:${LABEL_COLORS.soft}"></i></span><b>${(e.gold[i]*100).toFixed(1)}%</b></div>`).join('')+'</div>':'';
+ $('#example-source').textContent=`Source: ${e.source.dataset} · ${e.task_subcategory}`;
+ download('#download-example',e,`mmdm-example-${e.id.replace(/^mmdm-v2-/,'')}.json`);
+ requestAnimationFrame(()=>{$('#expand-state').hidden=$('#example-state').scrollHeight<=230;});
+}
+function init(){
+ const logo=$('#main-logo').src;document.querySelectorAll('[data-logo]').forEach(el=>el.src=logo);$('#page-icon').href=logo;
+ const alphabetical=[...D.categories].sort((a,b)=>a.name.localeCompare(b.name));const categoryOptions=alphabetical.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+ $('#leader-scope').insertAdjacentHTML('beforeend',categoryOptions);$('#example-category').innerHTML=categoryOptions;$('#example-category').value=state.exampleCategory;
+ $('#snapshot-date').textContent=`Results snapshot: ${D.snapshot_time}`;
+ const results=D.models.filter(m=>m.id!=='random'),best=k=>results.reduce((a,b)=>(k==='soft'?a.metrics[k]<b.metrics[k]:a.metrics[k]>b.metrics[k])?a:b);
+ $('#result-summary').innerHTML=`The current results cover <strong>${results.length} Decision Models</strong> and a uniform-random baseline. The strongest Hard Single Accuracy is <strong>${fmt(best('single').metrics.single,'single')}</strong>; the strongest exact Hard Set Accuracy is <strong>${fmt(best('set').metrics.set,'set')}</strong>. The best Soft Brier is <strong>${fmt(best('soft').metrics.soft,'soft')}</strong>. MMDM exposes how performance changes across single-choice reasoning, joint decisions, and distributional prediction.`;
+ $('#pending-note').textContent=D.pending.length?`${D.pending.length} evaluations remain in progress at this snapshot: ${D.pending.map(m=>m.name).join(', ')}. They enter the table when complete.`:'';
+ $('#review-note').textContent=D.models.some(m=>m.review)?'† Clef has a complete result summary; the source report marks this run as awaiting review.':'';
+ $('#figure-models').innerHTML=D.models.map(m=>`<label><input type="checkbox" value="${esc(m.id)}" ${state.selected.has(m.id)?'checked':''}>${esc(m.name)}</label>`).join('');
+ $('#figure-models').addEventListener('change',ev=>{if(ev.target.checked)state.selected.add(ev.target.value);else state.selected.delete(ev.target.value);renderFigures();});
+ $('#figure-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(!b)return;state.selected.has(b.dataset.model)?state.selected.delete(b.dataset.model):state.selected.add(b.dataset.model);renderFigures();});
+ $('#reset-models').addEventListener('click',()=>{state.selected=new Set(DEFAULT_MODELS);renderFigures();});
+ $('#radar-kind').addEventListener('change',ev=>{state.radar=ev.target.value;renderFigures();});
+ function chooseSort(){const c=scopeCounts();state.sort=state.label==='all'?c.single?'single':c.set?'set':'soft':state.label;state.direction=state.sort==='soft'?1:-1;}
+ $('#leader-scope').addEventListener('change',ev=>{state.scope=ev.target.value;chooseSort();renderLeaderboard();});
+ $('#leader-label').addEventListener('change',ev=>{state.label=ev.target.value;chooseSort();renderLeaderboard();});
+ $('#leaderboard-head').addEventListener('click',ev=>{const b=ev.target.closest('[data-sort]');if(!b)return;const k=b.dataset.sort;state.direction=state.sort===k?-state.direction:k==='single'||k==='set'?-1:1;state.sort=k;renderLeaderboard();$(`[data-sort="${k}"]`).focus({preventScroll:true});});
+ $('#model-search').addEventListener('input',renderLeaderboard);
+ $('#category-chart').addEventListener('click',ev=>{const b=ev.target.closest('[data-category]');if(!b)return;state.scope=b.dataset.category;state.label='all';$('#leader-scope').value=state.scope;$('#leader-label').value='all';chooseSort();renderLeaderboard();$('#leaderboard').scrollIntoView();});
+ $('#category-chart').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){const g=ev.target.closest('[data-category]');if(g){ev.preventDefault();g.dispatchEvent(new MouseEvent('click',{bubbles:true}));}}});
+ $('#length-kind').addEventListener('change',renderContext);$('#option-scale').addEventListener('change',renderOptions);
+ $('#example-category').addEventListener('change',ev=>{state.exampleCategory=ev.target.value;state.exampleIndex=0;renderExample();});
+ for(const [id,step] of [['#previous-example',-1],['#next-example',1]])$(id).addEventListener('click',()=>{const count=D.examples.filter(e=>e.category===state.exampleCategory).length;state.exampleIndex=(state.exampleIndex+step+count)%count;renderExample();});
+ $('#expand-state').addEventListener('click',()=>{const on=$('#state-frame').classList.toggle('expanded');$('#expand-state').setAttribute('aria-expanded',String(on));$('#expand-state').textContent=on?'Collapse context ↑':'Read full context ↓';});
+ download('#download-results',D,'mmdm-results.json');download('#download-provenance',D.provenance,'mmdm-provenance.json');
+ download('#download-statistics',{total:D.total,single:D.single,set:D.set,soft:D.soft,score:D.score,categories:D.categories,length_profile:D.length_profile,option_counts:D.option_counts},'mmdm-statistics.json');
+ renderLeaderboard();renderFigures();renderCategories();renderLabels();renderContext();renderOptions();renderExample();document.documentElement.dataset.ready='true';
+}
+try{init();}catch(e){console.error(e);$('#load-error').hidden=false;}

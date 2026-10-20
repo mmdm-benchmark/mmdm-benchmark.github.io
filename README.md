@@ -1,52 +1,61 @@
-# MMDM project website
+# MMDM benchmark website
 
-A plain white, buildless academic project page for **MMDM: Measuring Massive Multitask Decision Making**. No author list is shown in this draft.
+A white, buildless academic project page for **MMDM: Measuring Massive Multitask Decision Making**. The page uses the supplied benchmark logo and has no author list. Public-facing text names the benchmark MMDM; version IDs are retained only in source paths and machine-readable provenance.
 
-## Project location
+## Open the page
+
+Open `index.html` directly in a browser. It is a self-contained HTML file: results, charts, styles, JavaScript, examples, and the original PNG logo are embedded. It needs no HTTP server, port forwarding, internet connection, or package installation. Resource links lead to their respective external projects.
 
 Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.io`.
 
-- Website source / GitHub Pages: [mmdm-benchmark/mmdm-benchmark.github.io](https://github.com/mmdm-benchmark/mmdm-benchmark.github.io)
-- The page’s GitHub button links to the benchmark repository: [mmdm-benchmark/mmdm](https://github.com/mmdm-benchmark/mmdm)
+- Website / Pages repository: <https://github.com/mmdm-benchmark/mmdm-benchmark.github.io>
+- Main GitHub button: <https://github.com/mmdm-benchmark/mmdm>
 
-## Local preview
+## Current data
 
-From the repository root:
+The MMDM release has 5,448 examples across 16 categories, 80 category–subcategory combinations, and 62 source identifiers. Labels comprise 4,112 Hard Single, 633 Hard Set, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single, 628 Soft).
 
-```sh
-python3 -m http.server 50813 --bind 127.0.0.1
-```
+The results snapshot contains 22 model runs plus Random (uniform). Six ongoing API evaluations have no completed result summary and are listed in Evaluation details. Clef's complete summary retains the source report's pending-review marker. The page embeds the snapshot timestamp and source hashes.
 
-Open http://127.0.0.1:50813. Use an HTTP server instead of opening `index.html` as a file, since interactive views load JSON with `fetch`.
+Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft Brier. Category and label filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Set uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 
-## Contents
+## Charts and examples
 
-- `index.html`: centered title and resource buttons, Introduction, Leaderboard, Dataset, Examples and Download
-- `assets/mmdm-logo.png`: supplied benchmark logo, preserved as the original transparent PNG; used beside the title and dataset heading, inline in the introduction, and as the favicon
-- `assets/style.css`: white background, sans-serif typography, regular document flow and simple academic tables
-- `assets/app.js`: sortable/filterable results, dataset statistics and real example explorer
-- `data/benchmark.json`: 19 configurations, 17 categories, 19 selected examples and recorded model outputs
-- `data/provenance.json`: exact source hashes and pinned dataset revision
-- `scripts/export_data.py`: reproducible export from the manuscript's pinned data
+- Native inline SVG radar (switch between Hard Single and Hard Set) and soft Brier dot plot.
+- The five original representative models retain their exact Morandi colors. Additional available models can be selected.
+- A vertical SVG category bar chart in the original paper-figure layout, with a table of label counts; donut and stacked bars for labels and Score.
+- Context histograms switch between complete input and state + question. Tokens use Qwen3.5-4B, no special tokens; K is 1,024 tokens.
+- Option counts switch between grouped ranges and all 27 exact sizes (2–1,024).
+- 27 authentic current-release examples across all 16 categories. Inputs and reference answers are unmodified; examples use their current reference answers.
+- JSON downloads use embedded data and work offline.
 
-All assets are served locally. No framework, package install, analytics, account, or inference service is required. Source text and sample criteria are rendered as text. The explorer uses complete source records, including the long multi-hop example; expanding the context reveals the original text.
-
-## Result definitions
-
-The 12 October 2026 paper snapshot contains 4,961 examples: 4,351 hard and 610 soft. Overall Hard Accuracy includes invalid and unsupported hard requests as incorrect. Overall Brier uses the common valid cohort (4,014 hard, 558 soft). Category Brier is computed on each model's own valid outputs, with counts shown. No macro-accuracy is displayed. Predictions in the example explorer are recorded outputs, not live calls.
-
-The public test combines the former 1,100 development and 3,861 test examples, as documented in the paper. These development roles should be considered when interpreting OpenJev results.
-
-Re-export after updating the pinned manuscript inputs:
+## Rebuild from updated reports
 
 ```sh
-python3 scripts/export_data.py --paper-root /path/to/mmdm-composition
+python3 scripts/export_v2.py \
+  --source-root /Users/shamkwanho/Documents/Code_Project/omni-openjev
 ```
+
+This reads `docs/reports/mmdm-v2-baselines-20261020/comparison.json`, the current `docs/reports/mmdm/` release metadata, and `benchmarks/mmdm-v2/mmdm.jsonl`. It checks the shared dataset SHA, category/label/option counts, and completed-run identity before writing `data/benchmark.json`, `data/provenance.json`, and `index.html`. Regeneration includes any newly completed model summaries. Existing exported source snapshots should be preserved if reproducibility across report updates is required.
+
+Edit the source files, then rebuild:
+
+- `templates/index.html`: page structure and prose
+- `assets/style.css`: responsive layout
+- `assets/app.js`: charts, leaderboard, and examples
+- `scripts/export_v2.py`: checked data transformation and standalone packaging
+- `assets/mmdm-logo.png`: supplied original transparent logo
+
+`index.html` is generated. `scripts/export_data.py` delegates to the current v2 exporter.
+
+## Validation
+
+Browser validation uses a copy of the single HTML file in an otherwise unrelated directory, in offline mode. It checks every category/label view, applicable metrics, all examples, chart controls, downloads, and 320/390/768/1440px layouts. A reference snapshot of the validation results is saved under `.preview/` (Git-ignored).
 
 ## GitHub Pages
 
-The intended repository is `mmdm-benchmark/mmdm-benchmark.github.io`, producing `https://mmdm-benchmark.github.io/` when Pages is enabled. For publishing, push this static root and configure Settings → Pages → Deploy from a branch → main → /(root). `.nojekyll` preserves the static files. This draft has been prepared for local review; publication is a separate step.
+Push this project to the Pages repository and set Settings → Pages → Deploy from a branch → main → /(root). The self-contained `index.html` also works unchanged on GitHub Pages. `.nojekyll` is included.
 
-## References and attribution
+## Attribution
 
-Original website implementation. Project-page organization is inspired by [MMMU](https://mmmu-benchmark.github.io/) and [MathVista](https://mathvista.github.io/); no reference-site code or images are copied. Figures, examples and baseline results are exported from the MMDM manuscript artifacts. Source datasets retain their notices: [MMDM source notices](https://huggingface.co/datasets/shenjunhao/mmdm/blob/main/SOURCE_NOTICES.md).
+The page structure follows [MMMU](https://mmmu-benchmark.github.io/) and [MathVista](https://mathvista.github.io/). The interactive figures use MMDM's Morandi palette and data from the current release and baseline reports. Dataset sources retain their notices: [source notices](https://huggingface.co/datasets/shenjunhao/mmdm/blob/main/SOURCE_NOTICES.md).
