@@ -15,11 +15,12 @@
     "soft": "per-model native valid full-distribution Brier; no hard Brier or soft accuracy"
   },
   "representative_models": [
+    "pplx12",
     "jev",
     "microsoft",
-    "openjev",
+    "27b",
     "intern",
-    "semif"
+    "openjev"
   ],
   "examples": "Unmodified input and gold from the current 5,448-row release. No historical model response is attached."
 }

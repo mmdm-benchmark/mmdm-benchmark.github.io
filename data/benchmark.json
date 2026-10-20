@@ -1101,7 +1101,7 @@
     },
     {
       "id": "intern",
-      "name": "Intern-Decision-4B",
+      "name": "Intern-Decision 4B",
       "url": "https://huggingface.co/internlm/Intern-Decision-4B",
       "color": "#887498",
       "review": false,
@@ -1260,7 +1260,7 @@
     },
     {
       "id": "h2o",
-      "name": "H2O-Lightning-4B",
+      "name": "H2O-Lightning 4B",
       "url": "https://huggingface.co/h2oai/h2o-lightning-4b",
       "color": "#A27A73",
       "review": false,
@@ -1578,7 +1578,7 @@
     },
     {
       "id": "intern08",
-      "name": "Intern-Decision-0.8B",
+      "name": "Intern-Decision 0.8B",
       "url": "https://huggingface.co/internlm/Intern-Decision-0.8B",
       "color": "#7D8E78",
       "review": false,
@@ -1737,7 +1737,7 @@
     },
     {
       "id": "intern2",
-      "name": "Intern-Decision-2B",
+      "name": "Intern-Decision 2B",
       "url": "https://huggingface.co/internlm/Intern-Decision-2B",
       "color": "#8D91A3",
       "review": false,
@@ -1896,7 +1896,7 @@
     },
     {
       "id": "strands",
-      "name": "Strands-Decider-2B",
+      "name": "Strands-Decider 2B",
       "url": "https://huggingface.co/StrandsAgents/strands-decider-2B-qwen3.5-v1-2610",
       "color": "#6D8A99",
       "review": false,
@@ -2055,7 +2055,7 @@
     },
     {
       "id": "semif",
-      "name": "SemIf-4B",
+      "name": "SemIf 4B",
       "url": "https://github.com/TheoLeeCJ/SemIf-OpenJev",
       "color": "#B19A56",
       "review": false,
@@ -2214,7 +2214,7 @@
     },
     {
       "id": "nano",
-      "name": "NanoJev-0.6B",
+      "name": "NanoJev 0.6B",
       "url": "https://huggingface.co/C-Tianyu/NanoJev",
       "color": "#9A7185",
       "review": false,
@@ -2532,7 +2532,7 @@
     },
     {
       "id": "decisio12",
-      "name": "Decisio-Gemma-4-12B",
+      "name": "Decisio-Gemma4 12B",
       "url": "https://huggingface.co/google/gemma-4-12B-it",
       "color": "#8D91A3",
       "review": false,
@@ -2691,7 +2691,7 @@
     },
     {
       "id": "decisio31",
-      "name": "Decisio-Gemma-4-31B",
+      "name": "Decisio-Gemma4 31B",
       "url": "https://huggingface.co/google/gemma-4-31B-it",
       "color": "#6D8A99",
       "review": false,
@@ -2850,7 +2850,7 @@
     },
     {
       "id": "decisioqwen",
-      "name": "Decisio-Qwen-3.6-35B-A3B",
+      "name": "Decisio-Qwen3.6 35B-A3B",
       "url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8",
       "color": "#9E8772",
       "review": false,
@@ -3327,7 +3327,7 @@
     },
     {
       "id": "jevk5",
-      "name": "JevK5-4B",
+      "name": "JevK5 4B",
       "url": "https://huggingface.co/alibiserikbay/JevK5",
       "color": "#8D91A3",
       "review": false,
@@ -3486,7 +3486,7 @@
     },
     {
       "id": "openjev",
-      "name": "OpenJev-4B",
+      "name": "OpenJev 4B",
       "url": "https://huggingface.co/shenjunhao/OpenJev-4B",
       "color": "#507C68",
       "review": false,
@@ -6543,11 +6543,12 @@
       "soft": "per-model native valid full-distribution Brier; no hard Brier or soft accuracy"
     },
     "representative_models": [
+      "pplx12",
       "jev",
       "microsoft",
-      "openjev",
+      "27b",
       "intern",
-      "semif"
+      "openjev"
     ],
     "examples": "Unmodified input and gold from the current 5,448-row release. No historical model response is attached."
   }

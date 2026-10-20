@@ -3,7 +3,8 @@ const D=JSON.parse(document.getElementById('benchmark-data').textContent);
 const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', fmt=(x,k)=>x==null?'—':k==='soft'?x.toFixed(4):pct(x);
 const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
-const DEFAULT_MODELS=['jev','microsoft','openjev','intern','semif'];
+const DEFAULT_MODELS=D.provenance.representative_models;
+const FIGURE_MODELS=[...DEFAULT_MODELS.map(id=>D.models.find(m=>m.id===id)),...D.models.filter(m=>!DEFAULT_MODELS.includes(m.id))];
 const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleCategory:'option_logic',exampleIndex:0};
 const urls=new Map();
 function download(id,value,name){if(urls.has(id))URL.revokeObjectURL(urls.get(id));const u=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));urls.set(id,u);$(id).href=u;$(id).download=name;}
@@ -32,7 +33,7 @@ function renderLeaderboard(){
 }
 function tip(text){return `<title>${esc(text)}</title>`;}
 function svgText(x,y,lines,attrs=''){return `<text x="${x}" y="${y}" ${attrs}>${lines.map((l,i)=>`<tspan x="${x}" dy="${i?17:0}">${esc(l)}</tspan>`).join('')}</text>`;}
-function selectedModels(){return D.models.filter(m=>state.selected.has(m.id));}
+function selectedModels(){return FIGURE_MODELS.filter(m=>state.selected.has(m.id));}
 function renderRadar(){
  const kind=state.radar,cats=D.categories.filter(c=>c[kind]>0),models=selectedModels(),cx=350,cy=282,radius=169,n=cats.length;
  const point=(i,r)=>[cx+r*Math.sin(2*Math.PI*i/n),cy-r*Math.cos(2*Math.PI*i/n)];
@@ -56,7 +57,7 @@ function renderSoft(){
 }
 function renderFigures(){
  renderRadar();renderSoft();
- const models=D.models.filter(m=>DEFAULT_MODELS.includes(m.id)||state.selected.has(m.id));
+ const models=FIGURE_MODELS.filter(m=>DEFAULT_MODELS.includes(m.id)||state.selected.has(m.id));
  $('#figure-legend').innerHTML=models.map(m=>`<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="${state.selected.has(m.id)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}</button>`).join('');
  document.querySelectorAll('#figure-models input').forEach(el=>{el.checked=state.selected.has(el.value);});
 }
@@ -105,7 +106,7 @@ function init(){
  $('#snapshot-date').textContent=`Results snapshot: ${D.snapshot_time}`;
  const results=D.models.filter(m=>m.id!=='random'),best=k=>results.reduce((a,b)=>(k==='soft'?a.metrics[k]<b.metrics[k]:a.metrics[k]>b.metrics[k])?a:b);
  $('#result-summary').innerHTML=`The current results cover <strong>${results.length} Decision Models</strong> and a uniform-random baseline. The strongest Hard Single Accuracy is <strong>${fmt(best('single').metrics.single,'single')}</strong>; the strongest exact Hard Set Accuracy is <strong>${fmt(best('set').metrics.set,'set')}</strong>. The best Soft Brier is <strong>${fmt(best('soft').metrics.soft,'soft')}</strong>. MMDM exposes how performance changes across single-choice reasoning, joint decisions, and distributional prediction.`;
- $('#figure-models').innerHTML=D.models.map(m=>`<label><input type="checkbox" value="${esc(m.id)}" ${state.selected.has(m.id)?'checked':''}>${esc(m.name)}</label>`).join('');
+ $('#figure-models').innerHTML=FIGURE_MODELS.map(m=>`<label><input type="checkbox" value="${esc(m.id)}" ${state.selected.has(m.id)?'checked':''}>${esc(m.name)}</label>`).join('');
  $('#figure-models').addEventListener('change',ev=>{if(ev.target.checked)state.selected.add(ev.target.value);else state.selected.delete(ev.target.value);renderFigures();});
  $('#figure-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(!b)return;state.selected.has(b.dataset.model)?state.selected.delete(b.dataset.model):state.selected.add(b.dataset.model);renderFigures();});
  $('#reset-models').addEventListener('click',()=>{state.selected=new Set(DEFAULT_MODELS);renderFigures();});

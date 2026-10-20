@@ -22,7 +22,8 @@ Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft 
 ## Charts and examples
 
 - Native inline SVG radar (switch between Hard Single and Hard Set) and soft Brier dot plot.
-- The five original representative models retain their exact Morandi colors. Additional available models can be selected.
+- The six default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, LightDecision-1 27B, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected.
+- Model display names follow the original results report, with the requested short name Jev 1.14.0. The same names appear in the leaderboard, chart legends, tooltips, and model selector.
 - A vertical SVG category bar chart in the original paper-figure layout, with a #Tasks axis; donut and stacked bars for labels and Score.
 - Context histograms switch between complete input and state + question. Tokens use Qwen3.5-4B, no special tokens; K is 1,024 tokens.
 - Option-set size is shown in seven fixed grouped ranges (2–1,024).

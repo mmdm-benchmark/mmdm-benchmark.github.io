@@ -25,7 +25,8 @@ LABELS = {
 }
 ORDER=['world_knowledge','reading_comprehension','deductive_reasoning','option_logic','constraint_planning','quantitative_temporal_reasoning','workflow_decision','agent_state_tracking','policy_exception','evidence_validation','code_database','intent_routing','tool_skill_selection','answer_preference','score_rubric','emotion_recognition']
 COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1'}
-NAMES={'jev':'Jev 1.14.0','openjev':'OpenJev-4B','intern':'Intern-Decision-4B','intern08':'Intern-Decision-0.8B','intern2':'Intern-Decision-2B','semif':'SemIf-4B','decisio12':'Decisio-Gemma-4-12B','decisio31':'Decisio-Gemma-4-31B','decisioqwen':'Decisio-Qwen-3.6-35B-A3B','nano':'NanoJev-0.6B','h2o':'H2O-Lightning-4B','strands':'Strands-Decider-2B','openjev':'OpenJev-4B','jevk5':'JevK5-4B'}
+# Keep source-report names, with the requested short public name for Jev.
+NAMES={'jev':'Jev 1.14.0'}
 URLS={
  'liquid':'https://openrouter.ai/liquid/d1','liquid-ultra':'https://openrouter.ai/liquid/d1-ultra',
  'clef-omni':'https://openrouter.ai/cloudflare/clef-omni','clef-flash':'https://openrouter.ai/cloudflare/clef-flash',
@@ -91,7 +92,7 @@ def main():
    assert len(r['gold'])==len(r['options']) and abs(sum(r['gold'])-1)<1e-5
    examples.append({k:r[k] for k in ['id','category','state','question','options','gold','correct_option_ids','score_values','source','task_subcategory','lengths','label_semantics','task']}|{'kind':label})
  stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
- provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':['jev','microsoft','openjev','intern','semif'],'examples':'Unmodified input and gold from the current 5,448-row release. No historical model response is attached.'}
+ provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':['pplx12','jev','microsoft','27b','intern','openjev'],'examples':'Unmodified input and gold from the current 5,448-row release. No historical model response is attached.'}
  data={'version':'mmdm-v2','total':total,'single':counts['hard_single'],'set':counts['hard_set'],'soft':counts['soft'],'score':comp['score'],'score_single':sum(c['single'] for c in categories if c['id']=='score_rubric'),'score_soft':sum(c['soft'] for c in categories if c['id']=='score_rubric'),
   'sources':len(summary['distribution']['sources']),'subcategories':len({(r['category'],r['task_subcategory']) for r in rows}),'parents':validation['independent_parents'],
   'snapshot_date':stamp.strftime('%B %d, %Y'),'snapshot_time':stamp.strftime('%Y-%m-%d %H:%M CST'),'dataset_sha256':comp['dataset_sha256'],
