@@ -11,7 +11,7 @@
   "subcategories": 80,
   "parents": 5390,
   "snapshot_date": "October 21, 2026",
-  "snapshot_time": "2026-10-21 00:56 CST",
+  "snapshot_time": "2026-10-21 10:56 CST",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
   "categories": [
     {
@@ -4439,6 +4439,165 @@
       }
     },
     {
+      "id": "pplx-flash12",
+      "name": "Perplexity Decider-Flash-V1.2",
+      "url": "https://openrouter.ai/perplexity/pplx-decider-flash-v1.2",
+      "color": "#9E8772",
+      "review": false,
+      "metrics": {
+        "single": 0.6206225680933852,
+        "set": 0.1627172195892575,
+        "soft": 0.2835508873440887,
+        "single_n": 4112,
+        "set_n": 633,
+        "soft_n": 700
+      },
+      "categories": {
+        "world_knowledge": {
+          "single": 0.652014652014652,
+          "set": null,
+          "soft": null,
+          "single_n": 273,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "reading_comprehension": {
+          "single": 0.6013513513513513,
+          "set": 1.0,
+          "soft": null,
+          "single_n": 444,
+          "set_n": 2,
+          "soft_n": 0
+        },
+        "deductive_reasoning": {
+          "single": 0.7453874538745388,
+          "set": null,
+          "soft": null,
+          "single_n": 271,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "option_logic": {
+          "single": 0.3092105263157895,
+          "set": 0.03899721448467967,
+          "soft": null,
+          "single_n": 152,
+          "set_n": 359,
+          "soft_n": 0
+        },
+        "constraint_planning": {
+          "single": 0.1695906432748538,
+          "set": 0.05,
+          "soft": 0.07442447204294708,
+          "single_n": 171,
+          "set_n": 80,
+          "soft_n": 1
+        },
+        "quantitative_temporal_reasoning": {
+          "single": 0.6967509025270758,
+          "set": null,
+          "soft": 0.15748437026533726,
+          "single_n": 277,
+          "set_n": 0,
+          "soft_n": 12
+        },
+        "workflow_decision": {
+          "single": 0.17391304347826086,
+          "set": 0.11235955056179775,
+          "soft": null,
+          "single_n": 161,
+          "set_n": 89,
+          "soft_n": 0
+        },
+        "agent_state_tracking": {
+          "single": 0.5700934579439252,
+          "set": null,
+          "soft": null,
+          "single_n": 535,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "policy_exception": {
+          "single": 0.7278688524590164,
+          "set": null,
+          "soft": 0.033053309799780675,
+          "single_n": 305,
+          "set_n": 0,
+          "soft_n": 18
+        },
+        "evidence_validation": {
+          "single": 0.7924528301886793,
+          "set": null,
+          "soft": 0.1469635285005579,
+          "single_n": 265,
+          "set_n": 0,
+          "soft_n": 22
+        },
+        "code_database": {
+          "single": 0.6699507389162561,
+          "set": null,
+          "soft": null,
+          "single_n": 203,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "intent_routing": {
+          "single": 0.7613293051359517,
+          "set": null,
+          "soft": null,
+          "single_n": 331,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "tool_skill_selection": {
+          "single": 0.8237410071942446,
+          "set": 0.7087378640776699,
+          "soft": 0.09366726011796761,
+          "single_n": 278,
+          "set_n": 103,
+          "soft_n": 22
+        },
+        "answer_preference": {
+          "single": 0.6137339055793991,
+          "set": null,
+          "soft": null,
+          "single_n": 233,
+          "set_n": 0,
+          "soft_n": 0
+        },
+        "score_rubric": {
+          "single": 0.6857142857142857,
+          "set": null,
+          "soft": 0.30501207567941035,
+          "single_n": 35,
+          "set_n": 0,
+          "soft_n": 625
+        },
+        "emotion_recognition": {
+          "single": 0.4887640449438202,
+          "set": null,
+          "soft": null,
+          "single_n": 178,
+          "set_n": 0,
+          "soft_n": 0
+        }
+      },
+      "scatter": {
+        "all": {
+          "value": 0.2835508873440887,
+          "n": 700
+        },
+        "score": {
+          "value": 0.30501207567941035,
+          "n": 625
+        },
+        "other": {
+          "value": 0.10470765121640811,
+          "n": 75
+        }
+      }
+    },
+    {
       "id": "pplx12",
       "name": "Perplexity Decider-V1.2",
       "url": "https://openrouter.ai/perplexity/pplx-decider-v1.2",
@@ -4757,14 +4916,7 @@
       }
     }
   ],
-  "pending": [
-    {
-      "id": "pplx-flash12",
-      "name": "Perplexity Decider-Flash-V1.2",
-      "processed": 4925,
-      "status": "running"
-    }
-  ],
+  "pending": [],
   "length_profile": {
     "full_input": {
       "n": 5448,
@@ -6529,9 +6681,9 @@
   "provenance": {
     "version": "mmdm-v2",
     "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-    "snapshot_at": "2026-10-21T00:56:36.820596+08:00",
+    "snapshot_at": "2026-10-21T10:56:04.722923+08:00",
     "sources": {
-      "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "d5f32ae832e84f187d9dcbe0a8df1455e4d11121c24740f6ba19793d98db0aab",
+      "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "97aab1294a0ed82204a1b375d0117e9188c985677936d9273576217912cd42f5",
       "docs/reports/mmdm/summary.json": "ef3f44a66cd5357b17762966ebfdf66c1a71b5fd455a5dca591f3bedc2fee76c",
       "docs/reports/mmdm/CURRENT.json": "897458d4d49d30b1d89189ecc17bb37bd2f582eed7a6129b00ea0d7073b30aa4",
       "docs/reports/mmdm/release-validation.json": "811264d7f8d07179c9c80f39c27d3d9be531bb290111ed3a50858f83e8260d6b",

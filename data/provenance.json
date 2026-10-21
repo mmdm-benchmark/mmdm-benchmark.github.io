@@ -1,9 +1,9 @@
 {
   "version": "mmdm-v2",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-  "snapshot_at": "2026-10-21T00:56:36.820596+08:00",
+  "snapshot_at": "2026-10-21T10:56:04.722923+08:00",
   "sources": {
-    "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "d5f32ae832e84f187d9dcbe0a8df1455e4d11121c24740f6ba19793d98db0aab",
+    "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "97aab1294a0ed82204a1b375d0117e9188c985677936d9273576217912cd42f5",
     "docs/reports/mmdm/summary.json": "ef3f44a66cd5357b17762966ebfdf66c1a71b5fd455a5dca591f3bedc2fee76c",
     "docs/reports/mmdm/CURRENT.json": "897458d4d49d30b1d89189ecc17bb37bd2f582eed7a6129b00ea0d7073b30aa4",
     "docs/reports/mmdm/release-validation.json": "811264d7f8d07179c9c80f39c27d3d9be531bb290111ed3a50858f83e8260d6b",
