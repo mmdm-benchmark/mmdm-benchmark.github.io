@@ -42,6 +42,7 @@
 <p>We introduce <img class="benchmark-logo inline-logo" data-logo alt="" width="24" height="24"><strong>MMDM (Massive Multitask Decision Making)</strong>, a benchmark for text-based System-1 Decision Models. Its <strong>5,448 examples span 16 task categories</strong>, bringing knowledge and reading comprehension together with agent state tracking, tool and skill selection, option logic, constraint planning, workflow decisions, and rubric-based scoring.</p>
 <p>Each task provides a state, a question, and a candidate list with request-specific names and criteria. Candidate sets range from <strong>2 to 1,024 options</strong>, and complete inputs reach <strong>64,817 tokens</strong>. The benchmark tests three distinct answer types: a single correct choice, a complete set of correct choices, and a soft target distribution. Dependencies between options, evolving context, rules and exceptions, and competing plans make the relationships among inputs central to the decision.</p>
 <p id="result-summary"></p>
+<p id="result-analysis"></p>
 </div>
 </section>
 <section class="section container wide" id="leaderboard">
@@ -66,23 +67,30 @@
 <h2><img class="benchmark-logo heading-logo" data-logo alt="" width="42" height="42">MMDM Dataset</h2>
 <div class="prose dataset-intro">
 <p>MMDM combines source-grounded adaptations, executable task mechanisms, and decisions drawn from real tool and skill contexts. The release covers <strong>62 source identifiers and 80 category–subcategory combinations</strong>. Source evidence, task-specific checks, and independent review support the reference answers.</p>
-<p>Options express their own meanings and criteria, including cross-option dependencies. Hard-set labels specify multiple definitively correct choices; soft labels express outcome uncertainty or distributions over scores. <strong>Score is a task format</strong> that overlaps the label types: 35 hard-single and 628 soft examples.</p>
+<p>Each example contains a state—the facts, documents, or conversation available to the model—a question describing the decision, and a list of options. Each option has a name describing a possible answer, action, or score level; an optional criterion explains when it applies. Some criteria refer to other options, so the model must reason about their relationships together.</p>
+<p>The reference answer takes one of three forms:</p>
+<ul class="answer-type-definitions">
+<li><strong>Hard Single (4,112 examples):</strong> exactly one option is correct. The model must identify that option.</li>
+<li><strong>Hard Set (633 examples):</strong> multiple options are definitively correct. The model must recover the complete correct set, such as all actions that satisfy a set of constraints.</li>
+<li><strong>Soft (703 examples):</strong> the reference assigns a probability to every option. The model must predict the full distribution, representing uncertain outcomes or judgments spread across alternatives.</li>
+</ul>
+<p>In the 663 scoring examples, options represent numeric values or ordered levels, such as degrees of answer quality or task completion. The reference specifies either one correct level (35 Hard Single examples) or a probability distribution across levels (628 Soft examples).</p>
 </div>
 <h3>Task categories</h3>
 <div id="category-chart" class="category-figure" aria-label="Distribution across 16 task categories"></div>
 <h3 class="statistics-heading">Statistics</h3>
 <div class="statistics-grid">
 <figure class="stat-panel label-panel"><h4>Answer types</h4><div id="label-chart"></div><figcaption>Three mutually exclusive target types.</figcaption></figure>
-<figure class="stat-panel"><h4>Score tasks</h4><div id="score-chart"></div><figcaption>Score overlaps answer types and is included in the 5,448 examples.</figcaption></figure>
+<figure class="stat-panel"><h4>Score tasks</h4><div id="score-chart"></div><figcaption>35 examples have one correct score; 628 have a distribution over scores.</figcaption></figure>
 <figure class="stat-panel"><div class="stat-heading"><h4>Context &amp; input length</h4><label class="sr-only" for="length-kind">Length measurement</label><select id="length-kind"><option value="full_input">Complete input</option><option value="state_question">State + question</option></select></div><div id="context-chart"></div><p class="stat-summary" id="context-summary"></p><figcaption>Qwen3.5-4B tokens, without special tokens. Complete input includes all option names and criteria. K = 1,024 tokens.</figcaption></figure>
 <figure class="stat-panel"><div class="stat-heading"><h4>Option-set size</h4></div><div id="option-chart"></div><p class="stat-summary" id="option-summary"></p><figcaption>Each bar reports the number of tasks in an option-count range.</figcaption></figure>
 </div>
 </section>
 <section class="section container" id="examples">
 <h2>Examples</h2>
-<p class="section-description">Original examples from MMDM, with their input, candidate criteria, and reference answer.</p>
-<div class="example-controls"><label>Category <select id="example-category"></select></label><div class="example-pager"><button id="previous-example" type="button" aria-label="Previous example">Previous</button><span id="example-count" aria-live="polite"></span><button id="next-example" type="button" aria-label="Next example">Next</button></div></div>
-<article class="example" id="example-card"><div class="example-header"><p><strong id="example-kind"></strong><span id="example-meta"></span></p><a href="#" id="download-example" download>Download JSON</a></div>
+<p class="section-description">Browse examples across all 16 categories, with their input, option criteria, and reference answer.</p>
+<div class="example-controls"><div class="example-pager" role="group" aria-label="Browse all examples"><button id="previous-example" type="button" aria-label="Previous example">Previous</button><span id="example-count" aria-live="polite"></span><button id="next-example" type="button" aria-label="Next example">Next</button></div></div>
+<article class="example" id="example-card"><div class="example-header"><div class="example-details" aria-live="polite"><strong id="example-kind"></strong><span id="example-category-name"></span><span id="example-meta"></span></div><a href="#" id="download-example" download>Download JSON</a></div>
 <h4>State / Context</h4><div class="state-frame" id="state-frame"><pre id="example-state"></pre></div><button id="expand-state" class="text-button" type="button" aria-expanded="false">Read full context ↓</button>
 <h4>Question</h4><p id="example-question"></p><h4>Options</h4><ol id="example-options"></ol>
 <div class="example-response"><h4>Reference answer</h4><p id="answer-summary"></p><div id="answer-chart"></div></div>

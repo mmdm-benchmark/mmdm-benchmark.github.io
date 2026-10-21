@@ -19,6 +19,8 @@ The results snapshot contains 28 model runs plus Random (uniform). Pending evalu
 
 Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft Brier. Category filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Set uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 
+The introduction names the leading models and connects their results to category-level gaps. Dataset documentation explains the state, question, option names and criteria, each reference-label type, and scoring examples. Model counts, best results, and the leading model’s category accuracies are generated from the embedded snapshot.
+
 ## Charts and examples
 
 - Native inline SVG radar (switch between Hard Single and Hard Set) and soft Brier dot plot.
@@ -27,7 +29,7 @@ Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft 
 - A vertical SVG category bar chart in the original paper-figure layout, with a #Tasks axis; donut and stacked bars for labels and Score.
 - Context histograms switch between complete input and state + question. Tokens use Qwen3.5-4B, no special tokens; K is 1,024 tokens.
 - Option-set size is shown in seven fixed grouped ranges (2–1,024).
-- 27 authentic current-release examples across all 16 categories. Inputs and reference answers are unmodified; examples use their current reference answers.
+- 27 authentic current-release examples across all 16 categories, browsed as one continuous sequence with Previous / Next and a global counter. Each example header shows its answer type, category, and option count. Inputs and reference answers are unmodified.
 - Example JSON downloads use embedded data and work offline.
 
 ## Rebuild from updated reports

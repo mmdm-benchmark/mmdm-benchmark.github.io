@@ -5,7 +5,7 @@ const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', f
 const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
 const DEFAULT_MODELS=D.provenance.representative_models;
 const FIGURE_MODELS=[...DEFAULT_MODELS.map(id=>D.models.find(m=>m.id===id)),...D.models.filter(m=>!DEFAULT_MODELS.includes(m.id))];
-const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleCategory:'option_logic',exampleIndex:0};
+const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleIndex:0};
 const urls=new Map();
 function download(id,value,name){if(urls.has(id))URL.revokeObjectURL(urls.get(id));const u=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));urls.set(id,u);$(id).href=u;$(id).download=name;}
 function scopeCounts(){return state.scope==='overall'?{name:'All categories',total:D.total,single:D.single,set:D.set,soft:D.soft}:D.categories.find(c=>c.id===state.scope);}
@@ -87,9 +87,9 @@ function renderOptions(){
  $('#option-summary').innerHTML=`Range <strong>2–1,024</strong> · Median <strong>${median}</strong> · <strong>${above}</strong> examples with more than 255 options`;
 }
 function renderExample(){
- const items=D.examples.filter(e=>e.category===state.exampleCategory),e=items[state.exampleIndex],kind={hard_single:'Hard Single',hard_set:'Hard Set',soft:'Soft'}[e.kind];
+ const items=D.examples,e=items[state.exampleIndex],kind={hard_single:'Hard Single',hard_set:'Hard Set',soft:'Soft'}[e.kind];
  $('#example-count').textContent=`${state.exampleIndex+1} / ${items.length}`;$('#previous-example').disabled=items.length<2;$('#next-example').disabled=items.length<2;
- $('#example-kind').textContent=kind;$('#example-meta').textContent=`${e.task==='score'?'Score · ':''}${e.options.length} options`;$('#example-state').textContent=e.state;$('#example-question').textContent=e.question;
+ $('#example-card').dataset.exampleId=e.id;$('#example-kind').textContent=kind;$('#example-category-name').textContent=D.categories.find(c=>c.id===e.category).name;$('#example-meta').textContent=`${e.task==='score'?'Score · ':''}${e.options.length} options`;$('#example-state').textContent=e.state;$('#example-question').textContent=e.question;
  $('#state-frame').classList.remove('expanded');$('#expand-state').setAttribute('aria-expanded','false');$('#expand-state').textContent='Read full context ↓';
  $('#example-options').innerHTML=e.options.map(o=>`<li><span class="option-id">${esc(o.id)}</span><div><div class="option-name">${esc(o.name)}</div>${o.criteria?`<div class="option-criteria">${esc(o.criteria)}</div>`:''}</div></li>`).join('');
  const opts=new Map(e.options.map(o=>[o.id,o.name]));
@@ -99,13 +99,23 @@ function renderExample(){
  download('#download-example',e,`mmdm-example-${e.id.replace(/^mmdm-v2-/,'')}.json`);
  requestAnimationFrame(()=>{$('#expand-state').hidden=$('#example-state').scrollHeight<=230;});
 }
+function renderResultsSummary(){
+ const results=D.models.filter(m=>m.id!=='random');
+ const best=k=>results.filter(m=>m.metrics[k]!=null).reduce((a,b)=>(k==='soft'?a.metrics[k]<b.metrics[k]:a.metrics[k]>b.metrics[k])?a:b);
+ const single=best('single'),set=best('set'),soft=best('soft');
+ const hardResult=single.id===set.id
+  ? `<strong>${esc(single.name)}</strong> leads both hard-label evaluations, with <strong>${fmt(single.metrics.single,'single')} Hard Single Accuracy</strong> and <strong>${fmt(set.metrics.set,'set')} Hard Set Accuracy</strong>.`
+  : `<strong>${esc(single.name)}</strong> achieves the highest Hard Single Accuracy at <strong>${fmt(single.metrics.single,'single')}</strong>, while <strong>${esc(set.name)}</strong> leads Hard Set Accuracy at <strong>${fmt(set.metrics.set,'set')}</strong>.`;
+ $('#result-summary').innerHTML=`With <img class="benchmark-logo inline-logo" src="${$('#main-logo').src}" alt="" width="24" height="24"><strong>MMDM</strong>, we conduct a comprehensive, quantitative evaluation of <strong>${results.length} System-1 Decision Models</strong> across ${D.categories.length} task categories. ${hardResult} <strong>${esc(soft.name)}</strong> achieves the lowest Soft Brier error (${fmt(soft.metrics.soft,'soft')}), measuring how closely its predicted probabilities match the reference distributions.`;
+ const categoryAccuracy=id=>fmt(single.categories[id].single,'single');
+ $('#result-analysis').innerHTML=`MMDM shows that many models perform well on common knowledge questions yet struggle with interdependent options, decisions subject to constraints, and emotional interpretation. For example, ${esc(single.name)} reaches ${categoryAccuracy('world_knowledge')} Hard Single Accuracy on world knowledge, but ${categoryAccuracy('constraint_planning')} on constraint planning and ${categoryAccuracy('emotion_recognition')} on emotion recognition. These gaps make MMDM a testbed for developing decision models that combine broad knowledge with reliable logical reasoning and context-sensitive judgment.`;
+}
 function init(){
  const logo=$('#main-logo').src;document.querySelectorAll('[data-logo]').forEach(el=>el.src=logo);$('#page-icon').href=logo;
  const alphabetical=[...D.categories].sort((a,b)=>a.name.localeCompare(b.name));const categoryOptions=alphabetical.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
- $('#leader-scope').insertAdjacentHTML('beforeend',categoryOptions);$('#example-category').innerHTML=categoryOptions;$('#example-category').value=state.exampleCategory;
+ $('#leader-scope').insertAdjacentHTML('beforeend',categoryOptions);
  $('#snapshot-date').textContent=`Results snapshot: ${D.snapshot_time}`;
- const results=D.models.filter(m=>m.id!=='random'),best=k=>results.reduce((a,b)=>(k==='soft'?a.metrics[k]<b.metrics[k]:a.metrics[k]>b.metrics[k])?a:b);
- $('#result-summary').innerHTML=`The current results cover <strong>${results.length} Decision Models</strong> and a uniform-random baseline. The strongest Hard Single Accuracy is <strong>${fmt(best('single').metrics.single,'single')}</strong>; the strongest exact Hard Set Accuracy is <strong>${fmt(best('set').metrics.set,'set')}</strong>. The best Soft Brier is <strong>${fmt(best('soft').metrics.soft,'soft')}</strong>. MMDM exposes how performance changes across single-choice reasoning, joint decisions, and distributional prediction.`;
+ renderResultsSummary();
  $('#figure-models').innerHTML=FIGURE_MODELS.map(m=>`<label><input type="checkbox" value="${esc(m.id)}" ${state.selected.has(m.id)?'checked':''}>${esc(m.name)}</label>`).join('');
  $('#figure-models').addEventListener('change',ev=>{if(ev.target.checked)state.selected.add(ev.target.value);else state.selected.delete(ev.target.value);renderFigures();});
  $('#figure-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(!b)return;state.selected.has(b.dataset.model)?state.selected.delete(b.dataset.model):state.selected.add(b.dataset.model);renderFigures();});
@@ -118,8 +128,7 @@ function init(){
  $('#category-chart').addEventListener('click',ev=>{const b=ev.target.closest('[data-category]');if(!b)return;state.scope=b.dataset.category;$('#leader-scope').value=state.scope;chooseSort();renderLeaderboard();$('#leaderboard').scrollIntoView();});
  $('#category-chart').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){const g=ev.target.closest('[data-category]');if(g){ev.preventDefault();g.dispatchEvent(new MouseEvent('click',{bubbles:true}));}}});
  $('#length-kind').addEventListener('change',renderContext);
- $('#example-category').addEventListener('change',ev=>{state.exampleCategory=ev.target.value;state.exampleIndex=0;renderExample();});
- for(const [id,step] of [['#previous-example',-1],['#next-example',1]])$(id).addEventListener('click',()=>{const count=D.examples.filter(e=>e.category===state.exampleCategory).length;state.exampleIndex=(state.exampleIndex+step+count)%count;renderExample();});
+ for(const [id,step] of [['#previous-example',-1],['#next-example',1]])$(id).addEventListener('click',()=>{const count=D.examples.length;state.exampleIndex=(state.exampleIndex+step+count)%count;renderExample();});
  $('#expand-state').addEventListener('click',()=>{const on=$('#state-frame').classList.toggle('expanded');$('#expand-state').setAttribute('aria-expanded',String(on));$('#expand-state').textContent=on?'Collapse context ↑':'Read full context ↓';});
  renderLeaderboard();renderFigures();renderCategories();renderLabels();renderContext();renderOptions();renderExample();document.documentElement.dataset.ready='true';
 }
