@@ -5,31 +5,39 @@ const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', f
 const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
 const DEFAULT_MODELS=D.provenance.representative_models;
 const FIGURE_MODELS=[...DEFAULT_MODELS.map(id=>D.models.find(m=>m.id===id)),...D.models.filter(m=>!DEFAULT_MODELS.includes(m.id))];
-const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',exampleIndex:0};
+const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',calibration:'hard',calibrationPopulation:'common',exampleIndex:0};
 const urls=new Map();
 function download(id,value,name){if(urls.has(id))URL.revokeObjectURL(urls.get(id));const u=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));urls.set(id,u);$(id).href=u;$(id).download=name;}
 function scopeCounts(){return state.scope==='overall'?{name:'All categories',total:D.total,single:D.single,set:D.set,soft:D.soft}:D.categories.find(c=>c.id===state.scope);}
 function modelMetric(m){return state.scope==='overall'?m.metrics:m.categories[state.scope];}
 function displayMetric(m,k){return modelMetric(m)?.[k]??null;}
 function renderLeaderboard(){
- const q=$('#model-search').value.trim().toLowerCase(),counts=scopeCounts();
- const sorted=[...D.models].sort((a,b)=>{
+ const q=$('#model-search').value.trim().toLowerCase(),counts=scopeCounts(),access=$('#leader-access').value,size=$('#leader-size').value;
+ const sizeMatch=n=>size==='all'||size==='unknown'&&n==null||n!=null&&({small:n<=1,compact:n>1&&n<=4,medium:n>4&&n<=10,large:n>10&&n<=30,xlarge:n>30})[size];
+ const pool=D.models.filter(m=>m.name.toLowerCase().includes(q)&&(m.id==='random'||((access==='all'||m.metadata.access===access)&&sizeMatch(m.metadata.parameters_b))));
+ const sorted=[...pool].sort((a,b)=>{
   if(a.id==='random')return 1;if(b.id==='random')return -1;
   const x=state.sort==='name'?a.name:displayMetric(a,state.sort), y=state.sort==='name'?b.name:displayMetric(b,state.sort);
   if(x==null&&y==null)return a.name.localeCompare(b.name);if(x==null)return 1;if(y==null)return -1;
   return (typeof x==='string'?x.localeCompare(y):x-y)*state.direction||a.name.localeCompare(b.name);
  });
- const best={};for(const k of ['single','set','soft']){const v=D.models.filter(m=>m.id!=='random').map(m=>displayMetric(m,k)).filter(v=>v!=null);best[k]=v.length?(k==='soft'?Math.min(...v):Math.max(...v)):null;}
+ const best={};for(const k of ['single','set','soft']){const v=pool.filter(m=>m.id!=='random').map(m=>displayMetric(m,k)).filter(v=>v!=null);best[k]=v.length?(k==='soft'?Math.min(...v):Math.max(...v)):null;}
  const cols=[['name','Decision Model'],['single','Hard Single Acc ↑'],['set','Hard Set Acc ↑'],['soft','Soft Brier ↓']];
  $('#leaderboard-head').innerHTML='<tr><th scope="col">#</th>'+cols.map(([k,t])=>`<th scope="col" aria-sort="${state.sort===k?(state.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${k}">${t}<span class="sort-arrow" aria-hidden="true">${state.sort===k?(state.direction===1?'▴':'▾'):'↕'}</span></button></th>`).join('')+'</tr>';
- const visible=sorted.map((m,i)=>({...m,rank:m.id==='random'?'—':i+1})).filter(m=>m.name.toLowerCase().includes(q));
+ const visible=sorted.map((m,i)=>({...m,rank:m.id==='random'?'—':i+1}));
  $('#leaderboard-body').innerHTML=visible.length?visible.map(m=>{
   const values=['single','set','soft'].map(k=>{const v=displayMetric(m,k),n=modelMetric(m)?.[k+'_n'];return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}" title="${v==null?'Not applicable or no recorded result':k==='soft'?`Brier over ${num(n)} valid full-distribution outputs`:`Accuracy over all ${num(n)} ${LABELS[k]} items`}">${fmt(v,k)}</td>`;}).join('');
   const name=m.url?`<a class="model-link" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:`<span class="model-name">${esc(m.name)}</span>`;
-  return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}</td>${values}</tr>`;
+  return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}${modelBadges(m)}</td>${values}</tr>`;
  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px">No matching models.</td></tr>';
  $('#subset-counts').innerHTML=`<strong>${esc(counts.name)}</strong> · ${num(counts.total)} examples &nbsp; <span>Single ${num(counts.single)}</span> · <span>Set ${num(counts.set)}</span> · <span>Soft ${num(counts.soft)}</span>`;
- $('#table-status').textContent=`${visible.length} results shown · Bold marks the best model value in each metric.`;
+ $('#table-status').textContent=`${visible.length} results shown · Bold marks the best value among the displayed models.`;
+}
+function modelBadges(m){
+ if(m.id==='random')return '';
+ const meta=m.metadata,access=meta.access==='open'?'Open source':'Closed source',n=meta.parameters_b;
+ const size=n==null?'Size undisclosed':`${n}B${meta.active_parameters_b?` · ${meta.active_parameters_b}B active`:''}`;
+ return `<div class="model-badges"><span class="access-badge ${meta.access}" title="${meta.access==='open'?'Public model or adapter weights and inference implementation':'Hosted model; no public checkpoint'}">${access}</span><span class="size-badge" title="${esc(meta.size_basis??'Reported model scale')}">${esc(size)}</span></div>`;
 }
 function tip(text){return `<title>${esc(text)}</title>`;}
 function svgText(x,y,lines,attrs=''){return `<text x="${x}" y="${y}" ${attrs}>${lines.map((l,i)=>`<tspan x="${x}" dy="${i?17:0}">${esc(l)}</tspan>`).join('')}</text>`;}
@@ -56,10 +64,40 @@ function renderSoft(){
  });s+=svgText((left+right)/2,513,['Brier error (lower is better)'],'text-anchor="middle" class="axis-label"')+'</svg>';$('#soft-chart').innerHTML=s;
 }
 function renderFigures(){
- renderRadar();renderSoft();
+ renderRadar();renderSoft();renderCalibration();
  const models=FIGURE_MODELS.filter(m=>DEFAULT_MODELS.includes(m.id)||state.selected.has(m.id));
  $('#figure-legend').innerHTML=models.map(m=>`<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="${state.selected.has(m.id)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}</button>`).join('');
+ $('#selected-model-count').textContent=`${state.selected.size} selected`;
  document.querySelectorAll('#figure-models input').forEach(el=>{el.checked=state.selected.has(el.value);});
+}
+function renderCalibration(){
+ const mode=state.calibration,population=state.calibrationPopulation,view=D.calibration.views[mode],hard=mode==='hard';
+ const compact=window.matchMedia('(max-width:580px)').matches,width=compact?600:1000;
+ const models=selectedModels().filter(m=>view.models[m.id]),left=compact?76:86,right=width-(compact?28:54),top=60,bottom=410;
+ const X=x=>left+(right-left)*x,Y=y=>bottom-(bottom-top)*y;
+ const ylabel=hard?'Observed accuracy':'Mean target probability of chosen answer';
+ let s=`<svg viewBox="0 0 ${width} 510" role="img" aria-labelledby="calibration-svg-title calibration-svg-desc"><title id="calibration-svg-title">${hard?'Hard Single':'Soft'} calibration</title><desc id="calibration-svg-desc">Predicted probability versus ${ylabel.toLowerCase()}. Filled points have at least 20 examples; hollow points have fewer than 20.</desc>`;
+ for(let i=0;i<=5;i++){const v=i/5,x=X(v),y=Y(v);s+=`<path d="M${left} ${y}H${right} M${x} ${top}V${bottom}" class="grid"/>`+svgText(x,440,[v.toFixed(1)],'text-anchor="middle" class="tick-label"')+svgText(left-16,y+5,[v.toFixed(1)],'text-anchor="end" class="tick-label"');}
+ s+=`<path d="M${left} ${bottom}L${right} ${top}" stroke="#B9BBB8" stroke-width="1.5" fill="none"/>`+svgText(right,35,['Perfect calibration'],'text-anchor="end" class="axis-label ideal-label"');
+ models.forEach(m=>{
+  const stats=view.models[m.id][population];s+=`<g data-cal-model="${esc(m.id)}">`;
+  stats.bins.forEach((b,i)=>{
+   if(!b.n)return;const next=stats.bins[i+1];
+   if(next?.n)s+=`<path d="M${X(b.confidence)} ${Y(b.target)}L${X(next.confidence)} ${Y(next.target)}" stroke="${m.color}" stroke-width="2" fill="none"/>`;
+   const label=`${m.name} · confidence ${pct(b.confidence)} · ${hard?'accuracy':'target probability'} ${pct(b.target)} · n = ${num(b.n)}`;
+   s+=`<circle cx="${X(b.confidence)}" cy="${Y(b.target)}" r="4.2" fill="${b.n<20?'#fff':m.color}" stroke="${m.color}" stroke-width="1.8" tabindex="0" class="cal-point" data-bin="${b.index}" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
+  });s+='</g>';
+ });
+ s+=svgText((left+right)/2,483,['Predicted probability of chosen answer'],'text-anchor="middle" class="axis-label"');
+ s+=`<text transform="translate(25 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" class="axis-label">${ylabel}</text>`;
+ if(!models.length)s+=svgText((left+right)/2,240,['Select a model to view calibration.'],'text-anchor="middle" class="axis-label"');
+ $('#calibration-chart').innerHTML=s+'</svg>';
+ $('#calibration-legend').innerHTML=models.map(m=>{const stats=view.models[m.id][population];return `<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="true" title="${esc(m.name)} · ECE ${pct(stats.ece)} · n = ${num(stats.n)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}<small>ECE ${(100*stats.ece).toFixed(1)}%</small></button>`;}).join('');
+ const cohort=population==='common'?`${num(view.common_n)} shared valid examples in the fixed report cohort.`:'All eligible examples for each model; hover over its legend for the sample count.';
+ $('#calibration-caption').textContent=`${cohort} Confidence bins have width 0.1. Filled points: at least 20 examples; hollow points: fewer than 20. ECE is the count-weighted mean absolute gap between confidence and the observed target.`;
+ $('#calibration-readout').textContent='Hover over or focus on a point to inspect its probability and sample count.';
+ $('#calibration-panel').setAttribute('aria-labelledby',`cal-tab-${mode}`);
+ document.querySelectorAll('[data-cal-mode]').forEach(b=>{const active=b.dataset.calMode===mode;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
 }
 function renderCategories(){
  const cats=[...D.categories].sort((a,b)=>b.total-a.total),max=Math.ceil(cats[0].total/100)*100;
@@ -108,7 +146,7 @@ function renderResultsSummary(){
   : `<strong>${esc(single.name)}</strong> achieves the highest Hard Single Accuracy at <strong>${fmt(single.metrics.single,'single')}</strong>, while <strong>${esc(set.name)}</strong> leads Hard Set Accuracy at <strong>${fmt(set.metrics.set,'set')}</strong>.`;
  $('#result-summary').innerHTML=`With <img class="benchmark-logo inline-logo" src="${$('#main-logo').src}" alt="" width="24" height="24"><strong>MMDM</strong>, we conduct a comprehensive, quantitative evaluation of <strong>${results.length} System-1 Decision Models</strong> across ${D.categories.length} task categories. ${hardResult} <strong>${esc(soft.name)}</strong> achieves the lowest Soft Brier error (${fmt(soft.metrics.soft,'soft')}), measuring how closely its predicted probabilities match the reference distributions.`;
  const categoryAccuracy=id=>fmt(single.categories[id].single,'single');
- $('#result-analysis').innerHTML=`MMDM shows that many models perform well on common knowledge questions yet struggle with interdependent options, decisions subject to constraints, and emotional interpretation. For example, ${esc(single.name)} reaches ${categoryAccuracy('world_knowledge')} Hard Single Accuracy on world knowledge, but ${categoryAccuracy('constraint_planning')} on constraint planning and ${categoryAccuracy('emotion_recognition')} on emotion recognition. These gaps make MMDM a testbed for developing decision models that combine broad knowledge with reliable logical reasoning and context-sensitive judgment.`;
+ $('#result-analysis').innerHTML=`MMDM shows that <strong>many models perform well on common knowledge questions yet struggle with interdependent options, decisions subject to constraints, and emotional interpretation.</strong> For example, ${esc(single.name)} reaches ${categoryAccuracy('world_knowledge')} Hard Single Accuracy on world knowledge, but ${categoryAccuracy('constraint_planning')} on constraint planning and ${categoryAccuracy('emotion_recognition')} on emotion recognition. These gaps make MMDM a testbed for developing decision models that combine broad knowledge with reliable logical reasoning and context-sensitive judgment.`;
 }
 function init(){
  const logo=$('#main-logo').src;document.querySelectorAll('[data-logo]').forEach(el=>el.src=logo);$('#page-icon').href=logo;
@@ -125,6 +163,18 @@ function init(){
  $('#leader-scope').addEventListener('change',ev=>{state.scope=ev.target.value;chooseSort();renderLeaderboard();});
  $('#leaderboard-head').addEventListener('click',ev=>{const b=ev.target.closest('[data-sort]');if(!b)return;const k=b.dataset.sort;state.direction=state.sort===k?-state.direction:k==='single'||k==='set'?-1:1;state.sort=k;renderLeaderboard();$(`[data-sort="${k}"]`).focus({preventScroll:true});});
  $('#model-search').addEventListener('input',renderLeaderboard);
+ for(const id of ['#leader-access','#leader-size'])$(id).addEventListener('change',renderLeaderboard);
+ $('#reset-filters').addEventListener('click',()=>{$('#leader-access').value='all';$('#leader-size').value='all';$('#model-search').value='';renderLeaderboard();});
+ const calTabs=[...document.querySelectorAll('[data-cal-mode]')];
+ for(const b of calTabs){
+  b.addEventListener('click',()=>{state.calibration=b.dataset.calMode;renderCalibration();});
+  b.addEventListener('keydown',ev=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;ev.preventDefault();const next=ev.key==='Home'?calTabs[0]:ev.key==='End'?calTabs[1]:calTabs.find(t=>t!==b);state.calibration=next.dataset.calMode;renderCalibration();next.focus();});
+ }
+ window.matchMedia('(max-width:580px)').addEventListener('change',renderCalibration);
+ $('#calibration-population').addEventListener('change',ev=>{state.calibrationPopulation=ev.target.value;renderCalibration();});
+ $('#calibration-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(b){state.selected.delete(b.dataset.model);renderFigures();}});
+ for(const event of ['pointerover','focusin'])$('#calibration-chart').addEventListener(event,ev=>{const p=ev.target.closest('[data-readout]');if(p)$('#calibration-readout').textContent=p.dataset.readout;});
+ $('#calibration-models').addEventListener('click',()=>{const d=$('#model-picker');d.open=true;d.scrollIntoView({block:'center'});d.querySelector('input')?.focus({preventScroll:true});});
  $('#category-chart').addEventListener('click',ev=>{const b=ev.target.closest('[data-category]');if(!b)return;state.scope=b.dataset.category;$('#leader-scope').value=state.scope;chooseSort();renderLeaderboard();$('#leaderboard').scrollIntoView();});
  $('#category-chart').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){const g=ev.target.closest('[data-category]');if(g){ev.preventDefault();g.dispatchEvent(new MouseEvent('click',{bubbles:true}));}}});
  $('#length-kind').addEventListener('change',renderContext);

@@ -1,0 +1,249 @@
+{
+  "checked_at": "2026-10-30",
+  "hidden_model_ids": [
+    "tiny",
+    "27b"
+  ],
+  "representative_models": [
+    "pplx12",
+    "jev",
+    "microsoft",
+    "intern",
+    "openjev"
+  ],
+  "size_convention": "Reported nominal model or backbone size in billions; MoE ranges use total, not active, parameters.",
+  "access_convention": "Open source: public model/adapter weights and inference implementation; closed source: hosted model without a public checkpoint.",
+  "models": {
+    "clef": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/Cloudflare/clef",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "a30162b99d68a481d8bd75d38df069a0cf83df40",
+      "license": "apache-2.0"
+    },
+    "clef-omni": {
+      "access": "open",
+      "parameters_b": 30,
+      "active_parameters_b": 3,
+      "source": "https://huggingface.co/Cloudflare/clef-omni",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "df2d7c9505e62ba8a527b147513a4fa66a77dc5d",
+      "license": "apache-2.0"
+    },
+    "clef-flash": {
+      "access": "open",
+      "parameters_b": 9,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/Cloudflare/clef-flash",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "f0b7d3cd65296abfe459e6c228b618f5d8b26d2f",
+      "license": "apache-2.0"
+    },
+    "pplx": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/perplexity-ai/pplx-decider-v1-27b",
+      "size_basis": "reported model/backbone scale"
+    },
+    "pplx12": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/perplexity-ai/pplx-decider-v1.2-27b",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "cce0f3f80033e9d89d80831d5281fd72124aacce",
+      "license": "apache-2.0"
+    },
+    "pplx-flash12": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "9ff7cf9838e59df461c276b7699d56b244d2af58",
+      "license": "apache-2.0"
+    },
+    "intern": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/internlm/Intern-Decision-4B",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "38c9dafbbef52dd04bae943c0c6ac918419adfd5",
+      "license": "apache-2.0"
+    },
+    "intern2": {
+      "access": "open",
+      "parameters_b": 2,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/internlm/Intern-Decision-2B",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "85c5657708a09884ff9fd8d7f57789b410a97b33",
+      "license": "apache-2.0"
+    },
+    "intern08": {
+      "access": "open",
+      "parameters_b": 0.8,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/internlm/Intern-Decision-0.8B",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "42457fafd13d10d0b0d9be46cb30a23caa409994",
+      "license": "apache-2.0"
+    },
+    "h2o": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/h2oai/h2o-lightning-4b",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "052bb7d48c71abcd769d91994792bbc664b7681e",
+      "license": "apache-2.0"
+    },
+    "nano": {
+      "access": "open",
+      "parameters_b": 0.6,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/C-Tianyu/NanoJev",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "047b927b30882a1138fc504821b82ac145a4b81a",
+      "license": null
+    },
+    "quyet": {
+      "access": "open",
+      "parameters_b": 31,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/chinhnc/Quyet-1.0-Large",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "9a0f051112ba4301f6e4c8b87fc088ce00b11aae",
+      "license": "apache-2.0"
+    },
+    "decisio12": {
+      "access": "open",
+      "parameters_b": 12,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/google/gemma-4-12B-it",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7",
+      "license": "apache-2.0",
+      "implementation_source": "https://github.com/aminry/decisio"
+    },
+    "decisio31": {
+      "access": "open",
+      "parameters_b": 31,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/google/gemma-4-31B-it",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "842da3794eaa0b77d5f08bae87a17459d91ff475",
+      "license": "apache-2.0",
+      "implementation_source": "https://github.com/aminry/decisio"
+    },
+    "decisioqwen": {
+      "access": "open",
+      "parameters_b": 35,
+      "active_parameters_b": 3,
+      "source": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "95a723d08a9490559dae23d0cff1d9466213d989",
+      "license": "apache-2.0",
+      "implementation_source": "https://github.com/aminry/decisio"
+    },
+    "diffusion": {
+      "access": "open",
+      "parameters_b": 26,
+      "active_parameters_b": 4,
+      "source": "https://huggingface.co/google/diffusiongemma-26B-A4B-it",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "f7f5b7f5fa82ffc52addd066915886d497f5517b",
+      "license": "apache-2.0"
+    },
+    "strands": {
+      "access": "open",
+      "parameters_b": 2,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/StrandsAgents/strands-decider-2B-qwen3.5-v1-2610",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "216d1ccb46a9e9b036eb9187b248db98480f77d4",
+      "license": "apache-2.0"
+    },
+    "jevk5": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/alibiserikbay/JevK5",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "c4f7fdb3aeab5582336406e78d3bef11bf98833d",
+      "license": "apache-2.0"
+    },
+    "autotrust": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/autotrust/JEV-27B-VL",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "9e53b8a809d2ab98e3e6a55b2b2dbf94b4c1e84a",
+      "license": "apache-2.0"
+    },
+    "decider": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/Mapika/decider-4b",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "585473dec4fa93f0325c2bf02dda7273b61f44c1",
+      "license": "apache-2.0"
+    },
+    "openjev": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/shenjunhao/OpenJev-4B",
+      "size_basis": "reported model/backbone scale",
+      "verified_revision": "064bd435c6713486450194e29d526266b28941e2",
+      "license": "mit"
+    },
+    "semif": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://github.com/TheoLeeCJ/SemIf-OpenJev",
+      "size_basis": "Qwen3.5-4B backbone in the evaluated configuration"
+    },
+    "jev": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://typesafe.ai/",
+      "size_basis": "undisclosed"
+    },
+    "microsoft": {
+      "access": "closed",
+      "parameters_b": 9,
+      "active_parameters_b": null,
+      "source": "https://commandline.microsoft.com/microsoft-decision-1-model-foundry/",
+      "size_basis": "reported backbone scale"
+    },
+    "liquid": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/liquid/d1",
+      "size_basis": "undisclosed"
+    },
+    "liquid-ultra": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/liquid/d1-ultra",
+      "size_basis": "undisclosed"
+    },
+    "random": {
+      "access": "baseline",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": null
+    }
+  }
+}

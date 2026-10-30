@@ -51,6 +51,7 @@ def metrics(o):
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--source-root',type=Path,required=True);ap.add_argument('--output-root',type=Path,default=Path(__file__).resolve().parents[1]);args=ap.parse_args()
  src=args.source_root;out=args.output_root
+ policy_path=out/'config/model-display.json';policy=json.loads(policy_path.read_text());hidden=set(policy['hidden_model_ids'])
  files={'comparison':src/'docs/reports/mmdm-v2-baselines-20261020/comparison.json','summary':src/'docs/reports/mmdm/summary.json','current':src/'docs/reports/mmdm/CURRENT.json','validation':src/'docs/reports/mmdm/release-validation.json','dataset':src/'benchmarks/mmdm-v2/mmdm.jsonl'}
  raw={k:p.read_bytes() for k,p in files.items()};comp=json.loads(raw['comparison']);summary=json.loads(raw['summary']);current=json.loads(raw['current']);validation=json.loads(raw['validation'])
  assert comp['dataset_sha256']==summary['dataset_sha256']==current['dataset_sha256']==hashlib.sha256(raw['dataset']).hexdigest()
@@ -66,6 +67,8 @@ def main():
  assert sum(c['total'] for c in categories)==total
  models=[];pending=[]
  for i,m in enumerate(comp['models']):
+  if m['key'] in hidden:continue
+  metadata=policy['models'][m['key']]
   s=m.get('summary')
   if not s or s['processed']!=total:
    pending.append(dict(id=m['key'],name=m['name'],processed=m['processed'],status=m['status']['state']));continue
@@ -76,7 +79,7 @@ def main():
    assert cm[k]['set_n']==summary['categories'][k]['distribution']['hard_set']
   other=[v for k,v in cm.items() if k!='score_rubric' and v['soft'] is not None]
   n=sum(v['soft_n'] for v in other)
-  models.append(dict(id=m['key'],name=NAMES.get(m['key'],m['name']),url=URLS.get(m['key']),color=COLORS.get(m['key'],['#6D8A99','#9E8772','#9A7185','#7D8E78','#8D91A3'][i%5]),
+  models.append(dict(id=m['key'],name=NAMES.get(m['key'],m['name']),url=metadata.get('source') or URLS.get(m['key']),metadata=metadata,color=COLORS.get(m['key'],['#6D8A99','#9E8772','#9A7185','#7D8E78','#8D91A3'][i%5]),
    review=m.get('verification')=='needs_review',metrics=metrics(s['overall']),categories=cm,
    scatter={'all':{'value':s['overall']['soft_brier']['mean'],'n':s['overall']['soft_brier']['n']},'score':{'value':cm['score_rubric']['soft'],'n':cm['score_rubric']['soft_n']},'other':{'value':sum(v['soft']*v['soft_n'] for v in other)/n if n else None,'n':n}}))
  options=Counter(len(r['options']) for r in rows);assert {str(k):v for k,v in options.items()}==summary['distribution']['option_counts']
@@ -92,11 +95,26 @@ def main():
    assert len(r['gold'])==len(r['options']) and abs(sum(r['gold'])-1)<1e-5
    examples.append({k:r[k] for k in ['id','category','state','question','options','gold','correct_option_ids','score_values','source','task_subcategory','lengths','label_semantics','task']}|{'kind':label})
  stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
- provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':['pplx12','jev','microsoft','27b','intern','openjev'],'examples':'Unmodified input and gold from the current 5,448-row release. No historical model response is attached.'}
+ provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Unmodified input and gold from the current 5,448-row release. No historical model response is attached.'}
+ # Preserve the source report's fixed cohorts. Plot selection never recomputes them.
+ calibration={'method':comp['calibration']['method'],'excluded':comp['calibration']['excluded'],'views':{}}
+ visible={m['id'] for m in models}
+ for mode,view in comp['calibration']['views'].items():
+  selected={key:value for key,value in view['models'].items() if key in visible and key!='random'}
+  for key,value in selected.items():
+   for population in ['common','all']:
+    stats=value[population];bins=stats['bins']
+    assert len(bins)==10 and sum(b['n'] for b in bins)==stats['n']
+    if population=='common':assert stats['n']==view['common_n'] and stats['ids_sha256']==view['ids_sha256']
+    if stats['n']:
+     expected=sum(b['n']*abs(b['confidence']-b['target']) for b in bins if b['n'])/stats['n']
+     assert abs(expected-stats['ece'])<1e-10
+  calibration['views'][mode]={'common_n':view['common_n'],'ids_sha256':view['ids_sha256'],'models':selected}
+ assert all(key in visible for key in policy['representative_models'])
  data={'version':'mmdm-v2','total':total,'single':counts['hard_single'],'set':counts['hard_set'],'soft':counts['soft'],'score':comp['score'],'score_single':sum(c['single'] for c in categories if c['id']=='score_rubric'),'score_soft':sum(c['soft'] for c in categories if c['id']=='score_rubric'),
   'sources':len(summary['distribution']['sources']),'subcategories':len({(r['category'],r['task_subcategory']) for r in rows}),'parents':validation['independent_parents'],
   'snapshot_date':stamp.strftime('%B %d, %Y'),'snapshot_time':stamp.strftime('%Y-%m-%d %H:%M CST'),'dataset_sha256':comp['dataset_sha256'],
-  'categories':categories,'models':models,'pending':pending,'length_profile':summary['length_profile'],'option_counts':[{'options':k,'total':options[k]} for k in sorted(options)],'examples':examples,'provenance':provenance}
+  'categories':categories,'models':models,'pending':pending,'calibration':calibration,'length_profile':summary['length_profile'],'option_counts':[{'options':k,'total':options[k]} for k in sorted(options)],'examples':examples,'provenance':provenance}
  # The distributions and figures are generated from the same exported data as the table.
  (out/'data').mkdir(exist_ok=True)
  (out/'data/benchmark.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')

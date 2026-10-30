@@ -28,18 +28,30 @@
 </div>
 </header>
 <section class="teaser container wide" aria-label="Decision model comparison">
+<details class="figure-controls" id="model-picker"><summary><span>Choose models to compare</span><span id="selected-model-count" class="selection-count"></span></summary><p class="picker-help">Select models for the radar, soft-target and calibration charts.</p><div class="model-choices" id="figure-models"></div><button type="button" id="reset-models" class="text-button">Reset to representative models</button></details>
 <div class="teaser-plots">
 <figure><div class="plot-heading"><h2 id="radar-title">Hard Single Accuracy</h2><label class="sr-only" for="radar-kind">Radar metric</label><select id="radar-kind"><option value="single">Single choice</option><option value="set">Exact set match</option></select></div><div id="radar-chart" class="chart"></div></figure>
 <figure><div class="plot-heading"><h2>Soft targets &amp; Score</h2><span class="plot-unit">Brier error ↓</span></div><div id="soft-chart" class="chart"></div></figure>
 </div>
 <div class="model-legend" id="figure-legend" aria-label="Visible models"></div>
-<details class="figure-controls"><summary>Choose models</summary><div class="model-choices" id="figure-models"></div><button type="button" id="reset-models" class="text-button">Reset to six representative models</button></details>
+
 <p class="figure-caption">Decision-making performance across MMDM tasks. Accuracy measures hard decisions; Brier error measures soft target distributions. Select a legend entry to hide a model, or hover over a point for its value.</p>
+</section>
+<section class="section container wide calibration-section" id="calibration">
+<h2>Probability calibration</h2>
+<p class="section-description">When a model assigns 80% confidence, how often is its choice correct? Curves near the diagonal indicate well-calibrated probabilities.</p>
+<div class="calibration-controls"><div class="calibration-tabs" role="tablist" aria-label="Calibration target type"><button id="cal-tab-hard" type="button" role="tab" data-cal-mode="hard" aria-selected="true" aria-controls="calibration-panel">Hard Single</button><button id="cal-tab-soft" type="button" role="tab" data-cal-mode="soft" aria-selected="false" aria-controls="calibration-panel" tabindex="-1">Soft</button></div><div class="calibration-actions"><label>Examples <select id="calibration-population"><option value="common">Shared cohort</option><option value="all">All eligible per model</option></select></label><button id="calibration-models" type="button" class="text-button">Change models</button></div></div>
+<div id="calibration-panel" role="tabpanel" aria-labelledby="cal-tab-hard"><div id="calibration-chart" class="chart calibration-chart"></div></div>
+<div id="calibration-legend" class="model-legend" aria-label="Calibration models"></div>
+<p id="calibration-readout" class="calibration-readout" aria-live="polite"></p>
+<p id="calibration-caption" class="figure-caption"></p>
+<details class="protocol"><summary>How to read this chart</summary><p>Hard Single compares the predicted probability of the chosen option with observed accuracy. Soft compares it with the reference probability assigned to that option. Curves below the diagonal indicate overconfidence; curves above it indicate underconfidence.</p><p>Curves use normalized native predictions with a unique highest-probability option. Invalid predictions, grouped outputs, tied maxima and Hard Set tasks are excluded. The shared cohort is fixed by the source evaluation; selecting different curves does not change its membership. Random has no unique top choice and is omitted.</p></details>
 </section>
 <section class="section container" id="overview">
 <h2>Introduction</h2>
 <div class="prose">
 <p>We introduce <img class="benchmark-logo inline-logo" data-logo alt="" width="24" height="24"><strong>MMDM (Massive Multitask Decision Making)</strong>, a benchmark for text-based System-1 Decision Models. Its <strong>5,448 examples span 16 task categories</strong>, bringing knowledge and reading comprehension together with agent state tracking, tool and skill selection, option logic, constraint planning, workflow decisions, and rubric-based scoring.</p>
+<p>Long-standing public benchmarks face <a href="https://arxiv.org/abs/2406.19314" target="_blank" rel="noopener">documented test-set contamination</a>: exposure to their questions and answers during training can inflate scores and weaken their ability to distinguish generalization. MMDM combines newly constructed decision tasks with source-grounded recompositions and rewrites, introducing new contexts, constraints and option relationships. This design tests whether models can apply their knowledge to new decisions and reveals capability differences that familiar questions can conceal.</p>
 <p>Each task provides a state, a question, and a candidate list with request-specific names and criteria. Candidate sets range from <strong>2 to 1,024 options</strong>, and complete inputs reach <strong>64,817 tokens</strong>. The benchmark tests three distinct answer types: a single correct choice, a complete set of correct choices, and a soft target distribution. Dependencies between options, evolving context, rules and exceptions, and competing plans make the relationships among inputs central to the decision.</p>
 <p id="result-summary"></p>
 <p id="result-analysis"></p>
@@ -50,7 +62,7 @@
 <p class="section-description">MMDM · 5,448 examples. Compare overall results or select a task category.</p>
 <p class="update-date" id="snapshot-date"></p>
 <div class="table-controls">
-<div class="filter-group"><label>Subset <select id="leader-scope"><option value="overall">All categories</option></select></label></div>
+<div class="filter-group"><label>Subset <select id="leader-scope"><option value="overall">All categories</option></select></label><label>Access <select id="leader-access"><option value="all">All models</option><option value="open">Open source</option><option value="closed">Closed source</option></select></label><label>Model size <select id="leader-size"><option value="all">All sizes</option><option value="small">≤ 1B</option><option value="compact">&gt; 1–4B</option><option value="medium">&gt; 4–10B</option><option value="large">&gt; 10–30B</option><option value="xlarge">&gt; 30B</option><option value="unknown">Undisclosed</option></select></label><button id="reset-filters" class="text-button" type="button">Reset filters</button></div>
 <label>Search <input type="search" id="model-search" placeholder="Model name" autocomplete="off"></label>
 </div>
 <p class="subset-description" id="subset-counts"></p>
@@ -60,6 +72,7 @@
 <details class="protocol"><summary>Evaluation details</summary><div>
 <p>Hard accuracy uses every item of the corresponding label type; failed requests count as incorrect. Soft Brier is averaged over each model’s valid, native full-distribution predictions. Hover over a value to see its denominator.</p>
 <p>For inputs beyond a model’s context budget, the evaluation retains the question, options, and criteria, and truncates the middle of the state. Large candidate sets use the recorded native or grouped decision protocol.</p>
+<p>Open source identifies models with publicly released weights or adapters and inference code; closed source identifies hosted models without a public checkpoint. Sizes follow the reported model or backbone scale in billions of parameters. For mixture-of-experts models, filtering uses total parameters; active parameters are shown separately when reported. Undisclosed sizes remain a separate group.</p>
 <p>Random (uniform) reports analytic expected hard accuracy and a uniform probability distribution. Model names link to available model or project pages.</p>
 </div></details>
 </section>

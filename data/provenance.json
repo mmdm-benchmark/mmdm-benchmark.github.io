@@ -18,9 +18,10 @@
     "pplx12",
     "jev",
     "microsoft",
-    "27b",
     "intern",
     "openjev"
   ],
+  "model_metadata_checked_at": "2026-10-30",
+  "display_policy_sha256": "adcc34877c6af2402ef1af76c49778607e46f608fae3998b3f4332514257dca8",
   "examples": "Unmodified input and gold from the current 5,448-row release. No historical model response is attached."
 }
