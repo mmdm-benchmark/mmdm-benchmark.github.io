@@ -32,6 +32,11 @@
 @media(max-width:800px){.teaser-plots figure:nth-child(2) .plot-heading{min-height:36px}.institution-logos{gap:35px}.pareto-section .calibration-controls{justify-content:center}}
 @media(max-width:580px){.calibration-tabs button{padding:7px 13px;font-size:13px}.institution-logos{flex-wrap:wrap;gap:22px 45px;margin-bottom:24px}.institution-cuhk{width:101px;height:80px}.institution-hkust{width:51px;height:80px}.institution-lightspeed{width:300px;max-width:100%;margin-top:-7px}.set-model-name{font-size:19px}.set-value{font-size:19px}.set-column-subtitle{font-size:17px}.pareto-point-label{font-size:17px}.pareto-chart .tick-label{font-size:18px}.pareto-chart .axis-label{font-size:19px}.pareto-legend{font-size:12px;gap:8px 15px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Emphasize the measured frontier, with model names kept outside the plot. */
+.pareto-chart .pareto-grid{stroke:#e4e7e4;stroke-width:.8}.pareto-chart .frontier-number{fill:#fff;font:600 13px Arial,sans-serif;pointer-events:none}.pareto-chart [data-frontier=false]{opacity:.65}.pareto-chart [data-pareto-model]:hover,.pareto-chart [data-pareto-model]:focus-visible{stroke:#354f43;stroke-width:3;outline:none}.pareto-chart [data-undisclosed]:focus-visible{outline:none}.pareto-chart [data-undisclosed]:hover path:first-of-type,.pareto-chart [data-undisclosed]:focus-visible path:first-of-type{opacity:1;stroke-width:2.5}.frontier-key{border-top:3px solid #526f65}.pareto-legend .other-model-key{width:9px;height:9px;border-radius:50%;background:#bcc5c1}.pareto-legend small{font-size:11px;color:#77817b}.pareto-legend{gap:10px 24px}
+.frontier-models{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 18px;padding:20px 0 0;margin:23px 0 0;border-top:1px solid #e5e8e4}.frontier-models:empty{display:none}.frontier-models button{display:flex;align-items:flex-start;gap:9px;border:0;background:none;text-align:left;padding:5px 2px;font-size:13px;line-height:1.5;width:100%;color:#46524c}.frontier-models button:hover{color:#253f31}.frontier-index{display:flex;align-items:center;justify-content:center;border-radius:50%;width:22px;height:22px;flex-shrink:0;font:600 12px Arial,sans-serif;color:white}.frontier-models small{display:block;font-size:12px;color:#79837d;margin-top:3px}.frontier-models small strong{font-weight:500;color:#46524c}
+@media(max-width:580px){.frontier-models{grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;padding-top:15px}.frontier-models button{font-size:12px;gap:7px;overflow-wrap:anywhere}.frontier-models small{font-size:11px}.frontier-index{width:20px;height:20px;font-size:11px}.pareto-legend{gap:7px 14px}.pareto-chart .frontier-number{font-size:14px}}
 </style>
 </head>
 <body>
@@ -77,7 +82,7 @@
 <h2>Introduction</h2>
 <div class="prose">
 <p>We introduce <img class="benchmark-logo inline-logo" data-logo alt="" width="24" height="24"><strong>MMDM (Massive Multitask Decision Making)</strong>, a benchmark for text-based System-1 Decision Models. Its <strong>5,448 examples span 16 task categories</strong>, bringing knowledge and reading comprehension together with agent state tracking, tool and skill selection, option logic, constraint planning, workflow decisions, and rubric-based scoring.</p>
-<p>Recent benchmarks evaluate decision models across diverse tasks, yet real-world decisions combine long contexts, large option spaces, and complex logical dependencies that existing benchmarks do not adequately capture together. MMDM brings these challenges into one evaluation through newly constructed tasks and carefully recomposed and rewritten source material.</p>
+<p>Recent benchmarks broaden the evaluation of decision models, but test-set contamination can inflate scores and obscure generalization. They also fall short of jointly testing the long contexts, large option spaces, and complex logical dependencies of real-world decisions. MMDM combines newly constructed tasks with source-grounded recompositions and rewrites to test these challenges through fresh contexts, constraints, and option relationships.</p>
 <p>Each task provides a state, a question, and a candidate list with request-specific names and criteria. Candidate sets range from <strong>2 to 1,024 options</strong>, and complete inputs reach <strong>64,817 tokens</strong>. The benchmark tests three distinct answer types: a single correct choice, a complete set of correct choices, and a soft target distribution. Dependencies between options, evolving context, rules and exceptions, and competing plans make the relationships among inputs central to the decision.</p>
 <p id="result-summary"></p>
 <p id="result-analysis"></p>
@@ -108,9 +113,10 @@
 <div class="calibration-controls"><div class="calibration-tabs" role="tablist" aria-label="Size comparison metric"><button id="pareto-tab-single" type="button" role="tab" data-pareto-mode="single" aria-selected="true" aria-controls="pareto-panel">Hard Single</button><button id="pareto-tab-set" type="button" role="tab" data-pareto-mode="set" aria-selected="false" aria-controls="pareto-panel" tabindex="-1">Hard Set</button><button id="pareto-tab-soft" type="button" role="tab" data-pareto-mode="soft" aria-selected="false" aria-controls="pareto-panel" tabindex="-1">Soft</button></div><div class="calibration-tabs compact-tabs" role="group" aria-label="Models in size comparison"><button type="button" data-pareto-pool="all" aria-pressed="true">All models</button><button type="button" data-pareto-pool="selected" aria-pressed="false">Selected models</button></div></div>
 <div id="pareto-panel" role="tabpanel" aria-labelledby="pareto-tab-single"><div id="pareto-chart" class="chart pareto-chart"></div></div>
 <div id="pareto-legend" class="pareto-legend"></div>
+<ol id="pareto-frontier-models" class="frontier-models" aria-label="Models on the Pareto frontier"></ol>
 <p id="pareto-readout" class="calibration-readout" aria-live="polite"></p>
 <p id="pareto-caption" class="figure-caption"></p>
-<details class="protocol"><summary>Reading the Pareto frontier</summary><p>A model is on the frontier when no displayed model with a disclosed size is both no larger and at least as accurate (or no worse in Soft Brier), with a strict improvement in one dimension. The frontier is computed separately for each metric. Lower Soft Brier is better.</p><p>The horizontal axis uses reported total or backbone parameters on a logarithmic scale, including total parameters for mixture-of-experts models. Models with undisclosed sizes appear as horizontal dashed reference lines. Soft Brier uses each model’s valid native predictions, as in the leaderboard.</p></details>
+<details class="protocol"><summary>Reading the Pareto frontier</summary><p>A model is on the frontier when no displayed model with a disclosed size is both no larger and at least as accurate (or no worse in Soft Brier), with a strict improvement in one dimension. The frontier is computed separately for each metric. The smooth curve connects measured frontier models; numbered markers identify them below the chart. Lower Soft Brier is better.</p><p>The horizontal axis uses reported total or backbone parameters on a logarithmic scale, including total parameters for mixture-of-experts models. Models with undisclosed sizes appear as horizontal dashed reference lines. Soft Brier uses each model’s valid native predictions, as in the leaderboard.</p></details>
 </section>
 <section class="section container wide" id="dataset">
 <h2><img class="benchmark-logo heading-logo" data-logo alt="" width="42" height="42">MMDM Dataset</h2>
@@ -160,6 +166,7 @@ function drawChart(selector, markup, topology) {
  const oldGeometry = new Map([...host.querySelectorAll('[data-motion]')].map(e => [e.dataset.motion, e]));
  const oldBox = previous?.getAttribute('viewBox');
  if (chartJobs.has(host)) cancelAnimationFrame(chartJobs.get(host));
+ chartJobs.delete(host);
  host.getAnimations({subtree:true}).forEach(a => a.cancel());
  host.innerHTML = markup; host.dataset.topology = topology;
  if (!previous || motionPreference.matches) return;
@@ -179,7 +186,14 @@ function drawChart(selector, markup, topology) {
    if (from == null || to == null || from === to) continue;
    const a = [...from.matchAll(numberPattern)].map(m => Number(m[0]));
    const b = [...to.matchAll(numberPattern)].map(m => Number(m[0]));
-   if (!a.length || a.length !== b.length || from.replace(numberPattern,'#') !== to.replace(numberPattern,'#')) continue;
+   if (!a.length || a.length !== b.length || from.replace(numberPattern,'#') !== to.replace(numberPattern,'#')) {
+    if(attr==='d'&&next.hasAttribute('data-frontier-path')){
+     const oldLength=old.getTotalLength(),newLength=next.getTotalLength(),a=[],b=[];
+     for(let i=0;i<=100;i++){const p=old.getPointAtLength(oldLength*i/100),q=next.getPointAtLength(newLength*i/100);a.push(p.x,p.y);b.push(q.x,q.y);}
+     transitions.push({node:next,attr,to,a,b,sampled:true});next.setAttribute(attr,from);
+    }
+    continue;
+   }
    transitions.push({node:next,attr,to,a,b}); next.setAttribute(attr,from);
   }
  }
@@ -187,8 +201,10 @@ function drawChart(selector, markup, topology) {
  const begin = performance.now();
  function frame(now) {
   const t = motionPreference.matches ? 1 : Math.min(1,(now-begin)/400), eased = 1-Math.pow(1-t,3);
-  transitions.forEach(({node,attr,to,a,b}) => {
-   let i=0; node.setAttribute(attr,t===1?to:to.replace(numberPattern,()=>{const j=i++;return String(a[j]+(b[j]-a[j])*eased);}));
+  transitions.forEach(({node,attr,to,a,b,sampled}) => {
+   let i=0;
+   const interpolated=sampled?a.map((v,j)=>`${j%2?' ':j?'L':'M'}${v+(b[j]-v)*eased}`).join(''):to.replace(numberPattern,()=>{const j=i++;return String(a[j]+(b[j]-a[j])*eased);});
+   node.setAttribute(attr,t===1?to:interpolated);
   });
   if (t<1) chartJobs.set(host,requestAnimationFrame(frame)); else chartJobs.delete(host);
  }
@@ -247,45 +263,68 @@ function paretoFrontier(models,metric) {
  const better=(a,b)=>metric==='soft'?a<=b:a>=b;
  return known.filter(a=>!known.some(b=>b.id!==a.id&&b.metadata.parameters_b<=a.metadata.parameters_b&&better(b.metrics[metric],a.metrics[metric])&&(b.metadata.parameters_b<a.metadata.parameters_b||b.metrics[metric]!==a.metrics[metric]))).sort((a,b)=>a.metadata.parameters_b-b.metadata.parameters_b||a.name.localeCompare(b.name));
 }
+// Shape-preserving cubic interpolation in plot coordinates. Every segment stays
+// within the measured endpoint values, so smoothing cannot invent a better frontier.
+function frontierCurve(points) {
+ if(!points.length)return '';
+ if(points.length===1)return `M${points[0].x} ${points[0].y}`;
+ const h=points.slice(1).map((p,i)=>p.x-points[i].x),s=h.map((dx,i)=>(points[i+1].y-points[i].y)/dx);
+ const slopes=points.map((_,i)=>{
+  if(i===0)return s[0];if(i===points.length-1)return s.at(-1);
+  if(s[i-1]*s[i]<=0)return 0;
+  const a=2*h[i]+h[i-1],b=h[i]+2*h[i-1];return (a+b)/(a/s[i-1]+b/s[i]);
+ });
+ for(let i=0;i<s.length;i++){
+  if(s[i]===0){slopes[i]=slopes[i+1]=0;continue;}
+  const ratio=Math.hypot(slopes[i]/s[i],slopes[i+1]/s[i]);
+  if(ratio>3){slopes[i]*=3/ratio;slopes[i+1]*=3/ratio;}
+ }
+ return `M${points[0].x} ${points[0].y}`+h.map((dx,i)=>`C${points[i].x+dx/3} ${points[i].y+slopes[i]*dx/3} ${points[i+1].x-dx/3} ${points[i+1].y-slopes[i+1]*dx/3} ${points[i+1].x} ${points[i+1].y}`).join('');
+}
 function renderPareto() {
  const metric=state.pareto,soft=metric==='soft',models=paretoModels(),known=models.filter(m=>m.metadata.parameters_b!=null),unknown=models.filter(m=>m.metadata.parameters_b==null);
  const frontier=paretoFrontier(models,metric),frontIds=new Set(frontier.map(m=>m.id));
- const compact=matchMedia('(max-width:580px)').matches,width=compact?600:1000,left=82,right=width-35,top=45,bottom=430;
+ const compact=matchMedia('(max-width:580px)').matches,width=compact?600:1000,left=82,right=width-35,top=40,bottom=430;
  const xmin=Math.min(.5,...known.map(m=>m.metadata.parameters_b)),xmax=Math.max(40,...known.map(m=>Math.ceil(m.metadata.parameters_b/10)*10));
- const ymax=soft?Math.max(.1,Math.ceil(Math.max(0,...models.map(m=>m.metrics.soft))*10)/10):1;
- const X=x=>left+(right-left)*Math.log(x/xmin)/Math.log(xmax/xmin),Y=y=>bottom-(bottom-top)*y/ymax;
+ const values=models.map(m=>m.metrics[metric]),step=soft?.05:.1;
+ let ymin=models.length?Math.max(0,Math.floor((Math.min(...values)-step*.1)/step)*step):0;
+ let ymax=models.length?Math.ceil((Math.max(...values)+step*.1)/step)*step:soft?.5:1;
+ if(!soft)ymax=Math.min(1,ymax);
+ if(ymax-ymin<step*1.5){ymin=Math.max(0,ymin-step);ymax+=soft||ymax<1?step:0;}
+ const X=x=>left+(right-left)*Math.log(x/xmin)/Math.log(xmax/xmin),Y=y=>bottom-(bottom-top)*(y-ymin)/(ymax-ymin);
  const label=soft?'Soft Brier ↓':`${LABELS[metric]} Accuracy (%) ↑`;
- let s=`<svg viewBox="0 0 ${width} 535" role="img" aria-labelledby="pareto-svg-title"><title id="pareto-svg-title">${label} versus model size</title>`;
- for(let i=0;i<=5;i++){const v=ymax*i/5,y=Y(v);s+=`<path d="M${left} ${y}H${right}" class="grid"/>`+svgText(left-14,y+5,[soft?v.toFixed(2):String(Math.round(v*100))],'text-anchor="end" class="tick-label"');}
- for(let v=.5;v<=xmax;v*=2){if(v<xmin)continue;const x=X(v);s+=`<path d="M${x} ${top}V${bottom}" class="grid"/>`+svgText(x,461,[String(v)],'text-anchor="middle" class="tick-label"');}
+ const unique=frontier.filter((m,i,a)=>!i||m.metadata.parameters_b!==a[i-1].metadata.parameters_b||m.metrics[metric]!==a[i-1].metrics[metric]);
+ const rank=m=>unique.findIndex(p=>p.metadata.parameters_b===m.metadata.parameters_b&&p.metrics[metric]===m.metrics[metric])+1;
+ let s=`<svg viewBox="0 0 ${width} 535" data-y-min="${ymin}" data-y-max="${ymax}" role="img" aria-labelledby="pareto-svg-title"><title id="pareto-svg-title">${label} versus model size</title>`;
+ const tickCount=Math.round((ymax-ymin)/step);
+ for(let i=0;i<=tickCount;i++){const v=ymin+i*step,y=Y(v);s+=`<path d="M${left} ${y}H${right}" class="grid pareto-grid"/>`+svgText(left-14,y+5,[soft?v.toFixed(2):String(Math.round(v*100))],'text-anchor="end" class="tick-label"');}
+ for(let v=.5;v<=xmax;v*=2){if(v<xmin)continue;const x=X(v);s+=svgText(x,461,[String(v)],'text-anchor="middle" class="tick-label"');}
+ s+=`<path d="M${left} ${top}V${bottom}H${right}" stroke="#c3c9c5" stroke-width="1" fill="none"/>`;
  unknown.forEach(m=>{
   const y=Y(m.metrics[metric]),text=`${m.name} · size undisclosed · ${soft?'Soft Brier':'accuracy'} ${fmt(m.metrics[metric],metric)}`;
-  s+=`<g data-undisclosed="${esc(m.id)}" tabindex="0" data-readout="${esc(text)}" aria-label="${esc(text)}">${tip(text)}<path data-motion="unknown-${m.id}" d="M${left} ${y}H${right}" stroke="${m.color}" stroke-width="1.7" stroke-dasharray="7 5" fill="none"/><path d="M${left} ${y}H${right}" stroke="transparent" stroke-width="14" fill="none"/></g>`;
+  s+=`<g data-undisclosed="${esc(m.id)}" tabindex="0" data-readout="${esc(text)}" aria-label="${esc(text)}">${tip(text)}<path data-motion="unknown-${m.id}" d="M${left} ${y}H${right}" stroke="${m.color}" stroke-width="1.4" stroke-dasharray="7 5" fill="none" opacity=".7"/><path d="M${left} ${y}H${right}" stroke="transparent" stroke-width="14" fill="none"/></g>`;
  });
- const unique=frontier.filter((m,i,a)=>!i||m.metadata.parameters_b!==a[i-1].metadata.parameters_b||m.metrics[metric]!==a[i-1].metrics[metric]);
- if(unique.length){const path=unique.map((m,i)=>`${i?'H':'M'}${X(m.metadata.parameters_b)}${i?'V':' '}${Y(m.metrics[metric])}`).join('');s+=`<path data-motion="frontier" data-frontier-path="true" d="${path}" stroke="#778B83" stroke-width="2" fill="none" opacity=".7"/>`;}
  const coords=known.map(m=>({m,x:X(m.metadata.parameters_b),y:Y(m.metrics[metric])}));
- coords.forEach(({m,x,y})=>{
-  const val=m.metrics[metric],text=`${m.name} · ${m.metadata.parameters_b}B${m.metadata.active_parameters_b?' total / '+m.metadata.active_parameters_b+'B active':''} · ${soft?'Soft Brier':'accuracy'} ${fmt(val,metric)} · n = ${num(m.metrics[metric+'_n'])}${frontIds.has(m.id)?' · Pareto frontier':''}`;
-  if(frontIds.has(m.id))s+=`<circle data-motion="ring-${m.id}" cx="${x}" cy="${y}" r="9" stroke="${m.color}" stroke-width="1.3" fill="#fff"/>`;
-  s+=`<circle data-motion="pareto-${m.id}" data-pareto-model="${esc(m.id)}" data-frontier="${frontIds.has(m.id)}" data-value="${val}" cx="${x}" cy="${y}" r="5" fill="${m.color}" stroke="#fff" stroke-width="1" tabindex="0" data-readout="${esc(text)}" aria-label="${esc(text)}">${tip(text)}</circle>`;
- });
- // Label the frontier and representative models where there is space; every point has a readout.
- const boxes=[],labelCandidates=coords.filter(c=>frontIds.has(c.m.id)||DEFAULT_MODELS.includes(c.m.id)).sort((a,b)=>Number(frontIds.has(b.m.id))-Number(frontIds.has(a.m.id)));
- for(const {m,x,y} of labelCandidates){
-  const name=m.name,w=name.length*(compact?8.4:7.7),h=20;
-  const candidates=[[x+13,y-24],[x+13,y+8],[x-w-13,y-24],[x-w-13,y+8],[x-w/2,y-38],[x-w/2,y+23]];
-  const pos=candidates.find(([a,b])=>a>=left&&a+w<=right&&b>=top&&b+h<=bottom&&!boxes.some(o=>a<o.x+o.w+6&&a+w+6>o.x&&b<o.y+o.h+4&&b+h+4>o.y)&&!coords.some(c=>c.m.id!==m.id&&c.x>a-7&&c.x<a+w+7&&c.y>b-7&&c.y<b+h+7));
-  if(!pos)continue;const [lx,ly]=pos;boxes.push({x:lx,y:ly,w,h});
-  s+=svgText(lx,ly+15,[name],'class="pareto-point-label"');
+ function dot({m,x,y}){
+  const val=m.metrics[metric],on=frontIds.has(m.id),text=`${m.name} · ${m.metadata.parameters_b}B${m.metadata.active_parameters_b?' total / '+m.metadata.active_parameters_b+'B active':''} · ${soft?'Soft Brier':'accuracy'} ${fmt(val,metric)} · n = ${num(m.metrics[metric+'_n'])}${on?' · Pareto frontier':''}`;
+  return `<circle data-motion="pareto-${m.id}" data-pareto-model="${esc(m.id)}" data-frontier="${on}" data-value="${val}" cx="${x}" cy="${y}" r="${on?11:5}" fill="${on?m.color:'#BCC5C1'}" stroke="#fff" stroke-width="${on?2.5:1}" tabindex="0" data-readout="${esc(text)}" aria-label="${esc(text)}">${tip(text)}</circle>`;
  }
+ // Draw background models first, then the frontier and its numbered measured points.
+ s+=coords.filter(c=>!frontIds.has(c.m.id)).map(dot).join('');
+ if(unique.length){const path=frontierCurve(unique.map(m=>({x:X(m.metadata.parameters_b),y:Y(m.metrics[metric])})));s+=`<path data-motion="frontier" data-frontier-path="true" d="${path}" stroke="#526F65" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;}
+ s+=coords.filter(c=>frontIds.has(c.m.id)).map(dot).join('');
+ unique.forEach(m=>{s+=`<text data-motion="frontier-number-${m.id}" x="${X(m.metadata.parameters_b)}" y="${Y(m.metrics[metric])+4.2}" text-anchor="middle" class="frontier-number">${rank(m)}</text>`;});
  s+=svgText((left+right)/2,507,['Reported parameters (B, log scale)'],'text-anchor="middle" class="axis-label"');
  s+=`<text transform="translate(23 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" class="axis-label">${label}</text>`;
  if(!models.length)s+=svgText(width/2,220,['Select models to compare.'],'text-anchor="middle" class="axis-label"');
  drawChart('#pareto-chart',s+'</svg>','pareto');
- $('#pareto-legend').innerHTML='<span><i class="frontier-key"></i>Pareto frontier</span>'+unknown.map(m=>`<span><i class="unknown-key" style="border-color:${m.color}"></i>${esc(m.name)} · size undisclosed</span>`).join('');
- $('#pareto-readout').textContent=`Hover over or focus on a point or dashed line to inspect a model. ${soft?'Lower and further left is better.':'Higher and further left is better.'}`;
- $('#pareto-caption').textContent=`${models.length} models shown. ${frontier.length?'Frontier among disclosed sizes: '+frontier.map(m=>m.name).join(', ')+'.':'No disclosed-size model is selected.'}`;
+ $('#pareto-legend').innerHTML='<span><i class="frontier-key"></i>Pareto frontier</span><span><i class="other-model-key"></i>Other models</span>'+unknown.map(m=>`<span><i class="unknown-key" style="border-color:${m.color}"></i>${esc(m.name)} ${fmt(m.metrics[metric],metric)} <small>undisclosed size</small></span>`).join('');
+ $('#pareto-frontier-models').innerHTML=unique.map(m=>{
+  const tied=frontier.filter(a=>a.metadata.parameters_b===m.metadata.parameters_b&&a.metrics[metric]===m.metrics[metric]);
+  return `<li><button type="button" data-pareto-highlight="${esc(m.id)}"><span class="frontier-index" style="background:${m.color}">${rank(m)}</span><span>${esc(tied.map(a=>a.name).join(' / '))}<small>${m.metadata.parameters_b}B · <strong>${fmt(m.metrics[metric],metric)}</strong></small></span></button></li>`;
+ }).join('');
+ $('#pareto-readout').textContent=`Hover over a point or choose a frontier model below the curve to see its result. ${soft?'Lower and further left is better.':'Higher and further left is better.'}`;
+ $('#pareto-caption').textContent=`${models.length} models · ${frontier.length} on the disclosed-size frontier. Numbered markers identify the measured models along the curve.`;
  activateTabs('[data-pareto-mode]',metric,'paretoMode','#pareto-panel','pareto-tab-');
  document.querySelectorAll('[data-pareto-pool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.paretoPool===state.paretoPool)));
 }
@@ -460,6 +499,7 @@ function init(){
  $('#reset-models').addEventListener('click',()=>{state.selected=new Set(DEFAULT_MODELS);renderFigures();});
  bindTabs('[data-radar-mode]','radarMode',value=>{state.radar=value;renderRadar();});
  bindTabs('[data-pareto-mode]','paretoMode',value=>{state.pareto=value;renderPareto();});
+ $('#pareto-frontier-models').addEventListener('click',ev=>{const b=ev.target.closest('[data-pareto-highlight]');if(b)$(`[data-pareto-model="${b.dataset.paretoHighlight}"]`)?.focus({preventScroll:true});});
  document.querySelectorAll('[data-pareto-pool]').forEach(b=>b.addEventListener('click',()=>{state.paretoPool=b.dataset.paretoPool;renderPareto();}));
  function chooseSort(){const c=scopeCounts();state.sort=c.single?'single':c.set?'set':'soft';state.direction=state.sort==='soft'?1:-1;}
  $('#leader-scope').addEventListener('change',ev=>{state.scope=ev.target.value;chooseSort();renderLeaderboard();});

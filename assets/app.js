@@ -168,6 +168,7 @@ function init(){
  $('#reset-models').addEventListener('click',()=>{state.selected=new Set(DEFAULT_MODELS);renderFigures();});
  bindTabs('[data-radar-mode]','radarMode',value=>{state.radar=value;renderRadar();});
  bindTabs('[data-pareto-mode]','paretoMode',value=>{state.pareto=value;renderPareto();});
+ $('#pareto-frontier-models').addEventListener('click',ev=>{const b=ev.target.closest('[data-pareto-highlight]');if(b)$(`[data-pareto-model="${b.dataset.paretoHighlight}"]`)?.focus({preventScroll:true});});
  document.querySelectorAll('[data-pareto-pool]').forEach(b=>b.addEventListener('click',()=>{state.paretoPool=b.dataset.paretoPool;renderPareto();}));
  function chooseSort(){const c=scopeCounts();state.sort=c.single?'single':c.set?'set':'soft';state.direction=state.sort==='soft'?1:-1;}
  $('#leader-scope').addEventListener('change',ev=>{state.scope=ev.target.value;chooseSort();renderLeaderboard();});
