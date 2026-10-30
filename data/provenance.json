@@ -23,5 +23,5 @@
   ],
   "model_metadata_checked_at": "2026-10-30",
   "display_policy_sha256": "701e875e7b438a731a2c032c47a4923ec38e9ec4ba4dec1e71cf899ae019f735",
-  "examples": "Unmodified input and gold from the current 5,448-row release. No historical model response is attached."
+  "examples": "Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached."
 }

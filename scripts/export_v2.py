@@ -25,7 +25,7 @@ LABELS = {
  'world_knowledge':('World knowledge','World|knowledge','#8E9EAC'),
 }
 ORDER=['world_knowledge','reading_comprehension','deductive_reasoning','option_logic','constraint_planning','quantitative_temporal_reasoning','workflow_decision','agent_state_tracking','policy_exception','evidence_validation','code_database','intent_routing','tool_skill_selection','answer_preference','score_rubric','emotion_recognition']
-COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1'}
+COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1','startlux4':'#B88632','wemm':'#227F91','knowline':'#7D426D'}
 # Keep source-report names, with the requested short public name for Jev.
 NAMES={'jev':'Jev 1.14.0'}
 URLS={
@@ -49,6 +49,46 @@ def kind(r):
 def metrics(o):
  return {'single':o['hard_single']['accuracy_all'],'set':o['hard_set']['accuracy_all'],'soft':o['soft_brier']['mean'],
          'single_n':o['hard_single']['rows'],'set_n':o['hard_set']['rows'],'soft_n':o['soft_brier']['n']}
+# Curated additions favor readable prose and explicit rubric/long-context coverage.
+SHOWCASE_ADDITIONS = {'world_knowledge': ['mmdm-wk-full-6d9bc7a95c2376c51de034e9', 'mmdm-wk-full-1c21192f28c6b862f20c3ca1'], 'policy_exception': ['mmdm-04758'], 'score_rubric': ['mmdm-v2-36b816224973fa08d06245cb'], 'emotion_recognition': ['mmdm-v2-be9eaebe9fb63706ef2579a3', 'mmdm-v2-ef46cea2e486f026ce392eed']}
+
+def select_examples(rows, categories):
+ # Retain the original label-type representatives, then add complementary records.
+ examples=[]
+ fields=['id','category','state','question','options','gold','correct_option_ids','score_values','source','task_subcategory','lengths','label_semantics','task']
+ for cat in categories:
+  pool=[r for r in rows if r['category']==cat['id'] and len(r['options'])<=16]
+  desired=1800 if cat['id']=='reading_comprehension' else 550
+  chosen=[]
+  for label in ['hard_single','hard_set','soft']:
+   choices=[r for r in pool if kind(r)==label]
+   if choices:chosen.append(min(choices,key=lambda r:abs(r['lengths']['visible_task_tokens']-desired)))
+  by_id={r['id']:r for r in pool}
+  for record_id in SHOWCASE_ADDITIONS.get(cat['id'],[]):
+   r=by_id[record_id]
+   assert r['parent_id'] not in {x['parent_id'] for x in chosen}
+   chosen.append(r)
+  def answer_signature(r):
+   correct=set(r['correct_option_ids'])
+   return tuple(sorted(o['name'] for o in r['options'] if o['id'] in correct))
+  while len(chosen)<3:
+   parents={r['parent_id'] for r in chosen}
+   choices=[r for r in pool if r['parent_id'] not in parents and all((r['state'],r['question'])!=(x['state'],x['question']) for x in chosen)]
+   readable=[r for r in choices if 100<=r['lengths']['visible_task_tokens']<=(5000 if cat['id']=='reading_comprehension' else 3000)]
+   choices=readable or choices
+   assert choices, f"Not enough independent examples for {cat['id']}"
+   sources={r['source']['dataset'] for r in chosen};subcategories={r['task_subcategory'] for r in chosen}
+   answers={answer_signature(r) for r in chosen};option_counts={len(r['options']) for r in chosen}
+   # Prefer another source and mechanism; then vary labels and option-set sizes.
+   chosen.append(min(choices,key=lambda r:(
+    r['source']['dataset'] in sources, r['task_subcategory'] in subcategories,
+    answer_signature(r) in answers, len(r['options']) in option_counts,
+    abs(r['lengths']['visible_task_tokens']-desired), r['id'])))
+  for r in chosen:
+   assert len(r['gold'])==len(r['options']) and abs(sum(r['gold'])-1)<1e-5
+   examples.append({k:r[k] for k in fields}|{'kind':kind(r)})
+ return examples
+
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--source-root',type=Path,required=True);ap.add_argument('--output-root',type=Path,default=Path(__file__).resolve().parents[1]);args=ap.parse_args()
  src=args.source_root;out=args.output_root
@@ -85,19 +125,9 @@ def main():
    set_diagnostics={'exact':s['overall']['hard_set'],'native_balance':s['overall']['native_set_balance']},
    scatter={'all':{'value':s['overall']['soft_brier']['mean'],'n':s['overall']['soft_brier']['n']},'score':{'value':cm['score_rubric']['soft'],'n':cm['score_rubric']['soft_n']},'other':{'value':sum(v['soft']*v['soft_n'] for v in other)/n if n else None,'n':n}}))
  options=Counter(len(r['options']) for r in rows);assert {str(k):v for k,v in options.items()}==summary['distribution']['option_counts']
- examples=[]
- for cat in categories:
-  pool=[r for r in rows if r['category']==cat['id']]
-  for label in ['hard_single','hard_set','soft']:
-   choices=[r for r in pool if kind(r)==label and len(r['options'])<=16]
-   if not choices:continue
-   # Pick a readable, unmodified record close to a useful context length.
-   desired=1800 if cat['id']=='reading_comprehension' else 550
-   r=min(choices,key=lambda r:abs(r['lengths']['visible_task_tokens']-desired))
-   assert len(r['gold'])==len(r['options']) and abs(sum(r['gold'])-1)<1e-5
-   examples.append({k:r[k] for k in ['id','category','state','question','options','gold','correct_option_ids','score_values','source','task_subcategory','lengths','label_semantics','task']}|{'kind':label})
+ examples=select_examples(rows,categories)
  stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
- provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Unmodified input and gold from the current 5,448-row release. No historical model response is attached.'}
+ provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.'}
  # Preserve the source report's fixed cohorts. Plot selection never recomputes them.
  calibration={'method':comp['calibration']['method'],'excluded':comp['calibration']['excluded'],'views':{}}
  visible={m['id'] for m in models}
