@@ -23,5 +23,10 @@
   ],
   "model_metadata_checked_at": "2026-10-30",
   "display_policy_sha256": "adcc34877c6af2402ef1af76c49778607e46f608fae3998b3f4332514257dca8",
-  "examples": "Unmodified input and gold from the current 5,448-row release. No historical model response is attached."
+  "examples": "Unmodified input and gold from the current 5,448-row release. No historical model response is attached.",
+  "hard_set_diagnostics_source": {
+    "file": "docs/reports/mmdm-v2-baselines-20261020/comparison.json",
+    "sha256": "6ee44adfa6e01d6966a27df4423e5ddbccbb5b5524a5f04eca20fe2cdf2761a9",
+    "checked_against_existing_results": true
+  }
 }

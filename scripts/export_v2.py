@@ -1,5 +1,6 @@
 """Build an offline, self-contained MMDM page from the pinned v2 reports."""
-import argparse, base64, hashlib, json, math
+import argparse, hashlib, json, math
+from build_page import build_page
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -68,10 +69,10 @@ def main():
  models=[];pending=[]
  for i,m in enumerate(comp['models']):
   if m['key'] in hidden:continue
-  metadata=policy['models'][m['key']]
   s=m.get('summary')
   if not s or s['processed']!=total:
    pending.append(dict(id=m['key'],name=m['name'],processed=m['processed'],status=m['status']['state']));continue
+  metadata=policy['models'][m['key']]
   assert s['identity']['dataset_sha256']==comp['dataset_sha256']
   cm={k:metrics(s['categories'][k]) for k in ORDER}
   for k in ORDER:
@@ -81,6 +82,7 @@ def main():
   n=sum(v['soft_n'] for v in other)
   models.append(dict(id=m['key'],name=NAMES.get(m['key'],m['name']),url=metadata.get('source') or URLS.get(m['key']),metadata=metadata,color=COLORS.get(m['key'],['#6D8A99','#9E8772','#9A7185','#7D8E78','#8D91A3'][i%5]),
    review=m.get('verification')=='needs_review',metrics=metrics(s['overall']),categories=cm,
+   set_diagnostics={'exact':s['overall']['hard_set'],'native_balance':s['overall']['native_set_balance']},
    scatter={'all':{'value':s['overall']['soft_brier']['mean'],'n':s['overall']['soft_brier']['n']},'score':{'value':cm['score_rubric']['soft'],'n':cm['score_rubric']['soft_n']},'other':{'value':sum(v['soft']*v['soft_n'] for v in other)/n if n else None,'n':n}}))
  options=Counter(len(r['options']) for r in rows);assert {str(k):v for k,v in options.items()}==summary['distribution']['option_counts']
  examples=[]
@@ -119,10 +121,6 @@ def main():
  (out/'data').mkdir(exist_ok=True)
  (out/'data/benchmark.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
  (out/'data/provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
- page=(out/'templates/index.html').read_text()
- replace={'@@DATA@@':json.dumps(data,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c'),'@@CSS@@':(out/'assets/style.css').read_text(),'@@JS@@':(out/'assets/app.js').read_text(),'@@LOGO@@':'data:image/png;base64,'+base64.b64encode((out/'assets/mmdm-logo.png').read_bytes()).decode()}
- for token,value in replace.items():page=page.replace(token,value)
- assert '@@' not in page
- (out/'index.html').write_text(page)
- print(json.dumps({'rows':total,'categories':len(categories),'models_with_results':len(models),'pending':len(pending),'examples':len(examples),'dataset_sha256':comp['dataset_sha256'],'html_bytes':len(page.encode())},indent=2))
+ html_bytes=build_page(out)
+ print(json.dumps({'rows':total,'categories':len(categories),'models_with_results':len(models),'pending':len(pending),'examples':len(examples),'dataset_sha256':comp['dataset_sha256'],'html_bytes':html_bytes},indent=2))
 if __name__=='__main__':main()

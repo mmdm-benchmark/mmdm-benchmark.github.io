@@ -5,7 +5,7 @@ const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', f
 const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
 const DEFAULT_MODELS=D.provenance.representative_models;
 const FIGURE_MODELS=[...DEFAULT_MODELS.map(id=>D.models.find(m=>m.id===id)),...D.models.filter(m=>!DEFAULT_MODELS.includes(m.id))];
-const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',calibration:'hard',calibrationPopulation:'common',exampleIndex:0};
+const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',calibration:'hard',calibrationPopulation:'common',pareto:'single',paretoPool:'all',exampleIndex:0};
 const urls=new Map();
 function download(id,value,name){if(urls.has(id))URL.revokeObjectURL(urls.get(id));const u=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));urls.set(id,u);$(id).href=u;$(id).download=name;}
 function scopeCounts(){return state.scope==='overall'?{name:'All categories',total:D.total,single:D.single,set:D.set,soft:D.soft}:D.categories.find(c=>c.id===state.scope);}
@@ -49,8 +49,9 @@ function renderRadar(){
  let s='<svg viewBox="0 0 700 560" role="img" aria-labelledby="radar-svg-title"><title id="radar-svg-title">'+(kind==='single'?'Hard Single':'Hard Set')+' accuracy by task category, in percent</title>';
  for(const v of [20,40,60,80,100]){s+=`<polygon points="${pts(radius*v/100)}" class="grid"/>`+svgText(cx+5,cy-radius*v/100-4,[String(v)],'class="tick-label"');}
  cats.forEach((c,i)=>{const [x,y]=point(i,radius),[lx,ly]=point(i,radius+44),anchor=Math.abs(lx-cx)<15?'middle':lx>cx?'start':'end',lines=c.short.split('|');s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="grid"/>`+svgText(lx,ly-(lines.length-1)*8+5,lines,`text-anchor="${anchor}" class="axis-label"`);});
- models.forEach(m=>{const vals=cats.map(c=>m.categories[c.id][kind]);if(vals.some(v=>v==null))return;const points=vals.map((v,i)=>point(i,radius*v));s+=`<polygon points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${m.color}" stroke-width="2" opacity=".95"/>`;points.forEach(([x,y],i)=>{s+=`<circle class="chart-point" cx="${x}" cy="${y}" r="3" fill="${m.color}" tabindex="0" aria-label="${esc(m.name+': '+cats[i].name+' '+fmt(vals[i],kind))}">${tip(m.name+' · '+cats[i].name+': '+fmt(vals[i],kind)+' (n = '+cats[i][kind]+')')}</circle>`;});});
- s+='</svg>';$('#radar-chart').innerHTML=s;$('#radar-title').textContent=kind==='single'?'Hard Single Accuracy':'Hard Set Accuracy';
+ models.forEach(m=>{const vals=cats.map(c=>m.categories[c.id][kind]);if(vals.some(v=>v==null))return;const points=vals.map((v,i)=>point(i,radius*v));s+=`<polygon data-motion="radar-${m.id}" points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${m.color}" stroke-width="2" opacity=".95"/>`;points.forEach(([x,y],i)=>{s+=`<circle data-motion="radar-${m.id}-${cats[i].id}" class="chart-point" cx="${x}" cy="${y}" r="3" fill="${m.color}" tabindex="0" aria-label="${esc(m.name+': '+cats[i].name+' '+fmt(vals[i],kind))}">${tip(m.name+' · '+cats[i].name+': '+fmt(vals[i],kind)+' (n = '+cats[i][kind]+')')}</circle>`;});});
+ s+='</svg>';drawChart('#radar-chart',s,'radar-'+cats.map(c=>c.id).join('-'));$('#radar-title').textContent=kind==='single'?'Hard Single Accuracy':'Hard Set Accuracy';
+ activateTabs('[data-radar-mode]',kind,'radarMode','#radar-panel','radar-tab-');
 }
 function renderSoft(){
  const models=selectedModels(),groups=[['all',['All soft targets'],D.soft],['score',['Score & rubrics'],D.score_soft],['other',['Other soft tasks'],D.soft-D.score_soft]];
@@ -60,17 +61,24 @@ function renderSoft(){
  const ticks=5;for(let i=0;i<=ticks;i++){const v=max*i/ticks,x=X(v);s+=`<line x1="${x}" x2="${x}" y1="${top}" y2="${bottom}" class="grid"/>`+svgText(x,480,[v.toFixed(2)],'text-anchor="middle" class="tick-label"');}
  groups.forEach(([key,lines,count],gi)=>{
   const y=134+gi*131;s+=svgText(left-19,y-6,lines.concat(`(n = ${num(count)})`),'text-anchor="end" class="axis-label"');
-  models.forEach((m,i)=>{const v=m.scatter[key];if(v.value==null)return;const py=y+(i-(models.length-1)/2)*Math.min(12,74/Math.max(1,models.length-1)),x=X(v.value),label=`${m.name} · ${lines[0]}: ${v.value.toFixed(4)} (n = ${v.n})`;s+=`<circle class="chart-point" cx="${x}" cy="${py}" r="4.8" fill="${m.color}" tabindex="0" aria-label="${esc(label)}">${tip(label)}</circle>`;});
- });s+=svgText((left+right)/2,513,['Brier error (lower is better)'],'text-anchor="middle" class="axis-label"')+'</svg>';$('#soft-chart').innerHTML=s;
+  models.forEach((m,i)=>{const v=m.scatter[key];if(v.value==null)return;const py=y+(i-(models.length-1)/2)*Math.min(12,74/Math.max(1,models.length-1)),x=X(v.value),label=`${m.name} · ${lines[0]}: ${v.value.toFixed(4)} (n = ${v.n})`;s+=`<circle data-motion="soft-${m.id}-${key}" class="chart-point" cx="${x}" cy="${py}" r="4.8" fill="${m.color}" tabindex="0" aria-label="${esc(label)}">${tip(label)}</circle>`;});
+ });s+=svgText((left+right)/2,513,['Brier error (lower is better)'],'text-anchor="middle" class="axis-label"')+'</svg>';drawChart('#soft-chart',s,'soft');
 }
 function renderFigures(){
- renderRadar();renderSoft();renderCalibration();
+ renderRadar();renderSoft();renderCalibration();renderPareto();
  const models=FIGURE_MODELS.filter(m=>DEFAULT_MODELS.includes(m.id)||state.selected.has(m.id));
  $('#figure-legend').innerHTML=models.map(m=>`<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="${state.selected.has(m.id)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}</button>`).join('');
  $('#selected-model-count').textContent=`${state.selected.size} selected`;
  document.querySelectorAll('#figure-models input').forEach(el=>{el.checked=state.selected.has(el.value);});
 }
 function renderCalibration(){
+ const isSet=state.calibration==='set';
+ $('#calibration-title').textContent=isSet?'Hard Set recovery':'Probability calibration';
+ $('#calibration-description').textContent=isSet?'Can a model recover every correct option while giving each selected option appropriate weight?':'When a model assigns 80% confidence, how often is its choice correct? Curves near the diagonal indicate well-calibrated probabilities.';
+ $('#calibration-population-control').hidden=isSet;
+ $('#calibration-method').hidden=isSet;$('#set-method').hidden=!isSet;
+ activateTabs('[data-cal-mode]',state.calibration,'calMode','#calibration-panel','cal-tab-');
+ if(isSet){renderSetDiagnostics();return;}
  const mode=state.calibration,population=state.calibrationPopulation,view=D.calibration.views[mode],hard=mode==='hard';
  const compact=window.matchMedia('(max-width:580px)').matches,width=compact?600:1000;
  const models=selectedModels().filter(m=>view.models[m.id]),left=compact?76:86,right=width-(compact?28:54),top=60,bottom=410;
@@ -83,15 +91,15 @@ function renderCalibration(){
   const stats=view.models[m.id][population];s+=`<g data-cal-model="${esc(m.id)}">`;
   stats.bins.forEach((b,i)=>{
    if(!b.n)return;const next=stats.bins[i+1];
-   if(next?.n)s+=`<path d="M${X(b.confidence)} ${Y(b.target)}L${X(next.confidence)} ${Y(next.target)}" stroke="${m.color}" stroke-width="2" fill="none"/>`;
+   if(next?.n)s+=`<path data-motion="cal-${m.id}-line-${i}" d="M${X(b.confidence)} ${Y(b.target)}L${X(next.confidence)} ${Y(next.target)}" stroke="${m.color}" stroke-width="2" fill="none"/>`;
    const label=`${m.name} · confidence ${pct(b.confidence)} · ${hard?'accuracy':'target probability'} ${pct(b.target)} · n = ${num(b.n)}`;
-   s+=`<circle cx="${X(b.confidence)}" cy="${Y(b.target)}" r="4.2" fill="${b.n<20?'#fff':m.color}" stroke="${m.color}" stroke-width="1.8" tabindex="0" class="cal-point" data-bin="${b.index}" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
+   s+=`<circle data-motion="cal-${m.id}-bin-${i}" cx="${X(b.confidence)}" cy="${Y(b.target)}" r="4.2" fill="${b.n<20?'#fff':m.color}" stroke="${m.color}" stroke-width="1.8" tabindex="0" class="cal-point" data-bin="${b.index}" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
   });s+='</g>';
  });
  s+=svgText((left+right)/2,483,['Predicted probability of chosen answer'],'text-anchor="middle" class="axis-label"');
  s+=`<text transform="translate(25 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" class="axis-label">${ylabel}</text>`;
  if(!models.length)s+=svgText((left+right)/2,240,['Select a model to view calibration.'],'text-anchor="middle" class="axis-label"');
- $('#calibration-chart').innerHTML=s+'</svg>';
+ drawChart('#calibration-chart',s+'</svg>','calibration');
  $('#calibration-legend').innerHTML=models.map(m=>{const stats=view.models[m.id][population];return `<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="true" title="${esc(m.name)} · ECE ${pct(stats.ece)} · n = ${num(stats.n)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}<small>ECE ${(100*stats.ece).toFixed(1)}%</small></button>`;}).join('');
  const cohort=population==='common'?`${num(view.common_n)} shared valid examples in the fixed report cohort.`:'All eligible examples for each model; hover over its legend for the sample count.';
  $('#calibration-caption').textContent=`${cohort} Confidence bins have width 0.1. Filled points: at least 20 examples; hollow points: fewer than 20. ECE is the count-weighted mean absolute gap between confidence and the observed target.`;
@@ -158,22 +166,20 @@ function init(){
  $('#figure-models').addEventListener('change',ev=>{if(ev.target.checked)state.selected.add(ev.target.value);else state.selected.delete(ev.target.value);renderFigures();});
  $('#figure-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(!b)return;state.selected.has(b.dataset.model)?state.selected.delete(b.dataset.model):state.selected.add(b.dataset.model);renderFigures();});
  $('#reset-models').addEventListener('click',()=>{state.selected=new Set(DEFAULT_MODELS);renderFigures();});
- $('#radar-kind').addEventListener('change',ev=>{state.radar=ev.target.value;renderFigures();});
+ bindTabs('[data-radar-mode]','radarMode',value=>{state.radar=value;renderRadar();});
+ bindTabs('[data-pareto-mode]','paretoMode',value=>{state.pareto=value;renderPareto();});
+ document.querySelectorAll('[data-pareto-pool]').forEach(b=>b.addEventListener('click',()=>{state.paretoPool=b.dataset.paretoPool;renderPareto();}));
  function chooseSort(){const c=scopeCounts();state.sort=c.single?'single':c.set?'set':'soft';state.direction=state.sort==='soft'?1:-1;}
  $('#leader-scope').addEventListener('change',ev=>{state.scope=ev.target.value;chooseSort();renderLeaderboard();});
  $('#leaderboard-head').addEventListener('click',ev=>{const b=ev.target.closest('[data-sort]');if(!b)return;const k=b.dataset.sort;state.direction=state.sort===k?-state.direction:k==='single'||k==='set'?-1:1;state.sort=k;renderLeaderboard();$(`[data-sort="${k}"]`).focus({preventScroll:true});});
  $('#model-search').addEventListener('input',renderLeaderboard);
  for(const id of ['#leader-access','#leader-size'])$(id).addEventListener('change',renderLeaderboard);
  $('#reset-filters').addEventListener('click',()=>{$('#leader-access').value='all';$('#leader-size').value='all';$('#model-search').value='';renderLeaderboard();});
- const calTabs=[...document.querySelectorAll('[data-cal-mode]')];
- for(const b of calTabs){
-  b.addEventListener('click',()=>{state.calibration=b.dataset.calMode;renderCalibration();});
-  b.addEventListener('keydown',ev=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;ev.preventDefault();const next=ev.key==='Home'?calTabs[0]:ev.key==='End'?calTabs[1]:calTabs.find(t=>t!==b);state.calibration=next.dataset.calMode;renderCalibration();next.focus();});
- }
- window.matchMedia('(max-width:580px)').addEventListener('change',renderCalibration);
+ bindTabs('[data-cal-mode]','calMode',value=>{state.calibration=value;renderCalibration();});
+ window.matchMedia('(max-width:580px)').addEventListener('change',renderFigures);
  $('#calibration-population').addEventListener('change',ev=>{state.calibrationPopulation=ev.target.value;renderCalibration();});
  $('#calibration-legend').addEventListener('click',ev=>{const b=ev.target.closest('[data-model]');if(b){state.selected.delete(b.dataset.model);renderFigures();}});
- for(const event of ['pointerover','focusin'])$('#calibration-chart').addEventListener(event,ev=>{const p=ev.target.closest('[data-readout]');if(p)$('#calibration-readout').textContent=p.dataset.readout;});
+ for(const chart of ['calibration','pareto'])for(const event of ['pointerover','focusin'])$('#'+chart+'-chart').addEventListener(event,ev=>{const p=ev.target.closest('[data-readout]');if(p)$('#'+chart+'-readout').textContent=p.dataset.readout;});
  $('#calibration-models').addEventListener('click',()=>{const d=$('#model-picker');d.open=true;d.scrollIntoView({block:'center'});d.querySelector('input')?.focus({preventScroll:true});});
  $('#category-chart').addEventListener('click',ev=>{const b=ev.target.closest('[data-category]');if(!b)return;state.scope=b.dataset.category;$('#leader-scope').value=state.scope;chooseSort();renderLeaderboard();$('#leaderboard').scrollIntoView();});
  $('#category-chart').addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){const g=ev.target.closest('[data-category]');if(g){ev.preventDefault();g.dispatchEvent(new MouseEvent('click',{bubbles:true}));}}});

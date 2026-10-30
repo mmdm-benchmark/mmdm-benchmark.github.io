@@ -19,12 +19,15 @@ The results snapshot contains 26 public model runs plus Random (uniform). Pendin
 
 Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft Brier. Category filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Set uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 
-The introduction names the leading models and connects their results to category-level gaps. Dataset documentation explains the state, question, option names and criteria, each reference-label type, and scoring examples. Model counts, best results, and the leading model’s category accuracies are generated from the public subset of the embedded snapshot. The introduction explains why fresh construction and recomposition address limitations of familiar public tests, with a citation to LiveBench for the documented contamination problem.
+The introduction names the leading models and connects their results to category-level gaps. Dataset documentation explains the state, question, option names and criteria, each reference-label type, and scoring examples. Model counts, best results, and the leading model’s category accuracies are generated from the public subset of the embedded snapshot. The introduction follows the paper’s motivation: jointly testing long contexts, large option spaces, and complex logical dependencies through fresh construction, recomposition, and rewriting.
 
 ## Charts and examples
 
-- Native inline SVG radar (switch between Hard Single and Hard Set), soft Brier dot plot, and interactive calibration curves before the introduction. A prominent shared model chooser controls all three.
+- Native inline SVG radar with Hard Single / Hard Set tab buttons, a soft Brier dot plot, and interactive calibration curves before the introduction. A prominent shared model chooser controls these views.
 - Calibration switches between Hard Single and Soft, using 10 equal-width confidence bins. Shared-cohort mode preserves the source report’s fixed common examples (2,133 hard / 202 soft); all-eligible mode uses each model’s own valid native unique-top1 predictions. Empty bins stay empty; only adjacent populated bins are connected. Hollow points have fewer than 20 samples. ECE is recomputed and checked during export.
+- A Hard Set tab beside Hard Single and Soft shows exact Top-N set match over all 633 tasks alongside Top-N probability balance over each model’s valid native predictions. Balance is the normalized similarity to equal weighting inside the predicted top N; it is not set correctness or a calibration probability. Tooltips preserve the distinct denominators. Both quantities come directly from the source report.
+- The size-performance plot after the leaderboard switches among Hard Single Accuracy, Hard Set Accuracy, and Soft Brier. It uses reported total/backbone size on a log axis, computes the nondominated frontier among displayed disclosed-size models, and shows undisclosed-size models as horizontal dashed references. It can display all 26 public models or the shared model selection. Lower Brier is better; no composite score is introduced.
+- Charts interpolate matched geometry over 400 ms; charts with different axes use a 280 ms transition. Rapid switches cancel stale animations, and reduced-motion preferences disable these effects.
 - The five default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected.
 - Model display names follow the original results report, with the requested short name Jev 1.14.0. The same names appear in the leaderboard, chart legends, tooltips, and model selector.
 - A vertical SVG category bar chart in the original paper-figure layout, with a #Tasks axis; donut and stacked bars for labels and Score.
@@ -39,6 +42,14 @@ The introduction names the leading models and connects their results to category
 
 Access and parameter-range filters compose with category selection and search. Filters use reported total/backbone scale, with active MoE scale displayed separately and undisclosed sizes kept separate. Best values are calculated within the displayed subset. Random remains as a reference row. Model metadata was checked against public model cards and API metadata on 2026-10-30; API access is not treated as evidence of closed-source status.
 
+## Rebuild the page without changing results
+
+```sh
+python3 scripts/build_page.py
+```
+
+This packages the existing checked `data/benchmark.json` and current assets into one offline HTML. Use this for design and copy edits so newly running source evaluations do not alter the public snapshot. The Hard Set diagnostics added on 2026-10-30 have their own source hash in provenance; all existing model metrics and calibration bins were preserved.
+
 ## Rebuild from updated reports
 
 ```sh
@@ -52,16 +63,19 @@ Edit the source files, then rebuild:
 
 - `templates/index.html`: page structure and prose
 - `assets/style.css`: responsive layout
-- `assets/app.js`: charts, leaderboard, and examples
+- `assets/app.js`: chart selection, leaderboard, and examples
+- `assets/analysis-charts.js`: geometry transitions, Hard Set diagnostics, and Pareto frontier
+- `scripts/build_page.py`: standalone HTML packaging from the existing snapshot
 - `scripts/export_v2.py`: checked data transformation and standalone packaging
 - `config/model-display.json`: model visibility, public release metadata and parameter sizes
 - `assets/mmdm-logo.png`: supplied original transparent logo
+- `assets/institutions/`: vector CUHK and HKUST (Guangzhou) emblems rendered from the supplied PDFs, plus the unmodified supplied LIGHTSPEED image. All three are embedded before the footer text.
 
 `index.html` is generated. `scripts/export_data.py` delegates to the current v2 exporter.
 
 ## Validation
 
-Browser validation uses a copy of the single HTML file in an otherwise unrelated directory, in offline mode. It checks every category view, applicable metrics, all examples, chart controls, downloads, and 320/390/768/1440px layouts. A reference snapshot of the validation results is saved under `.preview/` (Git-ignored).
+Browser validation uses a copy of the single HTML file in an otherwise unrelated directory, in offline mode. It checks every category view, applicable metrics, all examples, chart controls, downloads, and 320/390/768/1440px layouts. A reference snapshot of the validation results is saved under `.preview/` (Git-ignored). The set/size update also checks all 52 Hard Set metric points, 69 disclosed-size points across three metrics, Pareto ties and dominance, unknown-size references, empty selections, keyboard tabs, animation interpolation and cancellation, and reduced-motion behavior.
 
 ## GitHub Pages
 
