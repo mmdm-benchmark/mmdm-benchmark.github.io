@@ -49,7 +49,12 @@ function renderRadar(){
  let s='<svg viewBox="0 0 700 560" role="img" aria-labelledby="radar-svg-title"><title id="radar-svg-title">'+(kind==='single'?'Hard Single':'Hard Set')+' accuracy by task category, in percent</title>';
  for(const v of [20,40,60,80,100]){s+=`<polygon points="${pts(radius*v/100)}" class="grid"/>`+svgText(cx+5,cy-radius*v/100-4,[String(v)],'class="tick-label"');}
  cats.forEach((c,i)=>{const [x,y]=point(i,radius),[lx,ly]=point(i,radius+44),anchor=Math.abs(lx-cx)<15?'middle':lx>cx?'start':'end',lines=c.short.split('|');s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="grid"/>`+svgText(lx,ly-(lines.length-1)*8+5,lines,`text-anchor="${anchor}" class="axis-label"`);});
- models.forEach(m=>{const vals=cats.map(c=>m.categories[c.id][kind]);if(vals.some(v=>v==null))return;const points=vals.map((v,i)=>point(i,radius*v));s+=`<polygon data-motion="radar-${m.id}" points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${m.color}" stroke-width="2" opacity=".95"/>`;points.forEach(([x,y],i)=>{s+=`<circle data-motion="radar-${m.id}-${cats[i].id}" class="chart-point" cx="${x}" cy="${y}" r="3" fill="${m.color}" tabindex="0" aria-label="${esc(m.name+': '+cats[i].name+' '+fmt(vals[i],kind))}">${tip(m.name+' · '+cats[i].name+': '+fmt(vals[i],kind)+' (n = '+cats[i][kind]+')')}</circle>`;});});
+ models.forEach(m=>{
+  const vals=cats.map(c=>m.categories[c.id][kind]);if(vals.some(v=>v==null))return;
+  const points=vals.map((v,i)=>point(i,radius*v));s+=`<g data-series="${esc(m.id)}"><polygon class="series-line" data-motion="radar-${m.id}" points="${points.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${m.color}" stroke-width="2" opacity=".95" pointer-events="none"/>`;
+  points.forEach(([x,y],i)=>{const j=(i+1)%n,[nx,ny]=points[j],text=`${m.name} · ${LABELS[kind]} accuracy · ${cats[i].name}: ${pct(vals[i])} · ${cats[j].name}: ${pct(vals[j])}`;s+=`<path class="chart-hit" data-motion="radar-hit-${m.id}-${i}" d="M${x} ${y}L${nx} ${ny}" data-readout="${esc(text)}" data-tip-color="${m.color}" style="--series-color:${m.color}"/>`;});
+  points.forEach(([x,y],i)=>{const text=`${m.name} · ${cats[i].name} · ${LABELS[kind]} accuracy: ${pct(vals[i])} · n = ${num(cats[i][kind])}`;s+=`<circle data-motion="radar-${m.id}-${cats[i].id}" class="chart-point" cx="${x}" cy="${y}" r="4" fill="${m.color}" tabindex="0" data-readout="${esc(text)}" data-tip-color="${m.color}" aria-label="${esc(text)}"/>`;});s+='</g>';
+ });
  s+='</svg>';drawChart('#radar-chart',s,'radar-'+cats.map(c=>c.id).join('-'));$('#radar-title').textContent=kind==='single'?'Hard Single Accuracy':'Hard Set Accuracy';
  activateTabs('[data-radar-mode]',kind,'radarMode','#radar-panel','radar-tab-');
 }
@@ -61,7 +66,7 @@ function renderSoft(){
  const ticks=5;for(let i=0;i<=ticks;i++){const v=max*i/ticks,x=X(v);s+=`<line x1="${x}" x2="${x}" y1="${top}" y2="${bottom}" class="grid"/>`+svgText(x,480,[v.toFixed(2)],'text-anchor="middle" class="tick-label"');}
  groups.forEach(([key,lines,count],gi)=>{
   const y=134+gi*131;s+=svgText(left-19,y-6,lines.concat(`(n = ${num(count)})`),'text-anchor="end" class="axis-label"');
-  models.forEach((m,i)=>{const v=m.scatter[key];if(v.value==null)return;const py=y+(i-(models.length-1)/2)*Math.min(12,74/Math.max(1,models.length-1)),x=X(v.value),label=`${m.name} · ${lines[0]}: ${v.value.toFixed(4)} (n = ${v.n})`;s+=`<circle data-motion="soft-${m.id}-${key}" class="chart-point" cx="${x}" cy="${py}" r="4.8" fill="${m.color}" tabindex="0" aria-label="${esc(label)}">${tip(label)}</circle>`;});
+  models.forEach((m,i)=>{const v=m.scatter[key];if(v.value==null)return;const py=y+(i-(models.length-1)/2)*Math.min(12,74/Math.max(1,models.length-1)),x=X(v.value),label=`${m.name} · ${lines[0]}: ${v.value.toFixed(4)} (n = ${v.n})`;s+=`<circle data-motion="soft-${m.id}-${key}" class="chart-point" cx="${x}" cy="${py}" r="4.8" fill="${m.color}" tabindex="0" data-readout="${esc(label)}" data-tip-color="${m.color}" aria-label="${esc(label)}">${tip(label)}</circle>`;});
  });s+=svgText((left+right)/2,513,['Brier error (lower is better)'],'text-anchor="middle" class="axis-label"')+'</svg>';drawChart('#soft-chart',s,'soft');
 }
 function renderFigures(){
@@ -86,14 +91,17 @@ function renderCalibration(){
  const ylabel=hard?'Observed accuracy':'Mean target probability of chosen answer';
  let s=`<svg viewBox="0 0 ${width} 510" role="img" aria-labelledby="calibration-svg-title calibration-svg-desc"><title id="calibration-svg-title">${hard?'Hard Single':'Soft'} calibration</title><desc id="calibration-svg-desc">Predicted probability versus ${ylabel.toLowerCase()}. Filled points have at least 20 examples; hollow points have fewer than 20.</desc>`;
  for(let i=0;i<=5;i++){const v=i/5,x=X(v),y=Y(v);s+=`<path d="M${left} ${y}H${right} M${x} ${top}V${bottom}" class="grid"/>`+svgText(x,440,[v.toFixed(1)],'text-anchor="middle" class="tick-label"')+svgText(left-16,y+5,[v.toFixed(1)],'text-anchor="end" class="tick-label"');}
- s+=`<path d="M${left} ${bottom}L${right} ${top}" stroke="#B9BBB8" stroke-width="1.5" fill="none"/>`+svgText(right,35,['Perfect calibration'],'text-anchor="end" class="axis-label ideal-label"');
+ s+=`<path d="M${left} ${bottom}L${right} ${top}" stroke="#B9BBB8" stroke-width="1.5" fill="none" data-readout="Perfect calibration · Confidence equals accuracy or target probability."/>`+svgText(right,35,['Perfect calibration'],'text-anchor="end" class="axis-label ideal-label"');
  models.forEach(m=>{
   const stats=view.models[m.id][population];s+=`<g data-cal-model="${esc(m.id)}">`;
   stats.bins.forEach((b,i)=>{
    if(!b.n)return;const next=stats.bins[i+1];
-   if(next?.n)s+=`<path data-motion="cal-${m.id}-line-${i}" d="M${X(b.confidence)} ${Y(b.target)}L${X(next.confidence)} ${Y(next.target)}" stroke="${m.color}" stroke-width="2" fill="none"/>`;
+   if(next?.n){
+    const d=`M${X(b.confidence)} ${Y(b.target)}L${X(next.confidence)} ${Y(next.target)}`,text=`${m.name} · Adjacent confidence bins · Confidence: ${pct(b.confidence)} → ${pct(next.confidence)} · ${hard?'Accuracy':'Target probability'}: ${pct(b.target)} → ${pct(next.target)} · Samples: ${num(b.n)} / ${num(next.n)}`;
+    s+=`<path class="series-line" data-motion="cal-${m.id}-line-${i}" d="${d}" stroke="${m.color}" stroke-width="2" fill="none" pointer-events="none"/><path class="chart-hit" data-motion="cal-${m.id}-hit-${i}" d="${d}" data-readout="${esc(text)}" data-tip-color="${m.color}" style="--series-color:${m.color}"/>`;
+   }
    const label=`${m.name} · confidence ${pct(b.confidence)} · ${hard?'accuracy':'target probability'} ${pct(b.target)} · n = ${num(b.n)}`;
-   s+=`<circle data-motion="cal-${m.id}-bin-${i}" cx="${X(b.confidence)}" cy="${Y(b.target)}" r="4.2" fill="${b.n<20?'#fff':m.color}" stroke="${m.color}" stroke-width="1.8" tabindex="0" class="cal-point" data-bin="${b.index}" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
+   s+=`<circle data-motion="cal-${m.id}-bin-${i}" cx="${X(b.confidence)}" cy="${Y(b.target)}" r="4.2" fill="${b.n<20?'#fff':m.color}" stroke="${m.color}" stroke-width="1.8" tabindex="0" class="cal-point" data-tip-color="${m.color}" data-bin="${b.index}" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
   });s+='</g>';
  });
  s+=svgText((left+right)/2,483,['Predicted probability of chosen answer'],'text-anchor="middle" class="axis-label"');
@@ -101,9 +109,10 @@ function renderCalibration(){
  if(!models.length)s+=svgText((left+right)/2,240,['Select a model to view calibration.'],'text-anchor="middle" class="axis-label"');
  drawChart('#calibration-chart',s+'</svg>','calibration');
  $('#calibration-legend').innerHTML=models.map(m=>{const stats=view.models[m.id][population];return `<button type="button" class="legend-button" data-model="${esc(m.id)}" aria-pressed="true" title="${esc(m.name)} · ECE ${pct(stats.ece)} · n = ${num(stats.n)}"><i style="background:${m.color}" aria-hidden="true"></i>${esc(m.name)}<small>ECE ${(100*stats.ece).toFixed(1)}%</small></button>`;}).join('');
+ prepareChartHover('#calibration-legend');
  const cohort=population==='common'?`${num(view.common_n)} shared valid examples in the fixed report cohort.`:'All eligible examples for each model; hover over its legend for the sample count.';
  $('#calibration-caption').textContent=`${cohort} Confidence bins have width 0.1. Filled points: at least 20 examples; hollow points: fewer than 20. ECE is the count-weighted mean absolute gap between confidence and the observed target.`;
- $('#calibration-readout').textContent='Hover over or focus on a point to inspect its probability and sample count.';
+ $('#calibration-readout').textContent='Hover over a point or curve to inspect its probabilities and sample counts.';
  $('#calibration-panel').setAttribute('aria-labelledby',`cal-tab-${mode}`);
  document.querySelectorAll('[data-cal-mode]').forEach(b=>{const active=b.dataset.calMode===mode;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
 }
@@ -115,22 +124,23 @@ function renderCategories(){
  for(let v=0;v<=max;v+=100){const y=Y(v);chart+=`<line x1="${left}" x2="${right}" y1="${y}" y2="${y}" stroke="#DEDCD7" stroke-width=".7"/><text x="${left-13}" y="${y+5}" text-anchor="end" font-size="15">${v}</text>`;}
  chart+=`<text transform="translate(22 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" font-size="18">#Tasks</text>`;
  cats.forEach((c,i)=>{const x=left+step*(i+.5),y=Y(c.total);chart+=`<g data-category="${c.id}" tabindex="0" role="link" aria-label="Show ${esc(c.name)} results, ${c.total} examples">${tip(c.name+': '+c.total+' examples; Hard Single '+c.single+', Hard Set '+c.set+', Soft '+c.soft)}<rect x="${x-barWidth/2}" y="${y}" width="${barWidth}" height="${bottom-y}" fill="${c.color}"/><text x="${x}" y="${y-9}" text-anchor="middle" font-size="16">${c.total}</text><text transform="translate(${x+3} ${bottom+20}) rotate(-42)" text-anchor="end" font-size="16">${esc(c.name)}</text></g>`;});
- $('#category-chart').innerHTML=chart+'</svg>';
+ $('#category-chart').innerHTML=chart+'</svg>';prepareChartHover('#category-chart');
 }
 function renderLabels(){
  const segments=['single','set','soft'];let offset=0;
  const circles=segments.map(k=>{const length=D[k]/D.total*100,s=`<circle cx="90" cy="90" r="69" pathLength="100" fill="none" stroke="${LABEL_COLORS[k]}" stroke-width="18" stroke-dasharray="${length} ${100-length}" stroke-dashoffset="${-offset}" transform="rotate(-90 90 90)">${tip(`${LABELS[k]}: ${num(D[k])} (${(length).toFixed(2)}%)`)}</circle>`;offset+=length;return s;}).join('');
  $('#label-chart').innerHTML=`<div class="label-stat"><svg class="label-donut" viewBox="0 0 180 180" role="img" aria-label="4,112 hard single, 633 hard set, 703 soft examples">${circles}<text x="90" y="89" text-anchor="middle" font-size="27">${num(D.total)}</text><text x="90" y="110" text-anchor="middle" font-size="13">examples</text></svg><div class="label-list">${segments.map(k=>`<div class="label-row"><i class="label-dot" style="background:${LABEL_COLORS[k]}" aria-hidden="true"></i><span>${LABELS[k]}<small>${(D[k]/D.total*100).toFixed(2)}%</small></span><b>${num(D[k])}</b></div>`).join('')}</div></div>`;
  $('#score-chart').innerHTML=`<p class="score-total">${num(D.score)}<small>${(D.score/D.total*100).toFixed(2)}% of MMDM</small></p><div class="stacked-bar" role="img" aria-label="Score: ${D.score_single} hard single and ${D.score_soft} soft"><span style="width:${D.score_single/D.score*100}%;background:${LABEL_COLORS.single}" title="${D.score_single} Hard Single"></span><span style="width:${D.score_soft/D.score*100}%;background:${LABEL_COLORS.soft}" title="${D.score_soft} Soft"></span></div><div class="score-legend"><span><i style="background:${LABEL_COLORS.single}"></i>Hard Single <strong>${D.score_single}</strong></span><span><i style="background:${LABEL_COLORS.soft}"></i>Soft <strong>${D.score_soft}</strong></span></div>`;
+ prepareChartHover('#label-chart');prepareChartHover('#score-chart');
 }
 function bars(rows,color='#8E9EAC'){const max=Math.max(...rows.map(r=>r.n),1);return `<div class="mini-bars">`+rows.map(r=>`<div class="mini-bar"><span>${esc(r.label)}</span><span class="track"><i style="width:${r.n/max*100}%;background:${color}" title="${num(r.n)} examples · ${(100*r.n/D.total).toFixed(2)}%"></i></span><b>${num(r.n)}</b></div>`).join('')+'</div>';}
-function renderContext(){const k=$('#length-kind').value,p=D.length_profile[k];$('#context-chart').innerHTML=bars(D.length_profile.bins.map(b=>({label:b.label,n:b[k]})),'#94A7B0');$('#context-summary').innerHTML=`Median <strong>${num(p.median)}</strong> · 95th percentile <strong>${num(p.p95)}</strong> · Maximum <strong>${num(p.max)}</strong> tokens`;}
+function renderContext(){const k=$('#length-kind').value,p=D.length_profile[k];$('#context-chart').innerHTML=bars(D.length_profile.bins.map(b=>({label:b.label,n:b[k]})),'#94A7B0');$('#context-summary').innerHTML=`Median <strong>${num(p.median)}</strong> · 95th percentile <strong>${num(p.p95)}</strong> · Maximum <strong>${num(p.max)}</strong> tokens`;prepareChartHover('#context-chart');}
 function renderOptions(){
  const bins=[[2,2,'2'],[3,4,'3–4'],[5,8,'5–8'],[9,16,'9–16'],[17,64,'17–64'],[65,255,'65–255'],[256,1024,'256–1,024']];
  const rows=bins.map(([lo,hi,label])=>({label,n:D.option_counts.filter(r=>r.options>=lo&&r.options<=hi).reduce((s,r)=>s+r.total,0)}));
  $('#option-chart').innerHTML=bars(rows,'#ADA28F');
  const above=D.option_counts.filter(r=>r.options>255).reduce((s,r)=>s+r.total,0);let cumulative=0,median=0;for(const x of D.option_counts){cumulative+=x.total;if(cumulative>=D.total/2){median=x.options;break;}}
- $('#option-summary').innerHTML=`Range <strong>2–1,024</strong> · Median <strong>${median}</strong> · <strong>${above}</strong> examples with more than 255 options`;
+ $('#option-summary').innerHTML=`Range <strong>2–1,024</strong> · Median <strong>${median}</strong> · <strong>${above}</strong> examples with more than 255 options`;prepareChartHover('#option-chart');
 }
 function renderExample(){
  const items=D.examples,e=items[state.exampleIndex],kind={hard_single:'Hard Single',hard_set:'Hard Set',soft:'Soft'}[e.kind];
@@ -157,6 +167,7 @@ function renderResultsSummary(){
  $('#result-analysis').innerHTML=`MMDM shows that <strong>many models perform well on common knowledge questions yet struggle with interdependent options, decisions subject to constraints, and emotional interpretation.</strong> For example, ${esc(single.name)} reaches ${categoryAccuracy('world_knowledge')} Hard Single Accuracy on world knowledge, but ${categoryAccuracy('constraint_planning')} on constraint planning and ${categoryAccuracy('emotion_recognition')} on emotion recognition. These gaps make MMDM a testbed for developing decision models that combine broad knowledge with reliable logical reasoning and context-sensitive judgment.`;
 }
 function init(){
+ initChartHover();
  const logo=$('#main-logo').src;document.querySelectorAll('[data-logo]').forEach(el=>el.src=logo);$('#page-icon').href=logo;
  const alphabetical=[...D.categories].sort((a,b)=>a.name.localeCompare(b.name));const categoryOptions=alphabetical.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
  $('#leader-scope').insertAdjacentHTML('beforeend',categoryOptions);

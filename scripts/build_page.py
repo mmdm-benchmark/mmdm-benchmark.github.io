@@ -11,6 +11,7 @@ def build_page(out):
     replacements = {
         '@@DATA@@': json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c'),
         '@@CSS@@': (out / 'assets/style.css').read_text(),
+        '@@HOVERJS@@': (out / 'assets/chart-hover.js').read_text(),
         '@@CHARTJS@@': (out / 'assets/analysis-charts.js').read_text(),
         '@@JS@@': (out / 'assets/app.js').read_text(),
     }

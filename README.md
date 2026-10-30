@@ -27,6 +27,7 @@ The introduction names the leading models and connects their results to category
 - Calibration switches between Hard Single and Soft, using 10 equal-width confidence bins. Shared-cohort mode preserves the source report’s fixed common examples (2,133 hard / 202 soft); all-eligible mode uses each model’s own valid native unique-top1 predictions. Empty bins stay empty; only adjacent populated bins are connected. Hollow points have fewer than 20 samples. ECE is recomputed and checked during export.
 - A Hard Set tab beside Hard Single and Soft shows exact Top-N set match over all 633 tasks alongside Top-N probability balance over each model’s valid native predictions. Balance is the normalized similarity to equal weighting inside the predicted top N; it is not set correctness or a calibration probability. Tooltips preserve the distinct denominators. Both quantities come directly from the source report.
 - The size-performance plot after the leaderboard switches among Hard Single Accuracy, Hard Set Accuracy, and Soft Brier. It uses reported total/backbone size on a log axis, computes the nondominated frontier among displayed disclosed-size models, and shows undisclosed-size models as horizontal dashed references. A monotone cubic curve connects the measured frontier points without overshooting their endpoint values. Numbered markers map to a clickable model-and-result list below the plot; other models are muted. The vertical scale follows the displayed range with explicit ticks. It can display all 26 public models or the shared model selection. Lower Brier is better; no composite score is introduced.
+- Chart points and curve segments show immediate pointer-local tooltips with model names and values, plus a visible highlight. Crosshair cursors are consistent across plots; tooltips remain inside the viewport and also support keyboard focus and touch. Line hit areas sit behind point markers.
 - Charts interpolate matched geometry over 400 ms; charts with different axes use a 280 ms transition. Rapid switches cancel stale animations, and reduced-motion preferences disable these effects.
 - The five default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected.
 - Model display names follow the original results report, with the requested short name Jev 1.14.0. The same names appear in the leaderboard, chart legends, tooltips, and model selector.
@@ -64,6 +65,7 @@ Edit the source files, then rebuild:
 - `templates/index.html`: page structure and prose
 - `assets/style.css`: responsive layout
 - `assets/app.js`: chart selection, leaderboard, and examples
+- `assets/chart-hover.js`: shared immediate tooltips, pointer/focus/touch handling, and accessible readouts
 - `assets/analysis-charts.js`: geometry transitions, Hard Set diagnostics, and Pareto frontier
 - `scripts/build_page.py`: standalone HTML packaging from the existing snapshot
 - `scripts/export_v2.py`: checked data transformation and standalone packaging

@@ -3,13 +3,14 @@ const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const chartJobs = new Map();
 function drawChart(selector, markup, topology) {
  const host = $(selector), previous = host.querySelector('svg');
+ chartHover?.hideWithin(host);
  const oldKey = host.dataset.topology;
  const oldGeometry = new Map([...host.querySelectorAll('[data-motion]')].map(e => [e.dataset.motion, e]));
  const oldBox = previous?.getAttribute('viewBox');
  if (chartJobs.has(host)) cancelAnimationFrame(chartJobs.get(host));
  chartJobs.delete(host);
  host.getAnimations({subtree:true}).forEach(a => a.cancel());
- host.innerHTML = markup; host.dataset.topology = topology;
+ host.innerHTML = markup; host.dataset.topology = topology;prepareChartHover(host);
  if (!previous || motionPreference.matches) return;
  const svg = host.querySelector('svg');
  if (oldKey !== topology || oldBox !== svg?.getAttribute('viewBox')) {
@@ -28,7 +29,7 @@ function drawChart(selector, markup, topology) {
    const a = [...from.matchAll(numberPattern)].map(m => Number(m[0]));
    const b = [...to.matchAll(numberPattern)].map(m => Number(m[0]));
    if (!a.length || a.length !== b.length || from.replace(numberPattern,'#') !== to.replace(numberPattern,'#')) {
-    if(attr==='d'&&next.hasAttribute('data-frontier-path')){
+    if(attr==='d'&&(next.hasAttribute('data-frontier-path')||next.hasAttribute('data-frontier-hit'))){
      const oldLength=old.getTotalLength(),newLength=next.getTotalLength(),a=[],b=[];
      for(let i=0;i<=100;i++){const p=old.getPointAtLength(oldLength*i/100),q=next.getPointAtLength(newLength*i/100);a.push(p.x,p.y);b.push(q.x,q.y);}
      transitions.push({node:next,attr,to,a,b,sampled:true});next.setAttribute(attr,from);
@@ -152,7 +153,7 @@ function renderPareto() {
  }
  // Draw background models first, then the frontier and its numbered measured points.
  s+=coords.filter(c=>!frontIds.has(c.m.id)).map(dot).join('');
- if(unique.length){const path=frontierCurve(unique.map(m=>({x:X(m.metadata.parameters_b),y:Y(m.metrics[metric])})));s+=`<path data-motion="frontier" data-frontier-path="true" d="${path}" stroke="#526F65" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;}
+ if(unique.length){const path=frontierCurve(unique.map(m=>({x:X(m.metadata.parameters_b),y:Y(m.metrics[metric])})));s+=`<path data-motion="frontier" data-frontier-path="true" d="${path}" stroke="#526F65" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" pointer-events="none"/><path class="chart-hit" data-motion="frontier-hit" data-frontier-hit="true" d="${path}" data-readout="${esc('Pareto frontier · '+unique.map(m=>`${m.name}: ${m.metadata.parameters_b}B, ${fmt(m.metrics[metric],metric)}`).join(' · '))}" data-tip-color="#526F65" style="--series-color:#526F65"/>`;}
  s+=coords.filter(c=>frontIds.has(c.m.id)).map(dot).join('');
  unique.forEach(m=>{s+=`<text data-motion="frontier-number-${m.id}" x="${X(m.metadata.parameters_b)}" y="${Y(m.metrics[metric])+4.2}" text-anchor="middle" class="frontier-number">${rank(m)}</text>`;});
  s+=svgText((left+right)/2,507,['Reported parameters (B, log scale)'],'text-anchor="middle" class="axis-label"');
