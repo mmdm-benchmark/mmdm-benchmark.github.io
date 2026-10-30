@@ -15,7 +15,7 @@ Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.i
 
 The MMDM release has 5,448 examples across 16 categories, 80 category–subcategory combinations, and 62 source identifiers. Labels comprise 4,112 Hard Single, 633 Hard Set, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single, 628 Soft).
 
-The results snapshot contains 26 public model runs plus Random (uniform). Pending evaluation and review metadata remain in the embedded source data. The page embeds the snapshot timestamp and source hashes.
+The results snapshot contains 29 public model runs plus Random (uniform). The latest additions are StartLux-Decision v1.1 4B AutoThink, WeMM-JEV 27B, and KnowLine 31B Gen1; their display names follow the source report. StartLux 9B and 27B remain pending in this snapshot. Pending evaluation and review metadata remain in the embedded source data. The page embeds the snapshot timestamp and source hashes.
 
 Leaderboard columns are Decision Model, Hard Single Acc, Hard Set Acc, and Soft Brier. Category filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Set uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 
@@ -24,9 +24,9 @@ The introduction names the leading models and connects their results to category
 ## Charts and examples
 
 - Native inline SVG radar with Hard Single / Hard Set tab buttons, a soft Brier dot plot, and interactive calibration curves before the introduction. A prominent shared model chooser controls these views.
-- Calibration switches between Hard Single and Soft, using 10 equal-width confidence bins. Shared-cohort mode preserves the source report’s fixed common examples (2,133 hard / 202 soft); all-eligible mode uses each model’s own valid native unique-top1 predictions. Empty bins stay empty; only adjacent populated bins are connected. Hollow points have fewer than 20 samples. ECE is recomputed and checked during export.
+- Calibration switches between Hard Single and Soft, using 10 equal-width confidence bins. Shared-cohort mode preserves the source report’s fixed common examples (2,107 hard / 196 soft); all-eligible mode uses each model’s own valid native unique-top1 predictions. Empty bins stay empty; only adjacent populated bins are connected. Hollow points have fewer than 20 samples. ECE is recomputed and checked during export.
 - A Hard Set tab beside Hard Single and Soft shows exact Top-N set match over all 633 tasks alongside Top-N probability balance over each model’s valid native predictions. Balance is the normalized similarity to equal weighting inside the predicted top N; it is not set correctness or a calibration probability. Tooltips preserve the distinct denominators. Both quantities come directly from the source report.
-- The size-performance plot after the leaderboard switches among Hard Single Accuracy, Hard Set Accuracy, and Soft Brier. It uses reported total/backbone size on a log axis, computes the nondominated frontier among displayed disclosed-size models, and shows undisclosed-size models as horizontal dashed references. A monotone cubic curve connects the measured frontier points without overshooting their endpoint values. Numbered markers map to a clickable model-and-result list below the plot; other models are muted. The vertical scale follows the displayed range with explicit ticks. It can display all 26 public models or the shared model selection. Lower Brier is better; no composite score is introduced.
+- The size-performance plot after the leaderboard switches among Hard Single Accuracy, Hard Set Accuracy, and Soft Brier. It uses reported total/backbone size on a log axis, computes the nondominated frontier among displayed disclosed-size models, and shows undisclosed-size models as horizontal dashed references. A monotone cubic curve connects the measured frontier points without overshooting their endpoint values. Numbered markers map to a clickable model-and-result list below the plot; other models are muted. The vertical scale follows the displayed range with explicit ticks. It can display all 29 public models or the shared model selection. Lower Brier is better; no composite score is introduced.
 - Chart points and curve segments show immediate pointer-local tooltips with model names and values, plus a visible highlight. Crosshair cursors are consistent across plots; tooltips remain inside the viewport and also support keyboard focus and touch. Line hit areas sit behind point markers.
 - Charts interpolate matched geometry over 400 ms; charts with different axes use a 280 ms transition. Rapid switches cancel stale animations, and reduced-motion preferences disable these effects.
 - The five default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected.
@@ -49,7 +49,7 @@ Access and parameter-range filters compose with category selection and search. F
 python3 scripts/build_page.py
 ```
 
-This packages the existing checked `data/benchmark.json` and current assets into one offline HTML. Use this for design and copy edits so newly running source evaluations do not alter the public snapshot. The Hard Set diagnostics added on 2026-10-30 have their own source hash in provenance; all existing model metrics and calibration bins were preserved.
+This packages the existing checked `data/benchmark.json` and current assets into one offline HTML. Use this for design and copy edits so newly running source evaluations do not alter the public snapshot. Overall metrics, category results, Hard Set diagnostics, and calibration bins share the comparison snapshot recorded in provenance. Existing model metrics were preserved; calibration bins now use the source report’s updated common cohort as additional models complete.
 
 ## Rebuild from updated reports
 
@@ -77,7 +77,7 @@ Edit the source files, then rebuild:
 
 ## Validation
 
-Browser validation uses a copy of the single HTML file in an otherwise unrelated directory, in offline mode. It checks every category view, applicable metrics, all examples, chart controls, downloads, and 320/390/768/1440px layouts. A reference snapshot of the validation results is saved under `.preview/` (Git-ignored). The set/size update also checks all 52 Hard Set metric points, 69 disclosed-size points across three metrics, Pareto ties and dominance, unknown-size references, empty selections, keyboard tabs, animation interpolation and cancellation, and reduced-motion behavior.
+Browser validation uses a copy of the single HTML file in an otherwise unrelated directory, in offline mode. It checks every category view, applicable metrics, all examples, chart controls, downloads, and 320/390/768/1440px layouts. A reference snapshot of the validation results is saved under `.preview/` (Git-ignored). The set/size update also checks all 58 Hard Set metric points, 78 disclosed-size points across three metrics, Pareto ties and dominance, unknown-size references, empty selections, keyboard tabs, animation interpolation and cancellation, and reduced-motion behavior.
 
 ## GitHub Pages
 

@@ -244,6 +244,34 @@
       "parameters_b": null,
       "active_parameters_b": null,
       "source": null
+    },
+    "startlux4": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/startlux-models/StartLux-Decision-v1.1-4B-AutoThink",
+      "size_basis": "reported nominal model/backbone scale",
+      "verified_revision": "23dd4c513ef387705bb13fd8caadc2d5c863082f",
+      "license": "cc-by-nc-4.0",
+      "implementation_source": "https://github.com/StartLuxLabs/StartLux-Decision"
+    },
+    "wemm": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/Rover00/WeMM-JEV",
+      "size_basis": "reported nominal model/backbone scale",
+      "verified_revision": "a463f840c9259ff9139ab02181e01f20aca91b4b",
+      "license": "apache-2.0"
+    },
+    "knowline": {
+      "access": "open",
+      "parameters_b": 31,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/PelaAI/KnowLine-31B-Gen1",
+      "size_basis": "reported nominal model/backbone scale",
+      "verified_revision": "8f052a8130e599b53e5324c34f0f5ff90696e1c6",
+      "license": "apache-2.0"
     }
   }
 }
