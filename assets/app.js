@@ -2,7 +2,7 @@
 const D=JSON.parse(document.getElementById('benchmark-data').textContent);
 const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=x=>Number(x).toLocaleString('en-US'), pct=x=>(100*x).toFixed(2)+'%', fmt=(x,k)=>x==null?'—':k==='soft'?x.toFixed(4):pct(x);
-const LABELS={single:'Hard Single',set:'Hard Set',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
+const LABELS={single:'Hard Single-select',set:'Hard Multi-select',soft:'Soft'}, LABEL_COLORS={single:'#8E9EAC',set:'#B2A5B2',soft:'#8FA7A2'};
 const DEFAULT_MODELS=D.provenance.representative_models;
 const FIGURE_MODELS=[...DEFAULT_MODELS.map(id=>D.models.find(m=>m.id===id)),...D.models.filter(m=>!DEFAULT_MODELS.includes(m.id))];
 const state={scope:'overall',sort:'single',direction:-1,selected:new Set(DEFAULT_MODELS),radar:'single',calibration:'hard',calibrationPopulation:'common',pareto:'single',paretoPool:'all',exampleIndex:0};
@@ -22,7 +22,7 @@ function renderLeaderboard(){
   return (typeof x==='string'?x.localeCompare(y):x-y)*state.direction||a.name.localeCompare(b.name);
  });
  const best={};for(const k of ['single','set','soft']){const v=pool.filter(m=>m.id!=='random').map(m=>displayMetric(m,k)).filter(v=>v!=null);best[k]=v.length?(k==='soft'?Math.min(...v):Math.max(...v)):null;}
- const cols=[['name','Decision Model'],['single','Hard Single Acc ↑'],['set','Hard Set Acc ↑'],['soft','Soft Brier ↓']];
+ const cols=[['name','Decision Model'],['single','Hard Single-select Acc ↑'],['set','Hard Multi-select Acc ↑'],['soft','Soft Brier ↓']];
  $('#leaderboard-head').innerHTML='<tr><th scope="col">#</th>'+cols.map(([k,t])=>`<th scope="col" aria-sort="${state.sort===k?(state.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${k}">${t}<span class="sort-arrow" aria-hidden="true">${state.sort===k?(state.direction===1?'▴':'▾'):'↕'}</span></button></th>`).join('')+'</tr>';
  const visible=sorted.map((m,i)=>({...m,rank:m.id==='random'?'—':i+1}));
  $('#leaderboard-body').innerHTML=visible.length?visible.map(m=>{
@@ -30,7 +30,7 @@ function renderLeaderboard(){
   const name=m.url?`<a class="model-link" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:`<span class="model-name">${esc(m.name)}</span>`;
   return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}${modelBadges(m)}</td>${values}</tr>`;
  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px">No matching models.</td></tr>';
- $('#subset-counts').innerHTML=`<strong>${esc(counts.name)}</strong> · ${num(counts.total)} examples &nbsp; <span>Single ${num(counts.single)}</span> · <span>Set ${num(counts.set)}</span> · <span>Soft ${num(counts.soft)}</span>`;
+ $('#subset-counts').innerHTML=`<strong>${esc(counts.name)}</strong> · ${num(counts.total)} examples &nbsp; <span>${LABELS.single} ${num(counts.single)}</span> · <span>${LABELS.set} ${num(counts.set)}</span> · <span>Soft ${num(counts.soft)}</span>`;
  $('#table-status').textContent=`${visible.length} results shown · Bold marks the best value among the displayed models.`;
 }
 function modelBadges(m){
@@ -46,7 +46,7 @@ function renderRadar(){
  const kind=state.radar,cats=D.categories.filter(c=>c[kind]>0),models=selectedModels(),cx=350,cy=282,radius=169,n=cats.length;
  const point=(i,r)=>[cx+r*Math.sin(2*Math.PI*i/n),cy-r*Math.cos(2*Math.PI*i/n)];
  const pts=r=>cats.map((_,i)=>point(i,r).join(',')).join(' ');
- let s='<svg viewBox="0 0 700 560" role="img" aria-labelledby="radar-svg-title"><title id="radar-svg-title">'+(kind==='single'?'Hard Single':'Hard Set')+' accuracy by task category, in percent</title>';
+ let s='<svg viewBox="0 0 700 560" role="img" aria-labelledby="radar-svg-title"><title id="radar-svg-title">'+(kind==='single'?'Hard Single-select':'Hard Multi-select')+' accuracy by task category, in percent</title>';
  for(const v of [20,40,60,80,100]){s+=`<polygon points="${pts(radius*v/100)}" class="grid"/>`+svgText(cx+5,cy-radius*v/100-4,[String(v)],'class="tick-label"');}
  cats.forEach((c,i)=>{const [x,y]=point(i,radius),[lx,ly]=point(i,radius+44),anchor=Math.abs(lx-cx)<15?'middle':lx>cx?'start':'end',lines=c.short.split('|');s+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="grid"/>`+svgText(lx,ly-(lines.length-1)*8+5,lines,`text-anchor="${anchor}" class="axis-label"`);});
  models.forEach(m=>{
@@ -55,7 +55,7 @@ function renderRadar(){
   points.forEach(([x,y],i)=>{const j=(i+1)%n,[nx,ny]=points[j],text=`${m.name} · ${LABELS[kind]} accuracy · ${cats[i].name}: ${pct(vals[i])} · ${cats[j].name}: ${pct(vals[j])}`;s+=`<path class="chart-hit" data-motion="radar-hit-${m.id}-${i}" d="M${x} ${y}L${nx} ${ny}" data-readout="${esc(text)}" data-tip-color="${m.color}" style="--series-color:${m.color}"/>`;});
   points.forEach(([x,y],i)=>{const text=`${m.name} · ${cats[i].name} · ${LABELS[kind]} accuracy: ${pct(vals[i])} · n = ${num(cats[i][kind])}`;s+=`<circle data-motion="radar-${m.id}-${cats[i].id}" class="chart-point" cx="${x}" cy="${y}" r="4" fill="${m.color}" tabindex="0" data-readout="${esc(text)}" data-tip-color="${m.color}" aria-label="${esc(text)}"/>`;});s+='</g>';
  });
- s+='</svg>';drawChart('#radar-chart',s,'radar-'+cats.map(c=>c.id).join('-'));$('#radar-title').textContent=kind==='single'?'Hard Single Accuracy':'Hard Set Accuracy';
+ s+='</svg>';drawChart('#radar-chart',s,'radar-'+cats.map(c=>c.id).join('-'));$('#radar-title').textContent=kind==='single'?'Hard Single-select Accuracy':'Hard Multi-select Accuracy';
  activateTabs('[data-radar-mode]',kind,'radarMode','#radar-panel','radar-tab-');
 }
 function renderSoft(){
@@ -78,7 +78,7 @@ function renderFigures(){
 }
 function renderCalibration(){
  const isSet=state.calibration==='set';
- $('#calibration-title').textContent=isSet?'Hard Set recovery':'Probability calibration';
+ $('#calibration-title').textContent=isSet?'Hard Multi-select recovery':'Probability calibration';
  $('#calibration-description').textContent=isSet?'Can a model recover every correct option while giving each selected option appropriate weight?':'When a model assigns 80% confidence, how often is its choice correct? Curves near the diagonal indicate well-calibrated probabilities.';
  $('#calibration-population-control').hidden=isSet;
  $('#calibration-method').hidden=isSet;$('#set-method').hidden=!isSet;
@@ -89,7 +89,7 @@ function renderCalibration(){
  const models=selectedModels().filter(m=>view.models[m.id]),left=compact?76:86,right=width-(compact?28:54),top=60,bottom=410;
  const X=x=>left+(right-left)*x,Y=y=>bottom-(bottom-top)*y;
  const ylabel=hard?'Observed accuracy':'Mean target probability of chosen answer';
- let s=`<svg viewBox="0 0 ${width} 510" role="img" aria-labelledby="calibration-svg-title calibration-svg-desc"><title id="calibration-svg-title">${hard?'Hard Single':'Soft'} calibration</title><desc id="calibration-svg-desc">Predicted probability versus ${ylabel.toLowerCase()}. Filled points have at least 20 examples; hollow points have fewer than 20.</desc>`;
+ let s=`<svg viewBox="0 0 ${width} 510" role="img" aria-labelledby="calibration-svg-title calibration-svg-desc"><title id="calibration-svg-title">${hard?'Hard Single-select':'Soft'} calibration</title><desc id="calibration-svg-desc">Predicted probability versus ${ylabel.toLowerCase()}. Filled points have at least 20 examples; hollow points have fewer than 20.</desc>`;
  for(let i=0;i<=5;i++){const v=i/5,x=X(v),y=Y(v);s+=`<path d="M${left} ${y}H${right} M${x} ${top}V${bottom}" class="grid"/>`+svgText(x,440,[v.toFixed(1)],'text-anchor="middle" class="tick-label"')+svgText(left-16,y+5,[v.toFixed(1)],'text-anchor="end" class="tick-label"');}
  s+=`<path d="M${left} ${bottom}L${right} ${top}" stroke="#B9BBB8" stroke-width="1.5" fill="none" data-readout="Perfect calibration · Confidence equals accuracy or target probability."/>`+svgText(right,35,['Perfect calibration'],'text-anchor="end" class="axis-label ideal-label"');
  models.forEach(m=>{
@@ -123,14 +123,14 @@ function renderCategories(){
  let chart='<svg viewBox="0 0 1200 495" role="img" aria-labelledby="category-svg-title"><title id="category-svg-title">Task distribution of MMDM: 5,448 examples across 16 categories</title>';
  for(let v=0;v<=max;v+=100){const y=Y(v);chart+=`<line x1="${left}" x2="${right}" y1="${y}" y2="${y}" stroke="#DEDCD7" stroke-width=".7"/><text x="${left-13}" y="${y+5}" text-anchor="end" font-size="15">${v}</text>`;}
  chart+=`<text transform="translate(22 ${(top+bottom)/2}) rotate(-90)" text-anchor="middle" font-size="18">#Tasks</text>`;
- cats.forEach((c,i)=>{const x=left+step*(i+.5),y=Y(c.total);chart+=`<g data-category="${c.id}" tabindex="0" role="link" aria-label="Show ${esc(c.name)} results, ${c.total} examples">${tip(c.name+': '+c.total+' examples; Hard Single '+c.single+', Hard Set '+c.set+', Soft '+c.soft)}<rect x="${x-barWidth/2}" y="${y}" width="${barWidth}" height="${bottom-y}" fill="${c.color}"/><text x="${x}" y="${y-9}" text-anchor="middle" font-size="16">${c.total}</text><text transform="translate(${x+3} ${bottom+20}) rotate(-42)" text-anchor="end" font-size="16">${esc(c.name)}</text></g>`;});
+ cats.forEach((c,i)=>{const x=left+step*(i+.5),y=Y(c.total);chart+=`<g data-category="${c.id}" tabindex="0" role="link" aria-label="Show ${esc(c.name)} results, ${c.total} examples">${tip(c.name+': '+c.total+' examples; Hard Single-select '+c.single+', Hard Multi-select '+c.set+', Soft '+c.soft)}<rect x="${x-barWidth/2}" y="${y}" width="${barWidth}" height="${bottom-y}" fill="${c.color}"/><text x="${x}" y="${y-9}" text-anchor="middle" font-size="16">${c.total}</text><text transform="translate(${x+3} ${bottom+20}) rotate(-42)" text-anchor="end" font-size="16">${esc(c.name)}</text></g>`;});
  $('#category-chart').innerHTML=chart+'</svg>';prepareChartHover('#category-chart');
 }
 function renderLabels(){
  const segments=['single','set','soft'];let offset=0;
  const circles=segments.map(k=>{const length=D[k]/D.total*100,s=`<circle cx="90" cy="90" r="69" pathLength="100" fill="none" stroke="${LABEL_COLORS[k]}" stroke-width="18" stroke-dasharray="${length} ${100-length}" stroke-dashoffset="${-offset}" transform="rotate(-90 90 90)">${tip(`${LABELS[k]}: ${num(D[k])} (${(length).toFixed(2)}%)`)}</circle>`;offset+=length;return s;}).join('');
- $('#label-chart').innerHTML=`<div class="label-stat"><svg class="label-donut" viewBox="0 0 180 180" role="img" aria-label="4,112 hard single, 633 hard set, 703 soft examples">${circles}<text x="90" y="89" text-anchor="middle" font-size="27">${num(D.total)}</text><text x="90" y="110" text-anchor="middle" font-size="13">examples</text></svg><div class="label-list">${segments.map(k=>`<div class="label-row"><i class="label-dot" style="background:${LABEL_COLORS[k]}" aria-hidden="true"></i><span>${LABELS[k]}<small>${(D[k]/D.total*100).toFixed(2)}%</small></span><b>${num(D[k])}</b></div>`).join('')}</div></div>`;
- $('#score-chart').innerHTML=`<p class="score-total">${num(D.score)}<small>${(D.score/D.total*100).toFixed(2)}% of MMDM</small></p><div class="stacked-bar" role="img" aria-label="Score: ${D.score_single} hard single and ${D.score_soft} soft"><span style="width:${D.score_single/D.score*100}%;background:${LABEL_COLORS.single}" title="${D.score_single} Hard Single"></span><span style="width:${D.score_soft/D.score*100}%;background:${LABEL_COLORS.soft}" title="${D.score_soft} Soft"></span></div><div class="score-legend"><span><i style="background:${LABEL_COLORS.single}"></i>Hard Single <strong>${D.score_single}</strong></span><span><i style="background:${LABEL_COLORS.soft}"></i>Soft <strong>${D.score_soft}</strong></span></div>`;
+ $('#label-chart').innerHTML=`<div class="label-stat"><svg class="label-donut" viewBox="0 0 180 180" role="img" aria-label="4,112 Hard Single-select, 633 Hard Multi-select, 703 soft examples">${circles}<text x="90" y="89" text-anchor="middle" font-size="27">${num(D.total)}</text><text x="90" y="110" text-anchor="middle" font-size="13">examples</text></svg><div class="label-list">${segments.map(k=>`<div class="label-row"><i class="label-dot" style="background:${LABEL_COLORS[k]}" aria-hidden="true"></i><span>${LABELS[k].replace(/(Single-select|Multi-select)/g,'<span class="select-term">$1</span>')}<small>${(D[k]/D.total*100).toFixed(2)}%</small></span><b>${num(D[k])}</b></div>`).join('')}</div></div>`;
+ $('#score-chart').innerHTML=`<p class="score-total">${num(D.score)}<small>${(D.score/D.total*100).toFixed(2)}% of MMDM</small></p><div class="stacked-bar" role="img" aria-label="Score: ${D.score_single} Hard Single-select and ${D.score_soft} soft"><span style="width:${D.score_single/D.score*100}%;background:${LABEL_COLORS.single}" title="${D.score_single} Hard Single-select"></span><span style="width:${D.score_soft/D.score*100}%;background:${LABEL_COLORS.soft}" title="${D.score_soft} Soft"></span></div><div class="score-legend"><span><i style="background:${LABEL_COLORS.single}"></i>Hard Single-select <strong>${D.score_single}</strong></span><span><i style="background:${LABEL_COLORS.soft}"></i>Soft <strong>${D.score_soft}</strong></span></div>`;
  prepareChartHover('#label-chart');prepareChartHover('#score-chart');
 }
 function bars(rows,color='#8E9EAC'){const max=Math.max(...rows.map(r=>r.n),1);return `<div class="mini-bars">`+rows.map(r=>`<div class="mini-bar"><span>${esc(r.label)}</span><span class="track"><i style="width:${r.n/max*100}%;background:${color}" title="${num(r.n)} examples · ${(100*r.n/D.total).toFixed(2)}%"></i></span><b>${num(r.n)}</b></div>`).join('')+'</div>';}
@@ -143,7 +143,7 @@ function renderOptions(){
  $('#option-summary').innerHTML=`Range <strong>2–1,024</strong> · Median <strong>${median}</strong> · <strong>${above}</strong> examples with more than 255 options`;prepareChartHover('#option-chart');
 }
 function renderExample(){
- const items=D.examples,e=items[state.exampleIndex],kind={hard_single:'Hard Single',hard_set:'Hard Set',soft:'Soft'}[e.kind];
+ const items=D.examples,e=items[state.exampleIndex],kind={hard_single:'Hard Single-select',hard_set:'Hard Multi-select',soft:'Soft'}[e.kind];
  $('#example-count').textContent=`${state.exampleIndex+1} / ${items.length}`;$('#previous-example').disabled=items.length<2;$('#next-example').disabled=items.length<2;
  $('#example-card').dataset.exampleId=e.id;$('#example-kind').textContent=kind;$('#example-category-name').textContent=D.categories.find(c=>c.id===e.category).name;$('#example-meta').textContent=`${e.task==='score'?'Score · ':''}${e.options.length} options`;$('#example-state').textContent=e.state;$('#example-question').textContent=e.question;
  $('#state-frame').classList.remove('expanded');$('#expand-state').setAttribute('aria-expanded','false');$('#expand-state').textContent='Read full context ↓';
@@ -160,11 +160,11 @@ function renderResultsSummary(){
  const best=k=>results.filter(m=>m.metrics[k]!=null).reduce((a,b)=>(k==='soft'?a.metrics[k]<b.metrics[k]:a.metrics[k]>b.metrics[k])?a:b);
  const single=best('single'),set=best('set'),soft=best('soft');
  const hardResult=single.id===set.id
-  ? `<strong>${esc(single.name)}</strong> leads both hard-label evaluations, with <strong>${fmt(single.metrics.single,'single')} Hard Single Accuracy</strong> and <strong>${fmt(set.metrics.set,'set')} Hard Set Accuracy</strong>.`
-  : `<strong>${esc(single.name)}</strong> achieves the highest Hard Single Accuracy at <strong>${fmt(single.metrics.single,'single')}</strong>, while <strong>${esc(set.name)}</strong> leads Hard Set Accuracy at <strong>${fmt(set.metrics.set,'set')}</strong>.`;
+  ? `<strong>${esc(single.name)}</strong> leads both hard-label evaluations, with <strong>${fmt(single.metrics.single,'single')} Hard Single-select Accuracy</strong> and <strong>${fmt(set.metrics.set,'set')} Hard Multi-select Accuracy</strong>.`
+  : `<strong>${esc(single.name)}</strong> achieves the highest Hard Single-select Accuracy at <strong>${fmt(single.metrics.single,'single')}</strong>, while <strong>${esc(set.name)}</strong> leads Hard Multi-select Accuracy at <strong>${fmt(set.metrics.set,'set')}</strong>.`;
  $('#result-summary').innerHTML=`With <img class="benchmark-logo inline-logo" src="${$('#main-logo').src}" alt="" width="24" height="24"><strong>MMDM</strong>, we conduct a comprehensive, quantitative evaluation of <strong>${results.length} System-1 Decision Models</strong> across ${D.categories.length} task categories. ${hardResult} <strong>${esc(soft.name)}</strong> achieves the lowest Soft Brier error (${fmt(soft.metrics.soft,'soft')}), measuring how closely its predicted probabilities match the reference distributions.`;
  const categoryAccuracy=id=>fmt(single.categories[id].single,'single');
- $('#result-analysis').innerHTML=`MMDM shows that <strong>many models perform well on common knowledge questions yet struggle with interdependent options, decisions subject to constraints, and emotional interpretation.</strong> For example, ${esc(single.name)} reaches ${categoryAccuracy('world_knowledge')} Hard Single Accuracy on world knowledge, but ${categoryAccuracy('constraint_planning')} on constraint planning and ${categoryAccuracy('emotion_recognition')} on emotion recognition. These gaps make MMDM a testbed for developing decision models that combine broad knowledge with reliable logical reasoning and context-sensitive judgment.`;
+ $('#result-analysis').innerHTML=`MMDM shows that <strong>many models perform well on common knowledge questions yet struggle with interdependent options, decisions subject to constraints, and emotional interpretation.</strong> For example, ${esc(single.name)} reaches ${categoryAccuracy('world_knowledge')} Hard Single-select Accuracy on world knowledge, but ${categoryAccuracy('constraint_planning')} on constraint planning and ${categoryAccuracy('emotion_recognition')} on emotion recognition. These gaps make MMDM a testbed for developing decision models that combine broad knowledge with reliable logical reasoning and context-sensitive judgment.`;
 }
 function init(){
  initChartHover();

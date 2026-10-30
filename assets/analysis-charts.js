@@ -73,10 +73,10 @@ function renderSetDiagnostics() {
  const width=compact?600:1000,step=compact?72:46,first=compact?133:125;
  const bottom=first+Math.max(0,models.length-1)*step+32,height=bottom+67;
  const columns=compact?[[38,235,280],[330,525,575]]:[[270,520,590],[665,915,983]];
- let s=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="set-svg-title"><title id="set-svg-title">Hard Set exact match and probability balance</title>`;
+ let s=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="set-svg-title"><title id="set-svg-title">Hard Multi-select exact match and probability balance</title>`;
  columns.forEach(([l,r],i)=>{
   s+=svgText((l+r)/2,40,[i?'Top-N balance':'Exact set match'],'text-anchor="middle" class="set-column-title"');
-  s+=svgText((l+r)/2,65,[i?'Valid native predictions':'All 633 Hard Set tasks'],'text-anchor="middle" class="set-column-subtitle"');
+  s+=svgText((l+r)/2,65,[i?'Valid native predictions':'All 633 tasks'],'text-anchor="middle" class="set-column-subtitle"');
   for(let tick=0;tick<=4;tick++){const x=l+(r-l)*tick/4;s+=`<path d="M${x} 85V${bottom}" class="grid"/>`+svgText(x,bottom+26,[String(tick*25)],'text-anchor="middle" class="tick-label"');}
  });
  models.forEach((m,i)=>{
@@ -90,7 +90,7 @@ function renderSetDiagnostics() {
    s+=svgText(labelX,y+5,[value==null?'—':(value*100).toFixed(1)+'%'],'text-anchor="end" class="set-value"');
   });
  });
- if(!models.length)s+=svgText(width/2,115,['Select a model to view Hard Set results.'],'text-anchor="middle" class="axis-label"');
+ if(!models.length)s+=svgText(width/2,115,['Select a model to view Hard Multi-select results.'],'text-anchor="middle" class="axis-label"');
  s+=svgText(width/2,bottom+56,['Higher is better (%)'],'text-anchor="middle" class="axis-label"')+'</svg>';
  drawChart('#calibration-chart',s,'hard-set-'+models.length);
  $('#calibration-legend').innerHTML='';
