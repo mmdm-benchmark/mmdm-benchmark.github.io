@@ -59,7 +59,13 @@ function prepareChartHover(root) {
  const candidates=new Set(root.querySelectorAll('[data-readout],[data-chart-tip],svg title,[title]'));
  for(let node of candidates){
   if(node.tagName.toLowerCase()==='title'){
-   const parent=node.parentElement;if(parent.tagName.toLowerCase()==='svg')continue;
+   const parent=node.parentElement;
+   if(parent.tagName.toLowerCase()==='svg'){
+    // Keep the chart's accessible name without SVG title's native hover popup.
+    const description=document.createElementNS('http://www.w3.org/2000/svg','desc');
+    if(node.id)description.id=node.id;
+    description.textContent=node.textContent;node.replaceWith(description);continue;
+   }
    if(!parent.dataset.chartTip)parent.dataset.chartTip=parent.dataset.readout||node.textContent;
    node.remove();node=parent;
   }
