@@ -91,7 +91,7 @@
 <h2><img class="benchmark-logo heading-logo" data-logo alt="" width="42" height="42">MMDM Dataset</h2>
 <div class="prose dataset-intro">
 <p>MMDM combines source-grounded adaptations, executable task mechanisms, and decisions drawn from real tool and skill contexts. The release covers <strong>62 source identifiers and 80 category–subcategory combinations</strong>. Source evidence, task-specific checks, and independent review support the reference answers.</p>
-<p>Each example contains a state—the facts, documents, or conversation available to the model—a question describing the decision, and a list of options. Each option has a name describing a possible answer, action, or score level; an optional criterion explains when it applies. Some criteria refer to other options, so the model must reason about their relationships together.</p>
+<p>Each example contains a state, a question describing the decision, and a list of options. The state provides the facts, documents, or conversation available to the model. Each option names a possible answer, action, or score level and may include a criterion explaining when it applies. Criteria can refer to other options, requiring the model to reason about their relationships.</p>
 <p>The reference answer takes one of three forms:</p>
 <ul class="answer-type-definitions">
 <li><strong>Hard Single-select (4,112 examples):</strong> exactly one option is correct. The model must identify that option.</li>

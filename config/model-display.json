@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-30",
+  "checked_at": "2026-10-31",
   "hidden_model_ids": [
     "tiny",
     "27b"
@@ -272,6 +272,26 @@
       "size_basis": "reported nominal model/backbone scale",
       "verified_revision": "8f052a8130e599b53e5324c34f0f5ff90696e1c6",
       "license": "apache-2.0"
+    },
+    "startlux9": {
+      "access": "open",
+      "parameters_b": 9,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-AutoThink",
+      "size_basis": "reported nominal model/backbone scale",
+      "verified_revision": "efc649d8493b5b7353cf2ed6da0cdcbc215958ef",
+      "license": "cc-by-nc-4.0",
+      "implementation_source": "https://github.com/StartLuxLabs/StartLux-Decision"
+    },
+    "startlux27": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/startlux-models/StartLux-Decision-v1.1-27B-AutoThink",
+      "size_basis": "reported nominal model/backbone scale",
+      "verified_revision": "dd62d5cd84a483d75bdd548880bbf08bdd3f67a4",
+      "license": "cc-by-nc-4.0",
+      "implementation_source": "https://github.com/StartLuxLabs/StartLux-Decision"
     }
   }
 }

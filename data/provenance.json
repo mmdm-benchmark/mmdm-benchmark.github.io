@@ -1,9 +1,9 @@
 {
   "version": "mmdm-v2",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-  "snapshot_at": "2026-10-30T15:32:14.794163+08:00",
+  "snapshot_at": "2026-10-30T19:17:19.184925+08:00",
   "sources": {
-    "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "db00a02dd26395848494e29965b3e61a81f924905a21c6bb6797b19a7488b969",
+    "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "4c09e455207b88b20b1a02b1a7a37b9c506b2eff96830c60c0d321865a802c2e",
     "docs/reports/mmdm/summary.json": "ef3f44a66cd5357b17762966ebfdf66c1a71b5fd455a5dca591f3bedc2fee76c",
     "docs/reports/mmdm/CURRENT.json": "897458d4d49d30b1d89189ecc17bb37bd2f582eed7a6129b00ea0d7073b30aa4",
     "docs/reports/mmdm/release-validation.json": "811264d7f8d07179c9c80f39c27d3d9be531bb290111ed3a50858f83e8260d6b",
@@ -21,7 +21,7 @@
     "intern",
     "openjev"
   ],
-  "model_metadata_checked_at": "2026-10-30",
-  "display_policy_sha256": "701e875e7b438a731a2c032c47a4923ec38e9ec4ba4dec1e71cf899ae019f735",
+  "model_metadata_checked_at": "2026-10-31",
+  "display_policy_sha256": "5c4173c3b32d08fcf49127afde304f2ac9904d7579073ff4b1912690d018f3ed",
   "examples": "Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached."
 }
