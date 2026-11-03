@@ -1,7 +1,8 @@
 {
   "version": "mmdm-v2",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-  "snapshot_at": "2026-10-30T19:17:19.184925+08:00",
+  "snapshot_at": "2026-11-03T12:47:42+08:00",
+  "source_snapshot_at": "2026-10-30T19:17:19.184925+08:00",
   "sources": {
     "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "4c09e455207b88b20b1a02b1a7a37b9c506b2eff96830c60c0d321865a802c2e",
     "docs/reports/mmdm/summary.json": "ef3f44a66cd5357b17762966ebfdf66c1a71b5fd455a5dca591f3bedc2fee76c",
@@ -22,6 +23,6 @@
     "openjev"
   ],
   "model_metadata_checked_at": "2026-10-31",
-  "display_policy_sha256": "5c4173c3b32d08fcf49127afde304f2ac9904d7579073ff4b1912690d018f3ed",
+  "display_policy_sha256": "bf5c6e34e3a8a67f3783e001296586450be159a19b243929b96860bc6c10e485",
   "examples": "Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached."
 }

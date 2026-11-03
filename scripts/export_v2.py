@@ -25,7 +25,7 @@ LABELS = {
  'world_knowledge':('World knowledge','World|knowledge','#8E9EAC'),
 }
 ORDER=['world_knowledge','reading_comprehension','deductive_reasoning','option_logic','constraint_planning','quantitative_temporal_reasoning','workflow_decision','agent_state_tracking','policy_exception','evidence_validation','code_database','intent_routing','tool_skill_selection','answer_preference','score_rubric','emotion_recognition']
-COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1','startlux4':'#B88632','startlux9':'#597044','startlux27':'#A84D54','wemm':'#227F91','knowline':'#7D426D'}
+COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1','wemm':'#227F91','knowline':'#7D426D'}
 # Keep source-report names, with the requested short public name for Jev.
 NAMES={'jev':'Jev 1.14.0'}
 URLS={
@@ -126,8 +126,9 @@ def main():
    scatter={'all':{'value':s['overall']['soft_brier']['mean'],'n':s['overall']['soft_brier']['n']},'score':{'value':cm['score_rubric']['soft'],'n':cm['score_rubric']['soft_n']},'other':{'value':sum(v['soft']*v['soft_n'] for v in other)/n if n else None,'n':n}}))
  options=Counter(len(r['options']) for r in rows);assert {str(k):v for k,v in options.items()}==summary['distribution']['option_counts']
  examples=select_examples(rows,categories)
- stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
- provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.'}
+ source_stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
+ stamp=max(source_stamp,datetime.fromisoformat(policy.get('results_updated_at',source_stamp.isoformat()))).astimezone(ZoneInfo('Asia/Shanghai'))
+ provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'source_snapshot_at':source_stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.'}
  # Preserve the source report's fixed cohorts. Plot selection never recomputes them.
  calibration={'method':comp['calibration']['method'],'excluded':comp['calibration']['excluded'],'views':{}}
  visible={m['id'] for m in models}
