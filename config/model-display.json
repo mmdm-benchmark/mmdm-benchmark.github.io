@@ -5,7 +5,8 @@
     "27b",
     "startlux27",
     "startlux4",
-    "startlux9"
+    "startlux9",
+    "diffusion"
   ],
   "representative_models": [
     "pplx12",
@@ -153,15 +154,6 @@
       "license": "apache-2.0",
       "implementation_source": "https://github.com/aminry/decisio"
     },
-    "diffusion": {
-      "access": "open",
-      "parameters_b": 26,
-      "active_parameters_b": 4,
-      "source": "https://huggingface.co/google/diffusiongemma-26B-A4B-it",
-      "size_basis": "reported model/backbone scale",
-      "verified_revision": "f7f5b7f5fa82ffc52addd066915886d497f5517b",
-      "license": "apache-2.0"
-    },
     "strands": {
       "access": "open",
       "parameters_b": 2,
@@ -267,5 +259,16 @@
       "license": "apache-2.0"
     }
   },
-  "results_updated_at": "2026-11-03T12:47:42+08:00"
+  "results_updated_at": "2026-11-03T13:02:16+08:00",
+  "inference_policy": {
+    "id": "single-step-decision-v1",
+    "criterion": "A native model call returns candidate probabilities directly in one decision step: direct scoring or a single decoding step, without generated reasoning, adaptive thinking, or generation of a textual probability vector.",
+    "grouped_evaluation": "The deterministic grouped evaluator may compose multiple eligible native calls for catalogs exceeding a model candidate cap.",
+    "excluded_configurations": {
+      "startlux4": "Evaluated AutoThink configuration may generate a thought and rescore.",
+      "startlux9": "Evaluated AutoThink configuration may generate a thought and rescore.",
+      "startlux27": "Evaluated AutoThink configuration may generate a thought and rescore.",
+      "diffusion": "Evaluated adapter generates a textual probability JSON with max_new_tokens=2048; it does not use a single-step decision readout."
+    }
+  }
 }

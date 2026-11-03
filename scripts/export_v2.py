@@ -93,6 +93,7 @@ def main():
  ap=argparse.ArgumentParser();ap.add_argument('--source-root',type=Path,required=True);ap.add_argument('--output-root',type=Path,default=Path(__file__).resolve().parents[1]);args=ap.parse_args()
  src=args.source_root;out=args.output_root
  policy_path=out/'config/model-display.json';policy=json.loads(policy_path.read_text());hidden=set(policy['hidden_model_ids'])
+ assert set(policy['inference_policy']['excluded_configurations']) <= hidden
  files={'comparison':src/'docs/reports/mmdm-v2-baselines-20261020/comparison.json','summary':src/'docs/reports/mmdm/summary.json','current':src/'docs/reports/mmdm/CURRENT.json','validation':src/'docs/reports/mmdm/release-validation.json','dataset':src/'benchmarks/mmdm-v2/mmdm.jsonl'}
  raw={k:p.read_bytes() for k,p in files.items()};comp=json.loads(raw['comparison']);summary=json.loads(raw['summary']);current=json.loads(raw['current']);validation=json.loads(raw['validation'])
  assert comp['dataset_sha256']==summary['dataset_sha256']==current['dataset_sha256']==hashlib.sha256(raw['dataset']).hexdigest()
@@ -129,6 +130,7 @@ def main():
  source_stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
  stamp=max(source_stamp,datetime.fromisoformat(policy.get('results_updated_at',source_stamp.isoformat()))).astimezone(ZoneInfo('Asia/Shanghai'))
  provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'source_snapshot_at':source_stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.'}
+ provenance['inference_policy']=policy['inference_policy']
  # Preserve the source report's fixed cohorts. Plot selection never recomputes them.
  calibration={'method':comp['calibration']['method'],'excluded':comp['calibration']['excluded'],'views':{}}
  visible={m['id'] for m in models}

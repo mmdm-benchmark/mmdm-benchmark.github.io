@@ -60,6 +60,7 @@
 <section class="section container wide" id="leaderboard">
 <h2>Leaderboard</h2>
 <p class="section-description">MMDM · 5,448 examples. Compare overall results or select a task category.</p>
+<p class="section-description">We evaluate System-1 decision models that return candidate probabilities directly in one decision step, using direct scoring or single-step decoding.</p>
 <p class="update-date" id="snapshot-date"></p>
 <div class="table-controls">
 <div class="filter-group"><label>Subset <select id="leader-scope"><option value="overall">All categories</option></select></label><label>Access <select id="leader-access"><option value="all">All models</option><option value="open">Open source</option><option value="closed">Closed source</option></select></label><label>Model size <select id="leader-size"><option value="all">All sizes</option><option value="small">≤ 1B</option><option value="compact">&gt; 1–4B</option><option value="medium">&gt; 4–10B</option><option value="large">&gt; 10–30B</option><option value="xlarge">&gt; 30B</option><option value="unknown">Undisclosed</option></select></label><button id="reset-filters" class="text-button" type="button">Reset filters</button></div>
@@ -70,6 +71,7 @@
 <p class="table-status" id="table-status" aria-live="polite"></p>
 <p class="metric-note">Hard Single-select Acc ↑: top-1 match. Hard Multi-select Acc ↑: exact Top-N set match, where N is the reference set size. Soft Brier ↓: squared error over the full target distribution. “—” marks a metric that does not apply or has no recorded value.</p>
 <details class="protocol"><summary>Evaluation details</summary><div>
+<p><strong>Model selection.</strong> Eligible configurations produce the decision distribution without generating a reasoning trajectory, invoking adaptive thinking, or generating a textual probability vector. This criterion applies to each native model call; the grouped evaluation protocol composes such calls when a candidate catalog exceeds the model’s cap.</p>
 <p>Hard accuracy uses every item of the corresponding label type; failed requests count as incorrect. Soft Brier is averaged over each model’s valid, native full-distribution predictions. Hover over a value to see its denominator.</p>
 <p>For inputs beyond a model’s context budget, the evaluation retains the question, options, and criteria, and truncates the middle of the state. Large candidate sets use the recorded native or grouped decision protocol.</p>
 <p>Open source identifies models with publicly released weights or adapters and inference code; closed source identifies hosted models without a public checkpoint. Sizes follow the reported model or backbone scale in billions of parameters. For mixture-of-experts models, filtering uses total parameters; active parameters are shown separately when reported. Undisclosed sizes remain a separate group.</p>
