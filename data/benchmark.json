@@ -2470,7 +2470,7 @@
     },
     {
       "id": "decisio12",
-      "name": "Decisio-Gemma4 12B",
+      "name": "Decisio-Gemma-4-12B",
       "url": "https://huggingface.co/google/gemma-4-12B-it",
       "metadata": {
         "access": "open",
@@ -2652,7 +2652,7 @@
     },
     {
       "id": "decisio31",
-      "name": "Decisio-Gemma4 31B",
+      "name": "Decisio-Gemma-4-31B",
       "url": "https://huggingface.co/google/gemma-4-31B-it",
       "metadata": {
         "access": "open",
@@ -2834,7 +2834,7 @@
     },
     {
       "id": "decisioqwen",
-      "name": "Decisio-Qwen3.6 35B-A3B",
+      "name": "Decisio-Qwen3.6-35B-A3B",
       "url": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8",
       "metadata": {
         "access": "open",

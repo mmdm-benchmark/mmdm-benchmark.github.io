@@ -15,7 +15,7 @@ Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.i
 
 The MMDM release has 5,448 examples across 16 categories, 80 category–subcategory combinations, and 62 source identifiers. Labels comprise 4,112 Hard Single-select, 633 Hard Multi-select, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single-select, 628 Soft).
 
-The results snapshot contains 28 public model runs plus Random (uniform). Display names follow the source report. The public model selection is recorded in `config/model-display.json`. The page embeds the results snapshot timestamp and source hashes, with the source report timestamp retained separately in provenance.
+The results snapshot contains 28 public model runs plus Random (uniform). Display names follow the paper. The public model selection is recorded in `config/model-display.json`. The page embeds the results snapshot timestamp and source hashes, with the source report timestamp retained separately in provenance.
 
 Leaderboard columns are Decision Model, Hard Single-select Acc, Hard Multi-select Acc, and Soft Brier. Category filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Multi-select uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 
@@ -30,7 +30,7 @@ The introduction names the leading models and connects their results to category
 - Chart points and curve segments show immediate pointer-local tooltips with model names and values, plus a visible highlight. Crosshair cursors are consistent across plots; tooltips remain inside the viewport and also support keyboard focus and touch. Line hit areas sit behind point markers.
 - Charts interpolate matched geometry over 400 ms; charts with different axes use a 280 ms transition. Rapid switches cancel stale animations, and reduced-motion preferences disable these effects.
 - The five default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected. WeMM and KnowLine retain blue-teal and plum; GPT-6 Luna Decisions uses ochre.
-- Model display names follow the original results report, with the requested short name Jev 1.14.0. The same names appear in the leaderboard, chart legends, tooltips, and model selector.
+- Model display names follow the paper, including Jev 1.14.0 and the Decisio configurations. The same names appear in the leaderboard, chart legends, tooltips, and model selector.
 - A vertical SVG category bar chart in the original paper-figure layout, with a #Tasks axis; donut and stacked bars for labels and Score.
 - Context histograms switch between complete input and state + question. Tokens use Qwen3.5-4B, no special tokens; K is 1,024 tokens.
 - Option-set size is shown in seven fixed grouped ranges (2–1,024).

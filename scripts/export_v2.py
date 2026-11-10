@@ -27,8 +27,8 @@ LABELS = {
 }
 ORDER=['world_knowledge','reading_comprehension','deductive_reasoning','option_logic','constraint_planning','quantitative_temporal_reasoning','workflow_decision','agent_state_tracking','policy_exception','evidence_validation','code_database','intent_routing','tool_skill_selection','answer_preference','score_rubric','emotion_recognition']
 COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1','wemm':'#227F91','knowline':'#7D426D'}
-# Keep source-report names, with the requested short public name for Jev.
-NAMES={'jev':'Jev 1.14.0'}
+# Use paper names for Jev and the Decisio configurations.
+NAMES={'jev': 'Jev 1.14.0', 'decisio12': 'Decisio-Gemma-4-12B', 'decisio31': 'Decisio-Gemma-4-31B', 'decisioqwen': 'Decisio-Qwen3.6-35B-A3B'}
 URLS={
  'liquid':'https://openrouter.ai/liquid/d1','liquid-ultra':'https://openrouter.ai/liquid/d1-ultra',
  'clef-omni':'https://openrouter.ai/cloudflare/clef-omni','clef-flash':'https://openrouter.ai/cloudflare/clef-flash',
