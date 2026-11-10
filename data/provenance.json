@@ -1,7 +1,7 @@
 {
   "version": "mmdm-v2",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-  "snapshot_at": "2026-11-03T13:02:16+08:00",
+  "snapshot_at": "2026-11-10T10:14:42+08:00",
   "source_snapshot_at": "2026-10-30T19:17:19.184925+08:00",
   "sources": {
     "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "4c09e455207b88b20b1a02b1a7a37b9c506b2eff96830c60c0d321865a802c2e",
@@ -23,7 +23,7 @@
     "openjev"
   ],
   "model_metadata_checked_at": "2026-10-31",
-  "display_policy_sha256": "353f7cb671cc25784ef649bbb92781ba0acc76c5b1c4239dc301e8d179eac07e",
+  "display_policy_sha256": "520e552b5a5432648b8712ed6274c8e9c2e910eb5719f1ee65b411e331fbb26f",
   "examples": "Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.",
   "inference_policy": {
     "id": "single-step-decision-v1",
@@ -34,6 +34,23 @@
       "startlux9": "Evaluated AutoThink configuration may generate a thought and rescore.",
       "startlux27": "Evaluated AutoThink configuration may generate a thought and rescore.",
       "diffusion": "Evaluated adapter generates a textual probability JSON with max_new_tokens=2048; it does not use a single-step decision readout."
+    }
+  },
+  "supplemental_results": {
+    "gpt6-luna": {
+      "path": "data/supplemental/gpt6-luna-decisions.json",
+      "sha256": "c5b2f3fcde8d840fa159b58972c596d10f13d6a4caf79cc7b12c36f36096662a",
+      "completed_at": "2026-11-10T01:54:18.671139+00:00",
+      "model": "gpt-6-luna",
+      "endpoint": "https://api.openai.com/v1/decisions",
+      "protocol": "mmdm-openai-decisions-v1",
+      "source_sha256": {
+        "summary.json": "5ec75eb09b6f07c51c9ed1cf7c0a919e510b041185daf12f221f6f8ba0733936",
+        "identity.json": "9c7ae2c5bbe7441603563557559868fe017a3440efc3a4c43b8501f1cf18964c",
+        "verification.json": "f78bc2ec816429a558c6cf6d193286dba5da4259d15a273f1954812daf00a850",
+        "predictions.jsonl": "7d4c0e6959fed79079768191e311d8f7977e155ac5b7e5a20f9b5bb6a6b160c8"
+      },
+      "verification_passed": true
     }
   }
 }

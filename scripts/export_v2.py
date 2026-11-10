@@ -1,6 +1,7 @@
 """Build an offline, self-contained MMDM page from the pinned v2 reports."""
 import argparse, hashlib, json, math
 from build_page import build_page
+from supplemental_results import merge_supplements
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -150,6 +151,8 @@ def main():
   'sources':len(summary['distribution']['sources']),'subcategories':len({(r['category'],r['task_subcategory']) for r in rows}),'parents':validation['independent_parents'],
   'snapshot_date':stamp.strftime('%B %d, %Y'),'snapshot_time':stamp.strftime('%Y-%m-%d %H:%M CST'),'dataset_sha256':comp['dataset_sha256'],
   'categories':categories,'models':models,'pending':pending,'calibration':calibration,'length_profile':summary['length_profile'],'option_counts':[{'options':k,'total':options[k]} for k in sorted(options)],'examples':examples,'provenance':provenance}
+ merge_supplements(data,out,policy)
+ provenance=data['provenance']
  # The distributions and figures are generated from the same exported data as the table.
  (out/'data').mkdir(exist_ok=True)
  (out/'data/benchmark.json').write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')

@@ -15,7 +15,7 @@ Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.i
 
 The MMDM release has 5,448 examples across 16 categories, 80 category–subcategory combinations, and 62 source identifiers. Labels comprise 4,112 Hard Single-select, 633 Hard Multi-select, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single-select, 628 Soft).
 
-The results snapshot contains 27 public model runs plus Random (uniform). Display names follow the source report. The public model selection is recorded in `config/model-display.json`. The page embeds the results snapshot timestamp and source hashes, with the source report timestamp retained separately in provenance.
+The results snapshot contains 28 public model runs plus Random (uniform). Display names follow the source report. The public model selection is recorded in `config/model-display.json`. The page embeds the results snapshot timestamp and source hashes, with the source report timestamp retained separately in provenance.
 
 Leaderboard columns are Decision Model, Hard Single-select Acc, Hard Multi-select Acc, and Soft Brier. Category filters share the same underlying results as the figures. Hard accuracy uses all items, including failed requests in its denominator. Hard Multi-select uses exact Top-N set match with N equal to the reference set size. Soft Brier uses each model's native valid full-distribution predictions. Nonapplicable metrics render as an em dash. No Hard Brier or Soft Accuracy is displayed.
 
@@ -24,12 +24,12 @@ The introduction names the leading models and connects their results to category
 ## Charts and examples
 
 - Native inline SVG radar with Hard Single-select / Hard Multi-select tab buttons, a soft Brier dot plot, and interactive calibration curves before the introduction. A prominent shared model chooser controls these views.
-- Calibration switches between Hard Single-select and Soft, using 10 equal-width confidence bins. Shared-cohort mode preserves the source report’s fixed common examples (2,103 hard / 195 soft); all-eligible mode uses each model’s own valid native unique-top1 predictions. Empty bins stay empty; only adjacent populated bins are connected. Hollow points have fewer than 20 samples. ECE is recomputed and checked during export.
+- Calibration switches between Hard Single-select and Soft, using 10 equal-width confidence bins. Shared-cohort mode uses the source report’s fixed common examples intersected with the verified supplemental run (2,081 hard / 192 soft); all-eligible mode uses each model’s own valid native unique-top1 predictions. Empty bins stay empty; only adjacent populated bins are connected. Hollow points have fewer than 20 samples. ECE is recomputed and checked during export.
 - A Hard Multi-select tab beside Hard Single-select and Soft shows exact Top-N set match over all 633 tasks alongside Top-N probability balance over each model’s valid native predictions. Balance is the normalized similarity to equal weighting inside the predicted top N; it is not set correctness or a calibration probability. Tooltips preserve the distinct denominators. Both quantities come directly from the source report.
-- The size-performance plot after the leaderboard switches among Hard Single-select Accuracy, Hard Multi-select Accuracy, and Soft Brier. It uses reported total/backbone size on a log axis, computes the nondominated frontier among displayed disclosed-size models, and shows undisclosed-size models as horizontal dashed references. A monotone cubic curve connects the measured frontier points without overshooting their endpoint values. Numbered markers map to a clickable model-and-result list below the plot; other models are muted. The vertical scale follows the displayed range with explicit ticks. It can display all 27 public models or the shared model selection. Lower Brier is better; no composite score is introduced.
+- The size-performance plot after the leaderboard switches among Hard Single-select Accuracy, Hard Multi-select Accuracy, and Soft Brier. It uses reported total/backbone size on a log axis, computes the nondominated frontier among displayed disclosed-size models, and shows undisclosed-size models as horizontal dashed references. A monotone cubic curve connects the measured frontier points without overshooting their endpoint values. Numbered markers map to a clickable model-and-result list below the plot; other models are muted. The vertical scale follows the displayed range with explicit ticks. It can display all 28 public models or the shared model selection. Lower Brier is better; no composite score is introduced.
 - Chart points and curve segments show immediate pointer-local tooltips with model names and values, plus a visible highlight. Crosshair cursors are consistent across plots; tooltips remain inside the viewport and also support keyboard focus and touch. Line hit areas sit behind point markers.
 - Charts interpolate matched geometry over 400 ms; charts with different axes use a 280 ms transition. Rapid switches cancel stale animations, and reduced-motion preferences disable these effects.
-- The five default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected. WeMM and KnowLine retain blue-teal and plum.
+- The five default representatives, in figure order, are Perplexity Decider-V1.2, Jev 1.14.0, Microsoft Decision-1, Intern-Decision 4B, and OpenJev 4B. Their selection is shared through the exported provenance; charts retain the existing Morandi colors. Additional available models can be selected. WeMM and KnowLine retain blue-teal and plum; GPT-6 Luna Decisions uses ochre.
 - Model display names follow the original results report, with the requested short name Jev 1.14.0. The same names appear in the leaderboard, chart legends, tooltips, and model selector.
 - A vertical SVG category bar chart in the original paper-figure layout, with a #Tasks axis; donut and stacked bars for labels and Score.
 - Context histograms switch between complete input and state + question. Tokens use Qwen3.5-4B, no special tokens; K is 1,024 tokens.
@@ -49,7 +49,19 @@ Access and parameter-range filters compose with category selection and search. F
 python3 scripts/build_page.py
 ```
 
-This packages the existing checked `data/benchmark.json` and current assets into one offline HTML. Use this for design and copy edits so newly running source evaluations do not alter the public snapshot. Overall metrics, category results, Hard Multi-select diagnostics, and calibration bins share the comparison snapshot recorded in provenance. Existing model metrics were preserved; calibration bins now use the source report’s updated common cohort as additional models complete.
+This packages the existing checked `data/benchmark.json` and current assets into one offline HTML. Use this for design and copy edits so newly running source evaluations do not alter the public snapshot. Overall metrics, category results, Hard Multi-select diagnostics, and calibration bins share the comparison snapshot recorded in provenance. Existing model metrics are preserved. Adding GPT-6 Luna Decisions updates the shared calibration cohort to the intersection with its eligible native predictions; all-eligible curves for existing models are unchanged.
+
+## Add a verified supplemental run
+
+GPT-6 Luna Decisions is pinned in `data/supplemental/gpt6-luna-decisions.json`, with its completed summary, independent verification, source hashes, and calibration bins computed from saved predictions. It is a closed-source native Decisions API model with undisclosed size. All 5,448 tasks were processed: 54 hard-label refusals count as incorrect, and four soft-label refusals are excluded from Soft Brier. The existing grouped evaluator handles 94 inputs above the API option cap. No evaluation is rerun when building this page.
+
+```sh
+python3 scripts/supplemental_results.py
+```
+
+This merges only the configured supplemental snapshots into the checked website data and rebuilds the page. It is idempotent. The full report exporter also merges these snapshots, so later updates retain Luna. Shared-cohort calibration uses 2,081 Hard Single-select and 192 Soft examples for every displayed model. Luna's all-eligible calibration uses 3,949 and 693 examples respectively. Existing overall/category scores and all-eligible curves remain unchanged.
+
+`scripts/prepare_decisions_snapshot.py` prepares the snapshot from a verified run directory, the frozen baseline report and its calibration cache, and the matching dataset. It verifies artifact hashes and reproduces the old cohort bins before computing the extended cohort. Pass each hidden model with `--exclude-model` to omit its cached curve from the public artifact. Import refuses a mismatched dataset or calibration cohort rather than mix snapshots.
 
 ## Rebuild from updated reports
 

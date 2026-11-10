@@ -257,9 +257,18 @@
       "size_basis": "reported nominal model/backbone scale",
       "verified_revision": "8f052a8130e599b53e5324c34f0f5ff90696e1c6",
       "license": "apache-2.0"
+    },
+    "gpt6-luna": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://developers.openai.com/api/reference/resources/decisions/methods/create",
+      "size_basis": "undisclosed",
+      "checked_at": "2026-11-10",
+      "inference": "Native Decisions API probability readout; no generated output or reasoning tokens."
     }
   },
-  "results_updated_at": "2026-11-03T13:02:16+08:00",
+  "results_updated_at": "2026-11-10T10:14:42+08:00",
   "inference_policy": {
     "id": "single-step-decision-v1",
     "criterion": "A native model call returns candidate probabilities directly in one decision step: direct scoring or a single decoding step, without generated reasoning, adaptive thinking, or generation of a textual probability vector.",
@@ -270,5 +279,8 @@
       "startlux27": "Evaluated AutoThink configuration may generate a thought and rescore.",
       "diffusion": "Evaluated adapter generates a textual probability JSON with max_new_tokens=2048; it does not use a single-step decision readout."
     }
-  }
+  },
+  "supplemental_results": [
+    "data/supplemental/gpt6-luna-decisions.json"
+  ]
 }
