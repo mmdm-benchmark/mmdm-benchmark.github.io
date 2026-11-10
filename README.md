@@ -13,7 +13,7 @@ Local project: `/Users/shamkwanho/Documents/Code_Project/mmdm-benchmark.github.i
 
 ## Current data
 
-The MMDM release has 5,448 examples across 16 categories, 80 category–subcategory combinations, and 62 source identifiers. Labels comprise 4,112 Hard Single-select, 633 Hard Multi-select, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single-select, 628 Soft).
+The MMDM release has 5,448 examples across 16 categories. Labels comprise 4,112 Hard Single-select, 633 Hard Multi-select, and 703 Soft examples. The 663 Score tasks overlap these labels (35 Hard Single-select, 628 Soft).
 
 The results snapshot contains 28 public model runs plus Random (uniform). Display names follow the paper. The public model selection is recorded in `config/model-display.json`. The page embeds the results snapshot timestamp and source hashes, with the source report timestamp retained separately in provenance.
 
