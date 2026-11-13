@@ -3500,6 +3500,93 @@
             }
           ],
           "ece": 0.0331876065201667
+        },
+        "gemini-decision-1": {
+          "n": 2081,
+          "ids_sha256": "94bee80f46a3aae3c435e9ef8bc9caf34a48093ee5bda5b317072f42d6081b1a",
+          "bins": [
+            {
+              "index": 0,
+              "n": 0,
+              "confidence": null,
+              "target": null,
+              "gap": null,
+              "low_count": false
+            },
+            {
+              "index": 1,
+              "n": 0,
+              "confidence": null,
+              "target": null,
+              "gap": null,
+              "low_count": false
+            },
+            {
+              "index": 2,
+              "n": 26,
+              "confidence": 0.2607857924352079,
+              "target": 0.07692307692307693,
+              "gap": 0.18386271551213096,
+              "low_count": false
+            },
+            {
+              "index": 3,
+              "n": 73,
+              "confidence": 0.3516274956123894,
+              "target": 0.2876712328767123,
+              "gap": 0.06395626273567706,
+              "low_count": false
+            },
+            {
+              "index": 4,
+              "n": 126,
+              "confidence": 0.45622989276540066,
+              "target": 0.5238095238095238,
+              "gap": -0.06757963104412318,
+              "low_count": false
+            },
+            {
+              "index": 5,
+              "n": 231,
+              "confidence": 0.5491234620159737,
+              "target": 0.4935064935064935,
+              "gap": 0.055616968509480225,
+              "low_count": false
+            },
+            {
+              "index": 6,
+              "n": 213,
+              "confidence": 0.6503278023527108,
+              "target": 0.6338028169014085,
+              "gap": 0.01652498545130232,
+              "low_count": false
+            },
+            {
+              "index": 7,
+              "n": 248,
+              "confidence": 0.7487073703618231,
+              "target": 0.7419354838709677,
+              "gap": 0.006771886490855361,
+              "low_count": false
+            },
+            {
+              "index": 8,
+              "n": 307,
+              "confidence": 0.8543674262007803,
+              "target": 0.8338762214983714,
+              "gap": 0.02049120470240895,
+              "low_count": false
+            },
+            {
+              "index": 9,
+              "n": 857,
+              "confidence": 0.964743435906274,
+              "target": 0.8949824970828472,
+              "gap": 0.06976093882342682,
+              "low_count": false
+            }
+          ],
+          "ece": 0.0490566867786858
         }
       },
       "model": {
@@ -3705,7 +3792,8 @@
         "pplx-flash12": "55f1bb8b7dfea3487e02e67574f42d8f0a06f8f2816fc08a9ba32cc8682e72db",
         "pplx12": "7ac53e085a9a8169787855a5c38925295c57b88aab7741e53fa781de982f3cfb",
         "wemm": "191585da7b44da4fba668d17ad2dc2ff6829dbac55b70474a68950d476823bde",
-        "knowline": "88a97387ca20b5bd633aa0119fe294466a3bb51c6962c1b958091c1e406ac84c"
+        "knowline": "88a97387ca20b5bd633aa0119fe294466a3bb51c6962c1b958091c1e406ac84c",
+        "gemini-decision-1": "f44d70afa51e600a037d94669736da32457aeeae622e832751b29fb7ed2f86b8"
       }
     },
     "soft": {
@@ -6063,6 +6151,93 @@
             }
           ],
           "ece": 0.1123363317153928
+        },
+        "gemini-decision-1": {
+          "n": 192,
+          "ids_sha256": "7a92f9920ba1ae075347ef8611d9d3690c7a26815439e17f461282eccb2b88a5",
+          "bins": [
+            {
+              "index": 0,
+              "n": 0,
+              "confidence": null,
+              "target": null,
+              "gap": null,
+              "low_count": false
+            },
+            {
+              "index": 1,
+              "n": 0,
+              "confidence": null,
+              "target": null,
+              "gap": null,
+              "low_count": false
+            },
+            {
+              "index": 2,
+              "n": 12,
+              "confidence": 0.2810897904522803,
+              "target": 0.3215121824005572,
+              "gap": -0.0404223919482769,
+              "low_count": true
+            },
+            {
+              "index": 3,
+              "n": 139,
+              "confidence": 0.3414738424872298,
+              "target": 0.39724314421064183,
+              "gap": -0.055769301723412046,
+              "low_count": false
+            },
+            {
+              "index": 4,
+              "n": 12,
+              "confidence": 0.4438888665208574,
+              "target": 0.6007891057869054,
+              "gap": -0.15690023926604796,
+              "low_count": true
+            },
+            {
+              "index": 5,
+              "n": 13,
+              "confidence": 0.5431874691863543,
+              "target": 0.5131871407374108,
+              "gap": 0.030000328448943514,
+              "low_count": true
+            },
+            {
+              "index": 6,
+              "n": 6,
+              "confidence": 0.6478576880583006,
+              "target": 0.6832075146843607,
+              "gap": -0.03534982662606012,
+              "low_count": true
+            },
+            {
+              "index": 7,
+              "n": 5,
+              "confidence": 0.745706101556723,
+              "target": 0.7330173259235044,
+              "gap": 0.012688775633218574,
+              "low_count": true
+            },
+            {
+              "index": 8,
+              "n": 1,
+              "confidence": 0.8243192439018705,
+              "target": 0.6956521739130435,
+              "gap": 0.12866706998882704,
+              "low_count": true
+            },
+            {
+              "index": 9,
+              "n": 4,
+              "confidence": 0.9159585563293301,
+              "target": 0.5668067226890756,
+              "gap": 0.3491518336402545,
+              "low_count": true
+            }
+          ],
+          "ece": 0.06411784388768092
         }
       },
       "model": {
@@ -6268,7 +6443,8 @@
         "pplx-flash12": "df7effc4da525a95f16b3d5739dad5498c7ca167da15a5c4cff7cb1a07ee2bf4",
         "pplx12": "db237580516319f4b4dd6732ed64e14bdfcf699957e82ae6a9cf4f6c4ecbb127",
         "wemm": "b433009176cbcb6f83219cfd8c79c047c7471446ab3ea6e2c752147119cb4bb0",
-        "knowline": "6245e108a4718b72ca61b5edca0f73e4f73bf4dae993f3bef2fcd1cfd21d1c07"
+        "knowline": "6245e108a4718b72ca61b5edca0f73e4f73bf4dae993f3bef2fcd1cfd21d1c07",
+        "gemini-decision-1": "8614473dcd96e8e38c829cdd05910d7c18a41f725e659c686ec566b425652e40"
       }
     }
   }

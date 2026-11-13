@@ -26,7 +26,7 @@ LABELS = {
  'world_knowledge':('World knowledge','World|knowledge','#8E9EAC'),
 }
 ORDER=['world_knowledge','reading_comprehension','deductive_reasoning','option_logic','constraint_planning','quantitative_temporal_reasoning','workflow_decision','agent_state_tracking','policy_exception','evidence_validation','code_database','intent_routing','tool_skill_selection','answer_preference','score_rubric','emotion_recognition']
-COLORS={'jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1','wemm':'#227F91','knowline':'#7D426D'}
+COLORS={'gemini-decision-1':'#336CA4','jev':'#4C6A85','microsoft':'#B27460','openjev':'#507C68','intern':'#887498','semif':'#B19A56','tiny':'#8A5D70','27b':'#77856A','pplx':'#5C9896','h2o':'#A27A73','clef':'#898BB1','wemm':'#227F91','knowline':'#7D426D'}
 # Use paper names for Jev and the Decisio configurations.
 NAMES={'jev': 'Jev 1.14.0', 'decisio12': 'Decisio-Gemma-4-12B', 'decisio31': 'Decisio-Gemma-4-31B', 'decisioqwen': 'Decisio-Qwen3.6-35B-A3B'}
 URLS={
@@ -112,20 +112,30 @@ def main():
  for i,m in enumerate(comp['models']):
   if m['key'] in hidden:continue
   s=m.get('summary')
-  if not s or s['processed']!=total:
+  status=m['status'].get('state')
+  quota_partial=bool(s and status=='pending_quota' and 0<s['processed']<total)
+  if not s or (s['processed']!=total and not quota_partial):
    pending.append(dict(id=m['key'],name=m['name'],processed=m['processed'],status=m['status']['state']));continue
   metadata=policy['models'][m['key']]
   assert s['identity']['dataset_sha256']==comp['dataset_sha256']
+  if quota_partial:
+   assert s['planned']==total and s['pending']==total-s['processed']==m['status']['deferred']
+   assert s['processed']==m['processed']==s['overall']['rows']
+   assert sum(c['rows'] for c in s['categories'].values())==s['processed']
   cm={k:metrics(s['categories'][k]) for k in ORDER}
   for k in ORDER:
-   assert cm[k]['single_n']==summary['categories'][k]['distribution']['hard_single']
-   assert cm[k]['set_n']==summary['categories'][k]['distribution']['hard_set']
+   for track,field in [('single','hard_single'),('set','hard_set')]:
+    expected=summary['categories'][k]['distribution'][field]
+    n=cm[k][track+'_n']
+    assert 0<=n<=expected and (quota_partial or n==expected)
   other=[v for k,v in cm.items() if k!='score_rubric' and v['soft'] is not None]
   n=sum(v['soft_n'] for v in other)
   models.append(dict(id=m['key'],name=NAMES.get(m['key'],m['name']),url=metadata.get('source') or URLS.get(m['key']),metadata=metadata,color=COLORS.get(m['key'],['#6D8A99','#9E8772','#9A7185','#7D8E78','#8D91A3'][i%5]),
    review=m.get('verification')=='needs_review',metrics=metrics(s['overall']),categories=cm,
    set_diagnostics={'exact':s['overall']['hard_set'],'native_balance':s['overall']['native_set_balance']},
    scatter={'all':{'value':s['overall']['soft_brier']['mean'],'n':s['overall']['soft_brier']['n']},'score':{'value':cm['score_rubric']['soft'],'n':cm['score_rubric']['soft_n']},'other':{'value':sum(v['soft']*v['soft_n'] for v in other)/n if n else None,'n':n}}))
+  if quota_partial:
+   models[-1]['coverage']={'processed':s['processed'],'planned':total,'pending':s['pending'],'status':status}
  options=Counter(len(r['options']) for r in rows);assert {str(k):v for k,v in options.items()}==summary['distribution']['option_counts']
  examples=select_examples(rows,categories)
  source_stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))

@@ -14,7 +14,7 @@ function displayMetric(m,k){return modelMetric(m)?.[k]??null;}
 function renderLeaderboard(){
  const q=$('#model-search').value.trim().toLowerCase(),counts=scopeCounts(),access=$('#leader-access').value,size=$('#leader-size').value;
  const sizeMatch=n=>size==='all'||size==='unknown'&&n==null||n!=null&&({small:n<=1,compact:n>1&&n<=4,medium:n>4&&n<=10,large:n>10&&n<=30,xlarge:n>30})[size];
- const pool=D.models.filter(m=>m.name.toLowerCase().includes(q)&&(m.id==='random'||((access==='all'||m.metadata.access===access)&&sizeMatch(m.metadata.parameters_b))));
+ const pool=D.models.filter(m=>[m.metadata.provider,m.name].filter(Boolean).join(' ').toLowerCase().includes(q)&&(m.id==='random'||((access==='all'||m.metadata.access===access)&&sizeMatch(m.metadata.parameters_b))));
  const sorted=[...pool].sort((a,b)=>{
   if(a.id==='random')return 1;if(b.id==='random')return -1;
   const x=state.sort==='name'?a.name:displayMetric(a,state.sort), y=state.sort==='name'?b.name:displayMetric(b,state.sort);
@@ -26,7 +26,13 @@ function renderLeaderboard(){
  $('#leaderboard-head').innerHTML='<tr><th scope="col">#</th>'+cols.map(([k,t])=>`<th scope="col" aria-sort="${state.sort===k?(state.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${k}">${t}<span class="sort-arrow" aria-hidden="true">${state.sort===k?(state.direction===1?'▴':'▾'):'↕'}</span></button></th>`).join('')+'</tr>';
  const visible=sorted.map((m,i)=>({...m,rank:m.id==='random'?'—':i+1}));
  $('#leaderboard-body').innerHTML=visible.length?visible.map(m=>{
-  const values=['single','set','soft'].map(k=>{const v=displayMetric(m,k),n=modelMetric(m)?.[k+'_n'];return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}" title="${v==null?'Not applicable or no recorded result':k==='soft'?`Brier over ${num(n)} valid full-distribution outputs`:`Accuracy over all ${num(n)} ${LABELS[k]} items`}">${fmt(v,k)}</td>`;}).join('');
+  const values=['single','set','soft'].map(k=>{
+   const metric=modelMetric(m),v=displayMetric(m,k),n=metric?.[k+'_n'];
+   const partial=m.coverage && k!=='soft' && n<counts[k];
+   const coverage=partial?`<small class="metric-coverage">Partial · ${num(n)}/${num(counts[k])} evaluated</small>`:'';
+   const hint=partial?'Remaining items deferred by API quota':v==null?'Not applicable or no recorded result':k==='soft'?`Brier over ${num(n)} valid full-distribution outputs`:`Accuracy over all ${num(n)} ${LABELS[k]} items`;
+   return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}" title="${hint}">${fmt(v,k)}${coverage}</td>`;
+  }).join('');
   const name=m.url?`<a class="model-link" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:`<span class="model-name">${esc(m.name)}</span>`;
   return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}${modelBadges(m)}</td>${values}</tr>`;
  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px">No matching models.</td></tr>';

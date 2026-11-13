@@ -1,10 +1,10 @@
 {
   "version": "mmdm-v2",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-  "snapshot_at": "2026-11-10T10:14:42+08:00",
-  "source_snapshot_at": "2026-10-30T19:17:19.184925+08:00",
+  "snapshot_at": "2026-11-13T22:12:18.057807+08:00",
+  "source_snapshot_at": "2026-11-13T22:12:18.057807+08:00",
   "sources": {
-    "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "4c09e455207b88b20b1a02b1a7a37b9c506b2eff96830c60c0d321865a802c2e",
+    "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "3ece0c239e8caabe075d512f5909242bd3afccdda096f055d0b61a2f992018ff",
     "docs/reports/mmdm/summary.json": "ef3f44a66cd5357b17762966ebfdf66c1a71b5fd455a5dca591f3bedc2fee76c",
     "docs/reports/mmdm/CURRENT.json": "897458d4d49d30b1d89189ecc17bb37bd2f582eed7a6129b00ea0d7073b30aa4",
     "docs/reports/mmdm/release-validation.json": "811264d7f8d07179c9c80f39c27d3d9be531bb290111ed3a50858f83e8260d6b",
@@ -23,7 +23,7 @@
     "openjev"
   ],
   "model_metadata_checked_at": "2026-10-31",
-  "display_policy_sha256": "520e552b5a5432648b8712ed6274c8e9c2e910eb5719f1ee65b411e331fbb26f",
+  "display_policy_sha256": "4531ef6db46e128a84865466f5b1f3b46cee0afbfc457388325987da980bfc47",
   "examples": "Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.",
   "inference_policy": {
     "id": "single-step-decision-v1",
@@ -39,7 +39,7 @@
   "supplemental_results": {
     "gpt6-luna": {
       "path": "data/supplemental/gpt6-luna-decisions.json",
-      "sha256": "c5b2f3fcde8d840fa159b58972c596d10f13d6a4caf79cc7b12c36f36096662a",
+      "sha256": "b650831f986a6f697e30e72901b5f3c0f6d0f257aee074abb6d0aebd77b5550f",
       "completed_at": "2026-11-10T01:54:18.671139+00:00",
       "model": "gpt-6-luna",
       "endpoint": "https://api.openai.com/v1/decisions",
