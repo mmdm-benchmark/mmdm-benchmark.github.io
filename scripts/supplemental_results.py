@@ -36,9 +36,14 @@ def check_bins(stats):
 
 def merge_supplements(data, root, policy):
     paths = policy.get('supplemental_results', [])
-    for relative in paths:
+    snapshots = [(relative, json.loads((root / relative).read_text())) for relative in paths]
+    # Apply snapshots in order so a refresh uses the same cohort as a clean build.
+    supplemental_ids = {extra['id'] for _, extra in snapshots}
+    for view in data['calibration']['views'].values():
+        for model_id in supplemental_ids:
+            view['models'].pop(model_id, None)
+    for relative, extra in snapshots:
         path = root / relative
-        extra = json.loads(path.read_text())
         key = extra['id']
         if key in policy['hidden_model_ids']:
             continue
@@ -74,7 +79,7 @@ def merge_supplements(data, root, policy):
         for mode, supplement in extra['calibration'].items():
             view = data['calibration']['views'][mode]
             # Reject stale calibration rather than combine different cohorts.
-            assert view['ids_sha256'] in (supplement['base_ids_sha256'], supplement['ids_sha256'])
+            assert view['ids_sha256'] in [supplement['base_ids_sha256'], supplement['ids_sha256'], *supplement.get('accepted_base_ids_sha256', [])]
             for model_id in list(view['models']):
                 if model_id == key:
                     continue

@@ -275,9 +275,74 @@
       "size_basis": "undisclosed",
       "checked_at": "2026-11-13",
       "provider": "Google"
+    },
+    "microsoft-decision-1.1": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/microsoft/microsoft-decision-1.1",
+      "size_basis": "undisclosed",
+      "provider": "Microsoft",
+      "checked_at": "2026-11-20"
+    },
+    "d1.2-ultra": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/liquid/d1.2-ultra",
+      "size_basis": "undisclosed",
+      "provider": "Liquid AI",
+      "checked_at": "2026-11-20"
+    },
+    "d1.2": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/liquid/d1.2",
+      "size_basis": "undisclosed",
+      "provider": "Liquid AI",
+      "checked_at": "2026-11-20"
+    },
+    "heygen-decision-1-turbo": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/heygen/heygen-decision-1-turbo",
+      "size_basis": "undisclosed",
+      "provider": "HeyGen",
+      "checked_at": "2026-11-20"
+    },
+    "heygen-decision-1": {
+      "access": "closed",
+      "parameters_b": null,
+      "active_parameters_b": null,
+      "source": "https://openrouter.ai/heygen/heygen-decision-1",
+      "size_basis": "undisclosed",
+      "provider": "HeyGen",
+      "checked_at": "2026-11-20"
+    },
+    "pplx-decider-flash-v1.3": {
+      "access": "open",
+      "parameters_b": 4,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.3",
+      "size_basis": "reported model/backbone scale",
+      "provider": "Perplexity",
+      "checked_at": "2026-11-20",
+      "license": "apache-2.0"
+    },
+    "pplx-decider-v1.3": {
+      "access": "open",
+      "parameters_b": 27,
+      "active_parameters_b": null,
+      "source": "https://huggingface.co/perplexity-ai/pplx-decider-v1.3",
+      "size_basis": "reported model/backbone scale",
+      "provider": "Perplexity",
+      "checked_at": "2026-11-20",
+      "license": "apache-2.0"
     }
   },
-  "results_updated_at": "2026-11-13T22:12:18+08:00",
+  "results_updated_at": "2026-11-20T15:51:25.855673+08:00",
   "inference_policy": {
     "id": "single-step-decision-v1",
     "criterion": "A native model call returns candidate probabilities directly in one decision step: direct scoring or a single decoding step, without generated reasoning, adaptive thinking, or generation of a textual probability vector.",
@@ -290,6 +355,13 @@
     }
   },
   "supplemental_results": [
-    "data/supplemental/gpt6-luna-decisions.json"
+    "data/supplemental/gpt6-luna-decisions.json",
+    "data/supplemental/microsoft-decision-1.1.json",
+    "data/supplemental/d1.2-ultra.json",
+    "data/supplemental/d1.2.json",
+    "data/supplemental/heygen-decision-1-turbo.json",
+    "data/supplemental/heygen-decision-1.json",
+    "data/supplemental/pplx-decider-flash-v1.3.json",
+    "data/supplemental/pplx-decider-v1.3.json"
   ]
 }

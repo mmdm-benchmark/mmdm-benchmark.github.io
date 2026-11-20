@@ -1,7 +1,7 @@
 {
   "version": "mmdm-v2",
   "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
-  "snapshot_at": "2026-11-13T22:12:18.057807+08:00",
+  "snapshot_at": "2026-11-20T15:51:25.855673+08:00",
   "source_snapshot_at": "2026-11-13T22:12:18.057807+08:00",
   "sources": {
     "docs/reports/mmdm-v2-baselines-20261020/comparison.json": "3ece0c239e8caabe075d512f5909242bd3afccdda096f055d0b61a2f992018ff",
@@ -23,7 +23,7 @@
     "openjev"
   ],
   "model_metadata_checked_at": "2026-10-31",
-  "display_policy_sha256": "4531ef6db46e128a84865466f5b1f3b46cee0afbfc457388325987da980bfc47",
+  "display_policy_sha256": "cb22ff32e5e855d479a0c4caa49c0d1064da120e4a30f143f5bc281438b7e9d4",
   "examples": "Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.",
   "inference_policy": {
     "id": "single-step-decision-v1",
@@ -39,7 +39,7 @@
   "supplemental_results": {
     "gpt6-luna": {
       "path": "data/supplemental/gpt6-luna-decisions.json",
-      "sha256": "b650831f986a6f697e30e72901b5f3c0f6d0f257aee074abb6d0aebd77b5550f",
+      "sha256": "96edc8299163510bea9b781eadf93ed515e7405b679ad74545f18996add19f2b",
       "completed_at": "2026-11-10T01:54:18.671139+00:00",
       "model": "gpt-6-luna",
       "endpoint": "https://api.openai.com/v1/decisions",
@@ -49,6 +49,111 @@
         "identity.json": "9c7ae2c5bbe7441603563557559868fe017a3440efc3a4c43b8501f1cf18964c",
         "verification.json": "f78bc2ec816429a558c6cf6d193286dba5da4259d15a273f1954812daf00a850",
         "predictions.jsonl": "7d4c0e6959fed79079768191e311d8f7977e155ac5b7e5a20f9b5bb6a6b160c8"
+      },
+      "verification_passed": true
+    },
+    "microsoft-decision-1.1": {
+      "path": "data/supplemental/microsoft-decision-1.1.json",
+      "sha256": "2a7c0fbc28ba8cf9578d7cdc50edb9536879317a8a5c4584f30f4e69009b9d53",
+      "completed_at": "2026-11-20T15:49:15.937151+08:00",
+      "model": "microsoft/microsoft-decision-1.1-20261117",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "9791cb0477d3155c4567b922730f6f7033e1eebfb935406bd154adf838163307",
+        "identity.json": "8e0e609e8d9c3fcface128a057ab24736fb9ef968ce5f165a33fefb890d26edc",
+        "predictions.jsonl": "c750345387a304a1643d5cca557d21269703dbb989301384452ab3ac3e16fa20",
+        "verification.json": "65283fe56da57bfde1795f82db7bf2e7fddb95b2214a193652af64d0bdbd11be"
+      },
+      "verification_passed": true
+    },
+    "d1.2-ultra": {
+      "path": "data/supplemental/d1.2-ultra.json",
+      "sha256": "a58d2e5932c953a8c6cfcae8807724547cb447c8650a817f9d9c63de0b1e5f70",
+      "completed_at": "2026-11-20T15:51:03.946671+08:00",
+      "model": "liquid/d1.2-ultra-20261116",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "e7c4e450dd153e1565f8680f852ee1e77f6e1f1a17babbf295e538021bb6e215",
+        "identity.json": "ee6a618b47419d1c6586ad72a9eabdf3e67907a05db43ff04e0fac17b2bd9c5d",
+        "predictions.jsonl": "82a3645d32611c0ba0f9527722f1283d8e4c415c3405338a62d5c2c54a1f4d84",
+        "verification.json": "050d8a00575e994f22a282a0f11f48d79ee56cb9e6610fae9c6fa42ba8969199"
+      },
+      "verification_passed": true
+    },
+    "d1.2": {
+      "path": "data/supplemental/d1.2.json",
+      "sha256": "9b163298351333771e1cff8ab9ea5917b7f3ffbbfdf10842e7ff35ef5b316769",
+      "completed_at": "2026-11-20T15:50:51.987743+08:00",
+      "model": "liquid/d1.2-20261116",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "6dcba44c5665600326d06b92dd2cdade479b6d3229e8062c6d1b834b5aedd8aa",
+        "identity.json": "f9ec95c966120ece51eada872f941f18df070ae90d848ae77ed32dbabeb1821e",
+        "predictions.jsonl": "89ab08dbffe96141e7d3498cdac1b21b599808a541ddd36e898b37f7f15e5243",
+        "verification.json": "b7df9e29ebc5b2981176bc55aacaeac73da7087d3ad454ebc33411bfdc8b24ff"
+      },
+      "verification_passed": true
+    },
+    "heygen-decision-1-turbo": {
+      "path": "data/supplemental/heygen-decision-1-turbo.json",
+      "sha256": "77ce19f7e62d67bd6a3a448ef48fe0cdc093436f2740ab3e040fd9bba9bd5ca1",
+      "completed_at": "2026-11-20T15:50:53.949546+08:00",
+      "model": "heygen/heygen-decision-1-turbo-20261112",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "a27d3bb80f11021e7b6a28d3556ed8fb0f94013caaa8882b9464cd0511ade7cc",
+        "identity.json": "264d8841f183de5347832bcd78250e410790fbf741633527c5356f36babe637a",
+        "predictions.jsonl": "9c9dd3f04604df1d9afa405d411fef0fa18c3eb0738a23479bacbc9c70bd2e67",
+        "verification.json": "cbcc48d2a4491d3ceb2d384d5938100b9ddb5b74db2b42a6f430d46a28179210"
+      },
+      "verification_passed": true
+    },
+    "heygen-decision-1": {
+      "path": "data/supplemental/heygen-decision-1.json",
+      "sha256": "6ff76fca8781fc4bc46741588f0cf05764d25d38b6b2df9b1fd7eacd027c38d2",
+      "completed_at": "2026-11-20T15:51:22.445541+08:00",
+      "model": "heygen/heygen-decision-1-20261112",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "0b85a3cdf564733be0b8d99f4c9ff72e02d9dfe725e2081d12fbe72f2e040021",
+        "identity.json": "3844113edd7426444bead409762c0cd56b4dcce846b6235c457def42c7d443b0",
+        "predictions.jsonl": "802cf6865cd9d2a2dfff041282f33d73a6c9f68e7eb2373a2dcca31cba5a7155",
+        "verification.json": "142ddc5625a2f25e82bd174472d13becd80f9cf4fd959e1dd7f699dd3a6c39bc"
+      },
+      "verification_passed": true
+    },
+    "pplx-decider-flash-v1.3": {
+      "path": "data/supplemental/pplx-decider-flash-v1.3.json",
+      "sha256": "208699a9021dd7f62339cf1e1a3b4c3a398d35bcb796ff9b3e2912c35ec45c88",
+      "completed_at": "2026-11-20T15:48:42.001279+08:00",
+      "model": "perplexity/pplx-decider-flash-v1.3-20261112",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "5b85136a866879172a33b359f162c88dfe4fd86dfec48c8c0243b80a89ff93a6",
+        "identity.json": "2db84502041b6f53a392195e7a516fb9be9fdb2a7a123aa66cfdc29ab689ff39",
+        "predictions.jsonl": "0eefd4d70dfca3243761ed5ae4ad35d19c390d72417b2309d2dea1fb4b7944c6",
+        "verification.json": "ca9bbe315b0ab4383f991e6ebaa66aaf3ccb53400be2e14b59229148380f211a"
+      },
+      "verification_passed": true
+    },
+    "pplx-decider-v1.3": {
+      "path": "data/supplemental/pplx-decider-v1.3.json",
+      "sha256": "ba2ba785102a172d8a13b9992c0e384c2533216a84c5b2fc2bcd5eda34029063",
+      "completed_at": "2026-11-20T15:51:02.351457+08:00",
+      "model": "perplexity/pplx-decider-v1.3-20261112",
+      "endpoint": "https://openrouter.ai/api/v1/systemone",
+      "protocol": "native decision probabilities with MMDM hierarchical-choice-v1 for independent catalogs above the option cap",
+      "source_sha256": {
+        "summary.json": "3d5e2b06bcb85dc66007db038849b6321ef4a95dd5bfe2d843431b9ee36ef6ba",
+        "identity.json": "3fb79e99710ec9bbd1cd1801d45ab6626151e696422a4191d686876e589727b0",
+        "predictions.jsonl": "5c3719d4a96682d6f47af3ce400738733f199ddd701570c5cc6d4b8d3d091323",
+        "verification.json": "0d877366ec1e57019291b9cb75af4cb363f942929a8bd76bb35b5d3947430097"
       },
       "verification_passed": true
     }
