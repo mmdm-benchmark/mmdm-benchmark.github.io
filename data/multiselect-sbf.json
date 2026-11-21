@@ -1,0 +1,198 @@
+{
+  "dataset_sha256": "2c8768779c875b995da0d10e70b6c9dd687e73cf0d27063b07e0347759e1c6d1",
+  "metric": "Separation–Balance F-score",
+  "metric_version": "sbf-v2-20261109",
+  "scorer_sha256": "979b6bf25f9d35e1b5f9dd97d1895d59621480398c6aaea3232e019417063252",
+  "source_sha256": {
+    "baseline_sbf": "cd9d0abeb5d70cb7fdade43aea748270f4569b010f0f66581651f61a30b94e0c",
+    "api_additions": "d86dd5d66153274bfdda1a1dbe6830e6ce8deb621f52d000beff390bf77dbde7",
+    "luna_predictions": "7d4c0e6959fed79079768191e311d8f7977e155ac5b7e5a20f9b5bb6a6b160c8"
+  },
+  "models": {
+    "jev": {
+      "n": 605,
+      "mean": 0.11870674029993339,
+      "diagnostics_sha256": "376774427fdf43514b01078a9815b97662ad8e3f0da6c3a9ecb710ba282f26fe"
+    },
+    "microsoft": {
+      "n": 601,
+      "mean": 0.11861479539243246,
+      "diagnostics_sha256": "9fca7cc06de0032f1feaf3ec9731f3dc89e35957f8ca694d8393b2c7a09f3c53"
+    },
+    "clef": {
+      "n": 601,
+      "mean": 0.09874328580042563,
+      "diagnostics_sha256": "ce9f4b0eba19f3c103d0d65dd075d72d9fa91fc6b52ba15262864343677e951d"
+    },
+    "intern": {
+      "n": 535,
+      "mean": 0.08962102682723763,
+      "diagnostics_sha256": "5e7cd3ee1fb81d5055f6ee2119b009794d1ab3a147dd5a12186173d5fa6693c5"
+    },
+    "h2o": {
+      "n": 605,
+      "mean": 0.10305390263069086,
+      "diagnostics_sha256": "9cd36d2b2f54ba794d0bdc8f50f7adc46e5046eda1924f6026a3fdadedbbbeb3"
+    },
+    "pplx": {
+      "n": 593,
+      "mean": 0.12912964174085106,
+      "diagnostics_sha256": "0bde15f108067e01d74e36518349837ed24a520da8592cb5ec2065446953b63d"
+    },
+    "intern08": {
+      "n": 535,
+      "mean": 0.03994944516292032,
+      "diagnostics_sha256": "8d6cba9c02af8c2bf9f2ad84be0f95f92b034af495f5d6c4b6ba9a6eec92de9b"
+    },
+    "intern2": {
+      "n": 535,
+      "mean": 0.058487351297988356,
+      "diagnostics_sha256": "80d48a9bbf83dbb7534e813b2ec79082ed1864f6c3d3c38aad09f5c2f31591a1"
+    },
+    "strands": {
+      "n": 605,
+      "mean": 0.058029866014789065,
+      "diagnostics_sha256": "434bbe37a60b47a9179459cad6cab48a854419970af6c61e3f3722eb9ebdd5a4"
+    },
+    "semif": {
+      "n": 501,
+      "mean": 0.07499457835853866,
+      "diagnostics_sha256": "4df79df66ef2cd2e4319e99335b3b3cc428409762b7b71f996e4dd350ad4010d"
+    },
+    "nano": {
+      "n": 605,
+      "mean": 0.03898645864436522,
+      "diagnostics_sha256": "e479955fff9e21231f9674399c0227d5bba6ba6703dd1e17a66970792763efb9"
+    },
+    "quyet": {
+      "n": 461,
+      "mean": 0.0889860933385398,
+      "diagnostics_sha256": "76d4f9fe02e4b899bbb3ef76be96ab5830e8d9bb59dd9733a7a9c7b37ee3d7ae"
+    },
+    "decisio12": {
+      "n": 605,
+      "mean": 0.09622739584536977,
+      "diagnostics_sha256": "7f94ea1aebf80bfdf3825806b7e15f4aa8cc579333073ba6816fced403624f01"
+    },
+    "decisio31": {
+      "n": 605,
+      "mean": 0.10262822778037056,
+      "diagnostics_sha256": "012d99fa34a5abfddd867a8827350b80d5b8c688fdc073d32f4e3f85ae1b0201"
+    },
+    "decisioqwen": {
+      "n": 605,
+      "mean": 0.11955160617445479,
+      "diagnostics_sha256": "5e262f638f2a27595d6705a0299c84cdf23731a1858a0f3eb1f598d0bb290e68"
+    },
+    "decider": {
+      "n": 605,
+      "mean": 0.08349191740955682,
+      "diagnostics_sha256": "94f5abf8eba4f2aa1ae3172a1ce14682e3203454e870cc2c25b9566b2b8b0da4"
+    },
+    "jevk5": {
+      "n": 501,
+      "mean": 0.07997076969130915,
+      "diagnostics_sha256": "e9be608d9f5fcd42eec521a448833fc2e0abedbab8246d293555ffa464b97fe8"
+    },
+    "openjev": {
+      "n": 620,
+      "mean": 0.10847166860192492,
+      "diagnostics_sha256": "72a78636f203c31736dc06dc265f25944d035d91b6ee39e01346033e23590dad"
+    },
+    "autotrust": {
+      "n": 623,
+      "mean": 0.12683595787256555,
+      "diagnostics_sha256": "9dc2fb06242c537931b4e414ac83a170249916eac1f860016028e7b6cd73ebd4"
+    },
+    "liquid": {
+      "n": 604,
+      "mean": 0.12276022156717963,
+      "diagnostics_sha256": "2925879b093318cf24c8e8ef0d945ed3d9627992d1b1ebcff8af1f421b60f2d6"
+    },
+    "liquid-ultra": {
+      "n": 604,
+      "mean": 0.16243412207207172,
+      "diagnostics_sha256": "63a2ee3175f6f46aec809d56e5ceef927da07ecf8a815a5cc0c15f62b768a830"
+    },
+    "clef-omni": {
+      "n": 601,
+      "mean": 0.08272188539808442,
+      "diagnostics_sha256": "56bfd6ba93fdce44b2533f933281b241714bc4ccdf56d00f82412bb6d21bd06e"
+    },
+    "clef-flash": {
+      "n": 601,
+      "mean": 0.08425164794163643,
+      "diagnostics_sha256": "db50e8803a4e7d22173ac40c9c5cd02b2821d89b31ddf26457f68d6f80b41032"
+    },
+    "pplx-flash12": {
+      "n": 600,
+      "mean": 0.096487519504793,
+      "diagnostics_sha256": "eb2bc540c799235a10dbc0b5f5f6fe7e462227669d30e84e4cbab69d5dab8262"
+    },
+    "pplx12": {
+      "n": 602,
+      "mean": 0.19071505209592343,
+      "diagnostics_sha256": "ccdb704823f939fac9e5a1a4707d46fcbe851f418a9b950dc9193fac019aadb8"
+    },
+    "random": {
+      "n": 633,
+      "mean": 0.0,
+      "diagnostics_sha256": "6ee6c93601391729ebb9471f2cea13a7253fb3f0d38dd5d91ae403ee2844b30d"
+    },
+    "wemm": {
+      "n": 605,
+      "mean": 0.1945929407965775,
+      "diagnostics_sha256": "6608c7fe5d82d239f8b248a079200120f9beaf689ceb486921c9f8c03dd4d3d9"
+    },
+    "knowline": {
+      "n": 605,
+      "mean": 0.17768447523829844,
+      "diagnostics_sha256": "a924cb915aa51f7962960d2b803e69d500090e3dae7605737b5eacac92053fb6"
+    },
+    "gemini-decision-1": {
+      "n": 605,
+      "mean": 0.12031564255104481,
+      "diagnostics_sha256": "69f810f0a434a3f3ad21c10768d06f12b3fe3868660c5eda76a2a9bf725f2cb5"
+    },
+    "gpt6-luna": {
+      "n": 596,
+      "mean": 0.08864109912035727,
+      "diagnostics_sha256": "c84fb447a3c56bde3e50c4fb14d68c06b5e12b307ba3f9811d105d7668687435"
+    },
+    "microsoft-decision-1.1": {
+      "n": 601,
+      "mean": 0.1457689314554717,
+      "diagnostics_sha256": "1164f91a557c68162913f9e57ceed506815639d12920aa1587363c131377c591"
+    },
+    "d1.2-ultra": {
+      "n": 605,
+      "mean": 0.16224761117021794,
+      "diagnostics_sha256": "abc36ffec4f1d4d96d945736d354ac8246ce33adbc6ead5c0d09db1415494373"
+    },
+    "d1.2": {
+      "n": 605,
+      "mean": 0.12038195602910581,
+      "diagnostics_sha256": "9d393e9786b1051f82ba55ff357e14a258785c16a7b926413dfe76001828f7fe"
+    },
+    "heygen-decision-1-turbo": {
+      "n": 605,
+      "mean": 0.15713205471988367,
+      "diagnostics_sha256": "de505374b1ed35f15a37003d37379c4e3aa2978b6fd2f4f8d17806cfc3e5fc49"
+    },
+    "heygen-decision-1": {
+      "n": 605,
+      "mean": 0.1471167698720989,
+      "diagnostics_sha256": "7b16ca206cd495a0fb3cf4a6f50657c5691d2228f422b77156fbdf4b5c9bbde9"
+    },
+    "pplx-decider-flash-v1.3": {
+      "n": 605,
+      "mean": 0.10815698067339063,
+      "diagnostics_sha256": "c3d05b765789a652738b98107ee35ed8403ac95d494aac717d38890eacabc5fa"
+    },
+    "pplx-decider-v1.3": {
+      "n": 605,
+      "mean": 0.20820469381292708,
+      "diagnostics_sha256": "a917ab51e92990163c13f82fb458ece5495fff744e0d7c6a085543b6d410058d"
+    }
+  }
+}

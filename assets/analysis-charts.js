@@ -73,29 +73,29 @@ function renderSetDiagnostics() {
  const width=compact?600:1000,step=compact?72:46,first=compact?133:125;
  const bottom=first+Math.max(0,models.length-1)*step+32,height=bottom+67;
  const columns=compact?[[38,235,280],[330,525,575]]:[[270,520,590],[665,915,983]];
- let s=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="set-svg-title"><title id="set-svg-title">Hard Multi-select exact match and probability balance</title>`;
+ let s=`<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="set-svg-title"><title id="set-svg-title">Hard Multi-select accuracy and SB-F</title>`;
  columns.forEach(([l,r],i)=>{
-  s+=svgText((l+r)/2,40,[i?'Top-N balance':'Exact set match'],'text-anchor="middle" class="set-column-title"');
+  s+=svgText((l+r)/2,40,[i?'SB-F':'Multi-select accuracy'],'text-anchor="middle" class="set-column-title"');
   s+=svgText((l+r)/2,65,[i?'Valid native predictions':'All 633 tasks'],'text-anchor="middle" class="set-column-subtitle"');
-  for(let tick=0;tick<=4;tick++){const x=l+(r-l)*tick/4;s+=`<path d="M${x} 85V${bottom}" class="grid"/>`+svgText(x,bottom+26,[String(tick*25)],'text-anchor="middle" class="tick-label"');}
+  for(let tick=0;tick<=4;tick++){const x=l+(r-l)*tick/4;s+=`<path d="M${x} 85V${bottom}" class="grid"/>`+svgText(x,bottom+26,[i?(tick/4).toFixed(2):String(tick*25)],'text-anchor="middle" class="tick-label"');}
  });
  models.forEach((m,i)=>{
   const y=first+i*step,ds=m.set_diagnostics;
   s+=svgText(compact?38:248,compact?y-20:y+5,[m.name],`text-anchor="${compact?'start':'end'}" class="set-model-name"`);
-  [ds.exact.accuracy_all,ds.native_balance.mean].forEach((value,j)=>{
-   const [l,r,labelX]=columns[j],n=j?ds.native_balance.n:ds.exact.rows;
-   const label=`${m.name} · ${j?'Top-N balance (native)':'Exact set match (all tasks)'}: ${value==null?'not available':pct(value)} · n = ${num(n)}`;
+  [ds.exact.accuracy_all,ds.sbf.mean].forEach((value,j)=>{
+   const [l,r,labelX]=columns[j],n=j?ds.sbf.n:ds.exact.rows;
+   const label=`${m.name} · ${j?'SB-F (native)':'Multi-select accuracy (all tasks)'}: ${value==null?'not available':j?value.toFixed(4):pct(value)} · n = ${num(n)}`;
    s+=`<path d="M${l} ${y}H${r}" stroke="#e8e8e4" stroke-width="2"/>`;
-   if(value!=null)s+=`<circle data-motion="set-${m.id}-${j}" data-set-model="${esc(m.id)}" data-set-metric="${j?'balance':'exact'}" data-value="${value}" cx="${l+(r-l)*value}" cy="${y}" r="5.5" fill="${j?'#fff':m.color}" stroke="${m.color}" stroke-width="2.4" tabindex="0" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
-   s+=svgText(labelX,y+5,[value==null?'—':(value*100).toFixed(1)+'%'],'text-anchor="end" class="set-value"');
+   if(value!=null)s+=`<circle data-motion="set-${m.id}-${j}" data-set-model="${esc(m.id)}" data-set-metric="${j?'sbf':'exact'}" data-value="${value}" cx="${l+(r-l)*value}" cy="${y}" r="5.5" fill="${j?'#fff':m.color}" stroke="${m.color}" stroke-width="2.4" tabindex="0" data-readout="${esc(label)}" aria-label="${esc(label)}">${tip(label)}</circle>`;
+   s+=svgText(labelX,y+5,[value==null?'—':j?value.toFixed(4):(value*100).toFixed(1)+'%'],'text-anchor="end" class="set-value"');
   });
  });
  if(!models.length)s+=svgText(width/2,115,['Select a model to view Hard Multi-select results.'],'text-anchor="middle" class="axis-label"');
- s+=svgText(width/2,bottom+56,['Higher is better (%)'],'text-anchor="middle" class="axis-label"')+'</svg>';
+ s+=svgText(width/2,bottom+56,['Higher is better'],'text-anchor="middle" class="axis-label"')+'</svg>';
  drawChart('#calibration-chart',s,'hard-set-'+models.length);
  $('#calibration-legend').innerHTML='';
  $('#calibration-readout').textContent='Hover over or focus on a point to inspect its value and sample count.';
- $('#calibration-caption').textContent='Exact match measures whether the whole set is correct. Balance measures how evenly the selected options share probability. Read the two together: equal weighting alone does not imply a correct set.';
+ $('#calibration-caption').textContent='Multi-select accuracy measures how often the full correct set is recovered. SB-F (Separation–Balance F-score) measures how strongly and evenly the model supports correct options over distractors, on a scale from 0 to 1.';
 }
 function paretoModels() {
  return (state.paretoPool==='selected'?selectedModels():D.models).filter(m=>m.id!=='random'&&m.metrics[state.pareto]!=null);

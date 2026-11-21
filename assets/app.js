@@ -83,7 +83,7 @@ function renderFigures(){
 }
 function renderCalibration(){
  const isSet=state.calibration==='set';
- $('#calibration-title').textContent=isSet?'Hard Multi-select recovery':'Probability calibration';
+ $('#calibration-title').textContent=isSet?'Hard Multi-select Details':'Probability calibration';
  $('#calibration-description').textContent=isSet?'Can a model recover every correct option while giving each selected option appropriate weight?':state.calibration==='soft'?'Soft-label calibration compares the predicted probability of the chosen outcome with its reference probability. Curves near the diagonal indicate accurate probabilities.':'When a model assigns 80% confidence, how often is its choice correct? Curves near the diagonal indicate well-calibrated probabilities.';
  $('#calibration-population-control').hidden=isSet;
  $('#calibration-method').hidden=isSet;$('#set-method').hidden=!isSet;
