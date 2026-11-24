@@ -27,10 +27,8 @@ function renderLeaderboard(){
  const visible=sorted.map((m,i)=>({...m,rank:m.id==='random'?'—':i+1}));
  $('#leaderboard-body').innerHTML=visible.length?visible.map(m=>{
   const values=['single','set','soft'].map(k=>{
-   const metric=modelMetric(m),v=displayMetric(m,k),n=metric?.[k+'_n'];
-   const partial=m.coverage && k!=='soft' && n<counts[k];
-   const hint=partial?`Accuracy over ${num(n)} of ${num(counts[k])} items; remaining items deferred by API quota`:v==null?'Not applicable or no recorded result':k==='soft'?`Brier over ${num(n)} valid full-distribution outputs`:`Accuracy over all ${num(n)} ${LABELS[k]} items`;
-   return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}" title="${hint}">${fmt(v,k)}</td>`;
+   const v=displayMetric(m,k);
+   return `<td data-metric="${k}" data-value="${v??''}" class="${v==null?'metric-dash':v===best[k]&&m.id!=='random'?'best':''}">${fmt(v,k)}</td>`;
   }).join('');
   const name=m.url?`<a class="model-link" href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.name)}</a>`:`<span class="model-name">${esc(m.name)}</span>`;
   return `<tr data-model="${esc(m.id)}" class="${m.id==='random'?'baseline-row':''}"><td>${m.rank}</td><td>${name}${modelBadges(m)}</td>${values}</tr>`;

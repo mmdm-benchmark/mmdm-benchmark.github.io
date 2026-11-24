@@ -111,7 +111,7 @@ def merge_supplements(data, root, policy):
         provenance['display_policy_sha256'] = sha(root / 'config/model-display.json')
         provenance['model_metadata_checked_at'] = policy['checked_at']
         data['snapshot_date'] = stamp.strftime('%B %d, %Y')
-        data['snapshot_time'] = stamp.strftime('%Y-%m-%d %H:%M CST')
+        data['snapshot_time'] = stamp.strftime('%Y-%m-%d %H:%M HKT')
     return data
 
 

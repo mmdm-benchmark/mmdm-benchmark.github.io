@@ -139,7 +139,7 @@ def main():
  options=Counter(len(r['options']) for r in rows);assert {str(k):v for k,v in options.items()}==summary['distribution']['option_counts']
  examples=select_examples(rows,categories)
  source_stamp=datetime.fromtimestamp(comp['updated'],ZoneInfo('Asia/Shanghai'))
- stamp=max(source_stamp,datetime.fromisoformat(policy.get('results_updated_at',source_stamp.isoformat()))).astimezone(ZoneInfo('Asia/Shanghai'))
+ stamp=max(source_stamp,datetime.fromisoformat(policy.get('results_updated_at',source_stamp.isoformat()))).astimezone(ZoneInfo('Asia/Hong_Kong'))
  provenance={'version':'mmdm-v2','dataset_sha256':comp['dataset_sha256'],'snapshot_at':stamp.isoformat(),'source_snapshot_at':source_stamp.isoformat(),'sources':{str(p.relative_to(src)):hashlib.sha256(raw[k]).hexdigest() for k,p in files.items()},'metrics':{'hard':'accuracy_all; failed requests count as incorrect','hard_set':'Top-N exact set match, N = gold set size','soft':'per-model native valid full-distribution Brier; no hard Brier or soft accuracy'},'representative_models':policy['representative_models'],'model_metadata_checked_at':policy['checked_at'],'display_policy_sha256':sha(policy_path),'examples':'Three unmodified examples per category from the current 5,448-row release, with complementary sources, subcategories, and label types. No historical model response is attached.'}
  provenance['inference_policy']=policy['inference_policy']
  # Preserve the source report's fixed cohorts. Plot selection never recomputes them.
@@ -159,7 +159,7 @@ def main():
  assert all(key in visible for key in policy['representative_models'])
  data={'version':'mmdm-v2','total':total,'single':counts['hard_single'],'set':counts['hard_set'],'soft':counts['soft'],'score':comp['score'],'score_single':sum(c['single'] for c in categories if c['id']=='score_rubric'),'score_soft':sum(c['soft'] for c in categories if c['id']=='score_rubric'),
   'sources':len(summary['distribution']['sources']),'subcategories':len({(r['category'],r['task_subcategory']) for r in rows}),'parents':validation['independent_parents'],
-  'snapshot_date':stamp.strftime('%B %d, %Y'),'snapshot_time':stamp.strftime('%Y-%m-%d %H:%M CST'),'dataset_sha256':comp['dataset_sha256'],
+  'snapshot_date':stamp.strftime('%B %d, %Y'),'snapshot_time':stamp.strftime('%Y-%m-%d %H:%M HKT'),'dataset_sha256':comp['dataset_sha256'],
   'categories':categories,'models':models,'pending':pending,'calibration':calibration,'length_profile':summary['length_profile'],'option_counts':[{'options':k,'total':options[k]} for k in sorted(options)],'examples':examples,'provenance':provenance}
  merge_supplements(data,out,policy)
  provenance=data['provenance']
